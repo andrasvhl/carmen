@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carmen — your own AI chief of staff</title>
+<meta name="description" content="A kit that sets up your own personal AI system on Obsidian and Claude Code. Files you own, a server you control. Free to download.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bk: #0a0a0a; --wh: #fff; --g1: #f4f4f4; --g2: #e5e5e5; --g3: #8a8a8a; --g4: #555; --sans: "Geist", "Helvetica Neue", Arial, sans-serif; --mono: "Geist Mono", ui-monospace, monospace; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--wh); color: var(--bk); font: 400 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+  .mono { font-family: var(--mono); font-size: 12px; letter-spacing: .02em; text-transform: uppercase; }
+
+  nav { display: flex; justify-content: space-between; align-items: center; height: 64px; border-bottom: 1px solid var(--bk); position: sticky; top: 0; background: var(--wh); z-index: 10; }
+  .logo { font-weight: 600; font-size: 17px; letter-spacing: -.02em; }
+  nav ul { display: flex; gap: 32px; list-style: none; }
+  nav ul a { color: var(--g4); } nav ul a:hover { color: var(--bk); }
+  nav .dl { border: 1px solid var(--bk); padding: 8px 14px; }
+  nav .dl:hover { background: var(--bk); color: var(--wh); }
+
+  .hero { padding: 120px 0 0; }
+  h1 { font: 500 clamp(48px, 8.4vw, 116px)/.95 var(--sans); letter-spacing: -.055em; max-width: 11ch; }
+  .hero-row { margin-top: 64px; padding: 28px 0 120px; border-top: 1px solid var(--bk); display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+  .hero-row p { grid-column: 1 / 6; font-size: 19px; line-height: 1.5; letter-spacing: -.01em; }
+  .hero-row .act { grid-column: 8 / 13; display: flex; flex-direction: column; gap: 10px; }
+  .btn { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border: 1px solid var(--bk); font-weight: 500; transition: background .15s, color .15s; }
+  .btn:hover, .btn.solid { background: var(--bk); color: var(--wh); }
+  .btn.solid:hover { background: var(--wh); color: var(--bk); }
+  .meta { color: var(--g3); margin-top: 6px; }
+
+  section { border-top: 1px solid var(--bk); padding: 28px 0 120px; }
+  .head { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; margin-bottom: 72px; }
+  .head .mono { grid-column: 1 / 4; padding-top: 10px; }
+  .head h2 { grid-column: 4 / 12; font: 500 clamp(32px, 4.2vw, 56px)/1.02 var(--sans); letter-spacing: -.04em; }
+  .head p { grid-column: 4 / 10; margin-top: 20px; color: var(--g4); font-size: 17px; }
+  .head > div { grid-column: 4 / 13; }
+
+  .rows > div { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 26px 0; border-top: 1px solid var(--g2); }
+  .rows > div:last-child { border-bottom: 1px solid var(--g2); }
+  .rows .mono { grid-column: 1 / 4; color: var(--g3); padding-top: 4px; }
+  .rows h3 { grid-column: 4 / 8; font-weight: 500; font-size: 21px; letter-spacing: -.02em; line-height: 1.25; }
+  .rows p { grid-column: 8 / 13; color: var(--g4); }
+
+  .ints { display: grid; grid-template-columns: repeat(4, 1fr); border-left: 1px solid var(--g2); border-top: 1px solid var(--g2); }
+  .ints div { border-right: 1px solid var(--g2); border-bottom: 1px solid var(--g2); padding: 22px 22px 40px; min-height: 150px; }
+  .ints .mono { color: var(--g3); }
+  .ints p { margin-top: 14px; font-size: 17px; letter-spacing: -.01em; }
+
+  .feat { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 48px 0; border-top: 1px solid var(--g2); align-items: start; }
+  .feat h3 { font-weight: 500; font-size: 26px; letter-spacing: -.03em; line-height: 1.15; }
+  .feat .txt p { margin-top: 14px; color: var(--g4); }
+  .feat .mono.n { grid-column: 1 / 4; color: var(--g3); padding-top: 8px; }
+
+  .steps { counter-reset: s; }
+  .steps li { list-style: none; counter-increment: s; display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 30px 0; border-top: 1px solid var(--g2); }
+  .steps li::before { content: "0" counter(s); grid-column: 1 / 4; font: 500 clamp(36px, 4vw, 52px)/1 var(--sans); letter-spacing: -.04em; }
+  .steps li div { grid-column: 4 / 11; font-size: 19px; letter-spacing: -.01em; }
+  .steps li div span { display: block; color: var(--g4); font-size: 16px; margin-top: 6px; }
+  code, .cmd { font-family: var(--mono); font-size: 14px; }
+  code { background: var(--g1); padding: 2px 6px; }
+  .cmd { display: inline-block; margin-top: 14px; background: var(--bk); color: var(--wh); padding: 14px 20px; font-size: 15px; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 56px; }
+  .stats strong { display: block; font: 500 clamp(44px, 6vw, 84px)/1 var(--sans); letter-spacing: -.055em; }
+  .stats p { margin-top: 12px; color: var(--g4); max-width: 22ch; }
+  .tbl > div { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 14px 0; border-top: 1px solid var(--g2); }
+  .tbl > div:last-child { border-bottom: 1px solid var(--g2); }
+  .tbl span:first-child { grid-column: 4 / 11; } .tbl span:last-child { grid-column: 11 / 13; text-align: right; font-family: var(--mono); font-size: 14px; }
+  .fine { margin-top: 16px; color: var(--g3); }
+
+  .notice { margin-top: 56px; background: var(--bk); color: var(--wh); padding: 32px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+  .notice .mono { grid-column: 1 / 4; color: #aaa; }
+  .notice p { grid-column: 4 / 12; color: #ddd; }
+
+  .log > div { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 22px 0; border-top: 1px solid var(--g2); }
+  .log time { grid-column: 1 / 4; font: 13px var(--mono); color: var(--g3); padding-top: 3px; }
+  .log h3 { grid-column: 4 / 8; font-weight: 500; font-size: 18px; letter-spacing: -.015em; }
+  .log h3 small { font: 500 11px var(--mono); border: 1px solid var(--bk); padding: 2px 6px; margin-left: 8px; vertical-align: 3px; }
+  .log p { grid-column: 8 / 13; color: var(--g4); }
+
+  .end { background: var(--bk); color: var(--wh); }
+  .end .wrap { padding-top: 120px; padding-bottom: 40px; }
+  .end h2 { font: 500 clamp(48px, 8.4vw, 116px)/.95 var(--sans); letter-spacing: -.055em; }
+  .end .btn { border-color: var(--wh); margin-top: 56px; max-width: 420px; }
+  .end .btn:hover { background: var(--wh); color: var(--bk); }
+  .end footer a.me { text-decoration: underline; text-underline-offset: 3px; }
+  .end footer a.me:hover { color: var(--wh); }
+  .end footer { margin-top: 120px; padding-top: 20px; border-top: 1px solid #333; display: flex; justify-content: space-between; color: #888; }
+
+  /* illustrations */
+  .ill { display: block; width: 100%; height: auto; overflow: visible; }
+  .ill text { font: 500 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; fill: var(--bk); }
+  .ill text.tx { font: 400 11.5px var(--sans); letter-spacing: 0; text-transform: none; }
+  .ill text.big { font: 500 22px var(--sans); letter-spacing: -.02em; text-transform: none; }
+  .ill text.num { font: 500 44px var(--sans); letter-spacing: -.05em; }
+  .ill text.num-s { font: 500 15px var(--sans); letter-spacing: -.02em; }
+  .ill text.mg { font: 600 12px var(--sans); letter-spacing: -.01em; text-transform: none; }
+  .ill text.ctr { font-weight: 600; }
+  .ill text.inv { fill: var(--wh); }
+  .ill .s { fill: none; stroke: var(--bk); stroke-width: 1.5; }
+  .ill .s.l { stroke: #b5b5b5; stroke-width: 1; }
+  .ill .s.thick { stroke-width: 4; stroke-linecap: square; }
+  .ill .inv-s { fill: none; stroke: var(--wh); stroke-width: 1.6; }
+  .ill .d { stroke-dasharray: 3 4; }
+  .ill .f { fill: var(--bk); }
+  .ill .g { fill: var(--g2); }
+  .ill .gb { fill: #a3a3a3; }
+  .ill .w { fill: var(--wh); stroke: var(--bk); stroke-width: 1.5; }
+  .ill .hatch { fill: url(#hatch); stroke: var(--bk); stroke-width: 1.2; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); border-left: 1px solid var(--g2); border-top: 1px solid var(--g2); }
+  .cards article { border-right: 1px solid var(--g2); border-bottom: 1px solid var(--g2); padding: 0 0 32px; }
+  .cards .art { background: var(--g1); border-bottom: 1px solid var(--g2); padding: 28px 32px; }
+  .cards .mono { display: block; color: var(--g3); margin: 22px 24px 0; }
+  .cards h3 { margin: 10px 24px 0; font-weight: 500; font-size: 21px; letter-spacing: -.02em; line-height: 1.25; }
+  .cards p { margin: 10px 24px 0; color: var(--g4); }
+
+  .hubwrap { background: var(--g1); border: 1px solid var(--g2); border-bottom: 0; padding: 48px 40px; }
+  .hub-m { display: none; }
+
+  .feat .txt { grid-column: 4 / 7; }
+  .feat .vis { grid-column: 7 / 13; border: 0; background: var(--g1); padding: 36px 40px; }
+
+  @media (max-width: 860px) {
+    .wrap { padding: 0 20px; }
+    nav ul li:not(:last-child) { display: none; }
+    .hero { padding-top: 64px; }
+    .hero-row, .head, .rows > div, .feat, .steps li, .tbl > div, .notice, .log > div { grid-template-columns: 1fr; gap: 10px; }
+    .hero-row > *, .head > *, .rows > div > *, .feat > *, .steps li > *, .steps li::before, .tbl span, .notice > *, .log > div > * { grid-column: 1 / -1 !important; }
+    .tbl span:last-child { text-align: left; }
+    .hero-row { padding-bottom: 80px; gap: 32px; }
+    section { padding-bottom: 80px; }
+    .head { margin-bottom: 40px; }
+    .ints { grid-template-columns: 1fr 1fr; }
+    .cards { grid-template-columns: 1fr; }
+    .hubwrap { padding: 24px 12px; }
+    .hub-d { display: none; } .hub-m { display: block; }
+    .feat .vis { padding: 24px 16px; }
+    .stats { grid-template-columns: 1fr; gap: 32px; }
+    .end footer { flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#fff"/><line x1="0" y1="0" x2="0" y2="5" stroke="#0a0a0a" stroke-width="1.4"/></pattern></defs></svg>
+
+<div class="wrap">
+  <nav>
+    <a class="logo" href="#">Carmen</a>
+    <ul>
+      <li><a href="#why">Why</a></li>
+      <li><a href="#start">Setup</a></li>
+      <li><a href="#cost">Cost</a></li>
+      <li><a href="#updates">Updates</a></li>
+      <li><a class="dl" href="carmen-latest.zip">Download</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <h1>Your own AI chief of staff.</h1>
+    <div class="hero-row">
+      <p>A kit that sets up a personal AI system on your notes, tasks and plans, with Claude working on them around the clock. Built on files you own, running on a server you control. Claude does the setup; you approve each step.</p>
+      <div class="act">
+        <a class="btn solid" href="carmen-latest.zip">Download the kit <span>&darr;</span></a>
+        <a class="btn" href="start-here.pdf">Read Start Here <span>&rarr;</span></a>
+        <span class="mono meta">v1.1 &middot; Oct 30, 2026 &middot; updates automatically</span>
+      </div>
+    </div>
+  </header>
+
+  <section id="why">
+    <div class="head"><span class="mono">01 / Why</span><h2>Built on files you own, running on a server you control.</h2></div>
+    <div class="cards">
+      <article><div class="art"><svg class="ill" viewBox="0 0 320 190" role="img" aria-hidden="true">
+<rect class="w" x="70" y="22" width="78" height="148" rx="13"/><line class="s" x1="98" y1="34" x2="120" y2="34"/>
+<rect class="g" x="80" y="50" width="52" height="18" rx="9"/><rect class="f" x="94" y="74" width="44" height="18" rx="9"/>
+<rect class="f" x="80" y="132" width="27" height="16"/><rect class="w" x="111" y="132" width="27" height="16"/>
+<path class="s d" d="M158 96 H206"/><path class="s" d="M200 90 L207 96 L200 102"/>
+<rect class="w" x="214" y="56" width="84" height="80"/><text x="224" y="74">Vault</text>
+<rect class="s" x="224" y="86" width="24" height="17"/><path class="s" d="M224 86 L236 96 L248 86"/>
+<rect class="s" x="258" y="84" width="17" height="21"/><line class="s" x1="262" y1="92" x2="271" y2="92"/><line class="s" x1="262" y1="98" x2="271" y2="98"/>
+<line class="s" x1="224" y1="118" x2="288" y2="118"/><line class="s l" x1="224" y1="126" x2="268" y2="126"/></svg></div><span class="mono">Phone</span><h3>Claude Code in your pocket</h3><p>Chat with your own Claude over Telegram, wherever you are. It reaches your vault, mail and WhatsApp, and asks before acting with an Allow / Deny button.</p></article>
+      <article><div class="art"><svg class="ill" viewBox="0 0 320 190" role="img" aria-hidden="true">
+<path class="w" d="M128 46 H178 L196 64 V146 H128 Z"/><path class="s" d="M178 46 V64 H196"/>
+<text class="big" x="140" y="108">.md</text>
+<line class="s" x1="98" y1="70" x2="128" y2="80"/><circle class="f" cx="84" cy="64" r="17"/><text class="inv" x="76" y="68">AI</text>
+<line class="s d" x1="98" y1="130" x2="128" y2="122"/><circle class="w d" cx="84" cy="136" r="17"/><text x="76" y="140">AI</text>
+<line class="s d" x1="196" y1="100" x2="222" y2="100"/><circle class="w d" cx="240" cy="100" r="17"/><text x="232" y="104">AI</text></svg></div><span class="mono">Ownership</span><h3>Not locked to any AI</h3><p>Everything you know lives in plain Markdown files that you own. If a better model comes along, point it at the same folder. Nothing needs exporting.</p></article>
+      <article><div class="art"><svg class="ill" viewBox="0 0 320 190" role="img" aria-hidden="true">
+<rect class="w" x="44" y="38" width="140" height="92"/><path class="w" d="M28 140 L44 130 H184 L200 140 Z"/>
+<rect class="w" x="66" y="58" width="30" height="38"/><rect class="w" x="74" y="66" width="30" height="38"/><rect class="w" x="82" y="74" width="30" height="38"/>
+<line class="s" x1="89" y1="86" x2="105" y2="86"/><line class="s" x1="89" y1="94" x2="101" y2="94"/>
+<path class="f" d="M146 52 L126 92 H142 L134 120 L160 78 H144 Z"/>
+<text class="num" x="214" y="98">12</text><text x="214" y="118">ms / 4,812 notes</text></svg></div><span class="mono">Speed</span><h3>Fast, because it is all local</h3><p>Your notes are plain files on your laptop, so your agent searches thousands of them in milliseconds. No database or app in the way, which makes it much faster and more capable.</p></article>
+      <article><div class="art"><svg class="ill" viewBox="0 0 320 190" role="img" aria-hidden="true"><text x="12" y="56">Your words in, your week out</text><rect class="w" x="4" y="70" width="50" height="24"/><text class="" x="29.0" y="86" text-anchor="middle">Dump</text><line class="s" x1="54" y1="82" x2="62" y2="82"/><rect class="w" x="62" y="70" width="64" height="24"/><text class="" x="94.0" y="86" text-anchor="middle">Commit</text><line class="s" x1="126" y1="82" x2="134" y2="82"/><rect class="w" x="134" y="70" width="90" height="24"/><text class="" x="179.0" y="86" text-anchor="middle">Prioritise</text><line class="s" x1="224" y1="82" x2="232" y2="82"/><rect class="f" x="232" y="70" width="80" height="24"/><text class="inv" x="272.0" y="86" text-anchor="middle">Schedule</text><rect class="f" x="96" y="118" width="11" height="11"/><path class="inv-s" d="M98 124 L101 127 L105 121"/><line class="s l" x1="116" y1="124" x2="236" y2="124"/><rect class="w" x="96" y="136" width="11" height="11"/><line class="s" x1="116" y1="142" x2="212" y2="142"/><rect class="w" x="96" y="154" width="11" height="11"/><line class="s" x1="116" y1="160" x2="256" y2="160"/></svg></div><span class="mono">Tasks</span><h3>Task management built in</h3><p>Tasks, priorities and schedules live in your vault. Talk through what is on your mind, and Claude turns it into tasks, helps you prioritise and fits them into your week.</p></article>
+      <article><div class="art"><svg class="ill" viewBox="0 0 320 190" role="img" aria-hidden="true">
+<rect class="w" x="44" y="30" width="58" height="124" rx="11"/><rect class="f" x="39" y="62" width="5" height="18"/>
+<path class="s d" d="M39 71 C 10 71, 20 14, 120 20 S 210 40, 214 62"/>
+<rect class="w" x="128" y="128" width="64" height="28" rx="4"/><text x="160" y="146" text-anchor="middle">⌘ ⇧ K</text>
+<path class="s d" d="M192 142 C 214 142, 222 126, 226 112"/>
+<path class="w" d="M196 64 H296 V112 H196 Z"/><path class="s" d="M196 92 H222 L230 102 H262 L270 92 H296"/><text x="216" y="82">Inbox</text>
+<path class="f" d="M252 128 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z"/></svg></div><span class="mono">Capture</span><h3>One button to capture</h3><p>The iPhone Action Button or a Mac hotkey drops an idea, note or task into your Inbox in two seconds. Send it to your Telegram bot instead, and Claude starts on it straight away.</p></article>
+      <article><div class="art"><svg class="ill" viewBox="0 0 320 190" role="img" aria-hidden="true">
+<path class="f" d="M74 34 A30 30 0 1 0 108 76 A24 24 0 1 1 74 34 Z"/>
+<text x="118" y="56">z</text><text x="128" y="44">z</text>
+<rect class="w" x="30" y="114" width="112" height="18"/><rect class="w" x="30" y="136" width="112" height="18"/>
+<circle class="f" cx="42" cy="123" r="2.5"/><circle class="f" cx="42" cy="145" r="2.5"/><line class="s" x1="100" y1="123" x2="132" y2="123"/><line class="s" x1="100" y1="145" x2="132" y2="145"/>
+<path class="s d" d="M142 123 C 160 123, 156 62, 176 51"/><rect class="f" x="176" y="40" width="122" height="22"/><text class="inv" x="186" y="55">Sort mail</text><rect class="f" x="176" y="68" width="122" height="22"/><text class="inv" x="186" y="83">Write briefing</text><rect class="f" x="176" y="96" width="122" height="22"/><text class="inv" x="186" y="111">Work on tasks</text><rect class="w" x="176" y="124" width="122" height="22"/><text class="" x="186" y="139">Backup  ✓</text></svg></div><span class="mono">Server</span><h3>Works overnight, laptop off</h3><p>The server keeps going when you sleep: backups, health checks and tidy-ups out of the box. Add your own jobs with Claude, such as sorting mail, a morning briefing or background work on tasks.</p></article>
+    </div>
+  </section>
+
+  <section id="connects">
+    <div class="head"><span class="mono">02 / Integrations</span><div><h2>Connects to basically everything.</h2><p>Out of the box it works with the services below. Anything else with an API or MCP connector, Claude can add for you.</p></div></div>
+    <div class="hubwrap"><svg class="ill hub hub-d" viewBox="0 0 1000 470" role="img" aria-hidden="true"><line class="s l" x1="500.0" y1="235.0" x2="500.0" y2="55.0"/><line class="s l" x1="500.0" y1="235.0" x2="648.1" y2="67.2"/><line class="s l" x1="500.0" y1="235.0" x2="776.2" y2="102.0"/><line class="s l" x1="500.0" y1="235.0" x2="867.0" y2="154.8"/><line class="s l" x1="500.0" y1="235.0" x2="908.3" y2="218.4"/><line class="s l" x1="500.0" y1="235.0" x2="894.3" y2="284.3"/><line class="s l" x1="500.0" y1="235.0" x2="827.2" y2="343.5"/><line class="s l" x1="500.0" y1="235.0" x2="715.8" y2="388.0"/><line class="s l" x1="500.0" y1="235.0" x2="575.3" y2="411.9"/><line class="s l" x1="500.0" y1="235.0" x2="424.7" y2="411.9"/><line class="s l" x1="500.0" y1="235.0" x2="284.2" y2="388.0"/><line class="s l" x1="500.0" y1="235.0" x2="172.8" y2="343.5"/><line class="s l" x1="500.0" y1="235.0" x2="105.7" y2="284.3"/><line class="s l" x1="500.0" y1="235.0" x2="91.7" y2="218.4"/><line class="s l" x1="500.0" y1="235.0" x2="133.0" y2="154.8"/><line class="s l" x1="500.0" y1="235.0" x2="223.8" y2="102.0"/><line class="s l" x1="500.0" y1="235.0" x2="351.9" y2="67.2"/><circle class="f" cx="500.0" cy="235.0" r="70"/><text class="inv ctr" x="500.0" y="233.0" text-anchor="middle">Your Claude</text><text class="inv" x="500.0" y="251.0" text-anchor="middle">+ your vault</text><circle class="w" cx="500.0" cy="55.0" r="24"/><path class="f" transform="translate(488.6 43.6) scale(0.950)" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/><text x="500.0" y="24.0" text-anchor="middle">WhatsApp</text><circle class="w" cx="648.1" cy="67.2" r="24"/><path class="f" transform="translate(636.7 55.8) scale(0.950)" d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/><text x="648.1" y="36.2" text-anchor="middle">Telegram</text><circle class="w" cx="776.2" cy="102.0" r="24"/><path class="f" transform="translate(764.8 90.6) scale(0.950)" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><text x="776.2" y="71.0" text-anchor="middle">Gmail</text><circle class="w" cx="867.0" cy="154.8" r="24"/><path class="f" transform="translate(855.6 143.4) scale(0.950)" d="M18.316 5.684H24v12.632h-5.684V5.684zM5.684 24h12.632v-5.684H5.684V24zM18.316 5.684V0H1.895A1.894 1.894 0 0 0 0 1.895v16.421h5.684V5.684h12.632zm-7.207 6.25v-.065c.272-.144.5-.349.687-.617s.279-.595.279-.982c0-.379-.099-.72-.3-1.025a2.05 2.05 0 0 0-.832-.714 2.703 2.703 0 0 0-1.197-.257c-.6 0-1.094.156-1.481.467-.386.311-.65.671-.793 1.078l1.085.452c.086-.249.224-.461.413-.633.189-.172.445-.257.767-.257.33 0 .602.088.816.264a.86.86 0 0 1 .322.703c0 .33-.12.589-.36.778-.24.19-.535.284-.886.284h-.567v1.085h.633c.407 0 .748.109 1.02.327.272.218.407.499.407.843 0 .336-.129.614-.387.832s-.565.327-.924.327c-.351 0-.651-.103-.897-.311-.248-.208-.422-.502-.521-.881l-1.096.452c.178.616.505 1.082.977 1.401.472.319.984.478 1.538.477a2.84 2.84 0 0 0 1.293-.291c.382-.193.684-.458.902-.794.218-.336.327-.72.327-1.149 0-.429-.115-.797-.344-1.105a2.067 2.067 0 0 0-.881-.689zm2.093-1.931l.602.913L15 10.045v5.744h1.187V8.446h-.827l-2.158 1.557zM22.105 0h-3.289v5.184H24V1.895A1.894 1.894 0 0 0 22.105 0zm-3.289 23.5l4.684-4.684h-4.684V23.5zM0 22.105C0 23.152.848 24 1.895 24h3.289v-5.184H0v3.289z"/><text x="867.0" y="123.8" text-anchor="middle">Calendar</text><circle class="w" cx="908.3" cy="218.4" r="24"/><path class="f" transform="translate(896.9 207.0) scale(0.950)" d="M.4403 15.4142a13.7061 13.7061 0 0 1-.4362-3.4403 13.7 13.7 0 0 1 .4362-3.4401c1.7144.2103 3.0438 1.6686 3.0438 3.44 0 1.771-1.3287 3.23-3.0438 3.4404zm3.9728-3.4403c0 .6004.4866 1.0873 1.0872 1.0873.601 0 1.088-.487 1.088-1.0873s-.487-1.088-1.088-1.088c-.6006 0-1.0872.4876-1.0872 1.088zM23.56 8.5338c-1.7151.2103-3.044 1.6686-3.044 3.44 0 1.771 1.3289 3.23 3.044 3.4404a13.7313 13.7313 0 0 0 .436-3.4403c0-1.1883-.1518-2.3413-.436-3.4401zm-6.148 3.44c0 .6005.4865 1.0874 1.0877 1.0874.6002 0 1.088-.487 1.088-1.0873s-.4878-1.088-1.088-1.088c-.6012 0-1.0877.4876-1.0877 1.088zm-5.4347 8.5465c-1.7709 0-3.229 1.33-3.44 3.044a13.7364 13.7364 0 0 0 3.441.4357c1.1885 0 2.3403-.1515 3.44-.4357-.2107-1.714-1.6687-3.044-3.441-3.044zm.001-3.1046c-.6012 0-1.0878.4876-1.0878 1.0883s.4866 1.0882 1.0878 1.0882c.6 0 1.087-.4874 1.087-1.0882s-.487-1.0883-1.087-1.0883zm0-13.936c1.7713 0 3.2295-1.3292 3.4399-3.0438A13.7353 13.7353 0 0 0 11.9782 0c-1.1887 0-2.3412.1519-3.441.4359.211 1.7146 1.6691 3.0438 3.441 3.0438zm0 .9291c-.6012 0-1.0878.4866-1.0878 1.0876 0 .6002.4866 1.0876 1.0878 1.0876.6 0 1.087-.4874 1.087-1.0876 0-.601-.487-1.0876-1.087-1.0876zm6.032 13.5965c-1.2514 1.2523-1.344 3.2211-.2825 4.582a13.762 13.762 0 0 0 4.8636-4.8654c-1.3608-1.0597-3.3299-.9673-4.5812.2834zm-.6568-2.1948c-.425-.4245-1.1135-.4245-1.539 0-.4243.4252-.4243 1.1136 0 1.5383.4255.4253 1.114.4253 1.539 0 .424-.4247.424-1.1131 0-1.5383zM5.9648 5.9603c1.2516-1.2513 1.3437-3.2206.2825-4.5813a13.7677 13.7677 0 0 0-4.8644 4.8643c1.3612 1.0616 3.3306.9687 4.582-.283zm.6567.6572c-.424.4247-.424 1.1139 0 1.5383.4245.4246 1.114.4246 1.5382 0 .4248-.4244.4248-1.1136 0-1.5383-.4243-.4243-1.1137-.4243-1.5382 0zm15.9625-.3857a13.7597 13.7597 0 0 0-4.8637-4.8642c-1.0614 1.3609-.969 3.33.2823 4.5818 1.2517 1.2507 3.2204 1.3436 4.5814.2824zM17.346 8.1443c.4237-.4248.4237-1.1135 0-1.5383-.425-.4247-1.1145-.4247-1.5388 0-.4241.4248-.4241 1.1135 0 1.5383.4243.4243 1.1137.4243 1.5388 0zM1.3772 17.7087a13.763 13.763 0 0 0 4.8647 4.8654c1.0613-1.3608.9685-3.3297-.2833-4.5818-1.2512-1.251-3.2204-1.3436-4.5814-.2836zm5.2385-1.9115c-.4238.4247-.4238 1.1136 0 1.5384.425.4246 1.1141.4246 1.5382 0 .425-.4248.425-1.1137 0-1.5384-.4241-.4245-1.1131-.4245-1.5382 0z"/><text x="908.3" y="256.4" text-anchor="middle">Canvas</text><circle class="w" cx="894.3" cy="284.3" r="24"/><path class="f" transform="translate(882.9 272.9) scale(0.950)" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/><text x="894.3" y="322.3" text-anchor="middle">Strava</text><circle class="w" cx="827.2" cy="343.5" r="24"/><text class="mg" x="827.2" y="347.5" text-anchor="middle">W</text><text x="827.2" y="381.5" text-anchor="middle">WHOOP</text><circle class="w" cx="715.8" cy="388.0" r="24"/><path class="f" transform="translate(704.4 376.6) scale(0.950)" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/><text x="715.8" y="426.0" text-anchor="middle">LinkedIn</text><circle class="w" cx="575.3" cy="411.9" r="24"/><path class="f" transform="translate(563.9 400.5) scale(0.950)" d="M.001 11.639C.001 4.949 5.241 0 12.001 0S24 4.95 24 11.639c0 6.689-5.24 11.638-12 11.638-1.21 0-2.38-.16-3.47-.46a.96.96 0 00-.64.05l-2.39 1.05a.96.96 0 01-1.35-.85l-.07-2.14a.97.97 0 00-.32-.68A11.39 11.389 0 01.002 11.64zm8.32-2.19l-3.52 5.6c-.35.53.32 1.139.82.75l3.79-2.87c.26-.2.6-.2.87 0l2.8 2.1c.84.63 2.04.4 2.6-.48l3.52-5.6c.35-.53-.32-1.13-.82-.75l-3.79 2.87c-.25.2-.6.2-.86 0l-2.8-2.1a1.8 1.8 0 00-2.61.48z"/><text x="575.3" y="449.9" text-anchor="middle">Messenger</text><circle class="w" cx="424.7" cy="411.9" r="24"/><path class="f" transform="translate(413.3 400.5) scale(0.950)" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/><text x="424.7" y="449.9" text-anchor="middle">Instagram</text><circle class="w" cx="284.2" cy="388.0" r="24"/><path class="f" transform="translate(272.8 376.6) scale(0.950)" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/><text x="284.2" y="426.0" text-anchor="middle">Shortcuts</text><circle class="w" cx="172.8" cy="343.5" r="24"/><path class="f" transform="translate(161.4 332.1) scale(0.950)" d="M6.004 15.492v2.504L0 11.992l1.258-1.249Zm2.504 2.504H6.004L12.008 24l1.253-1.253zm14.24-4.747L24 11.997 12.003 0 10.75 1.251 15.491 6h-2.865L9.317 2.692 8.065 3.944l2.06 2.06H8.691v9.31H18v-1.432l2.06 2.06 1.252-1.252-3.312-3.32V8.506ZM6.63 5.372 5.38 6.625l1.342 1.343 1.251-1.253Zm10.655 10.655-1.247 1.251 1.342 1.343 1.253-1.251zM3.944 8.059 2.692 9.31l3.312 3.314v-2.506zm9.936 9.937h-2.504l3.314 3.312 1.25-1.252z"/><text x="172.8" y="381.5" text-anchor="middle">Raycast</text><circle class="w" cx="105.7" cy="284.3" r="24"/><path class="f" transform="translate(94.3 272.9) scale(0.950)" d="M19.355 18.538a68.967 68.959 0 0 0 1.858-2.954.81.81 0 0 0-.062-.9c-.516-.685-1.504-2.075-2.042-3.362-.553-1.321-.636-3.375-.64-4.377a1.707 1.707 0 0 0-.358-1.05l-3.198-4.064a3.744 3.744 0 0 1-.076.543c-.106.503-.307 1.004-.536 1.5-.134.29-.29.6-.446.914l-.31.626c-.516 1.068-.997 2.227-1.132 3.59-.124 1.26.046 2.73.815 4.481.128.011.257.025.386.044a6.363 6.363 0 0 1 3.326 1.505c.916.79 1.744 1.922 2.415 3.5zM8.199 22.569c.073.012.146.02.22.02.78.024 2.095.092 3.16.29.87.16 2.593.64 4.01 1.055 1.083.316 2.198-.548 2.355-1.664.114-.814.33-1.735.725-2.58l-.01.005c-.67-1.87-1.522-3.078-2.416-3.849a5.295 5.295 0 0 0-2.778-1.257c-1.54-.216-2.952.19-3.84.45.532 2.218.368 4.829-1.425 7.531zM5.533 9.938c-.023.1-.056.197-.098.29L2.82 16.059a1.602 1.602 0 0 0 .313 1.772l4.116 4.24c2.103-3.101 1.796-6.02.836-8.3-.728-1.73-1.832-3.081-2.55-3.831zM9.32 14.01c.615-.183 1.606-.465 2.745-.534-.683-1.725-.848-3.233-.716-4.577.154-1.552.7-2.847 1.235-3.95.113-.235.223-.454.328-.664.149-.297.288-.577.419-.86.217-.47.379-.885.46-1.27.08-.38.08-.72-.014-1.043-.095-.325-.297-.675-.68-1.06a1.6 1.6 0 0 0-1.475.36l-4.95 4.452a1.602 1.602 0 0 0-.513.952l-.427 2.83c.672.59 2.328 2.316 3.335 4.711.09.21.175.43.253.653z"/><text x="105.7" y="322.3" text-anchor="middle">Obsidian</text><circle class="w" cx="91.7" cy="218.4" r="24"/><path class="f" transform="translate(80.3 207.0) scale(0.950)" d="M0 0v24h24V0H0zm4.602 4.025h2.244c.509 0 .716.215.716.717v5.64h8.883v-5.64c0-.509.215-.717.717-.717h2.229c.5 0 .71.23.724.717v14.516c0 .509-.215.717-.717.717h-2.23c-.51 0-.717-.215-.717-.717v-5.735H7.562v5.735c0 .516-.215.717-.716.717H4.602c-.51 0-.717-.208-.717-.717V4.742c0-.509.207-.717.717-.717z"/><text x="91.7" y="256.4" text-anchor="middle">Hetzner</text><circle class="w" cx="133.0" cy="154.8" r="24"/><path class="f" transform="translate(121.6 143.4) scale(0.950)" d="M24 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-9 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm0-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6-6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3 24a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm18 .5a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm9-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-3 2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM3 5.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/><text x="133.0" y="123.8" text-anchor="middle">Tailscale</text><circle class="w" cx="223.8" cy="102.0" r="24"/><path class="f" transform="translate(212.4 90.6) scale(0.950)" d="M9.3108.0003c.6527 1.3502 1.5666 4.0812-1.3887 7.1738-1.8096 1.8796-3.078 3.8487-2.3496 6.0644.3642 1.1037 1.1864 2.5079 2.8867 2.7852.6107.1008 1.3425-.0006 1.7403-.1406 2.4538-.8544 2.098-3.4138 1.5546-5.0469-.07-.2129-.1915-.7333-.2363-.9238-.3726-1.6023.776-2.6562 1.129-3.8047.028-.0925.0534-.1819.0702-.2715.042-.21.067-.423.0781-.6387 0-1.8264-.9882-2.6303-1.7754-3.5996C10.1794.5643 9.3107.0003 9.3107.0003Zm6.2754 6.0175s-.709.3366-1.2188.8829c-.4454.4818-.8635.8789-1.2949 1.8593-.028.14-.0518.2863-.0742.4375-.2325 1.6416 1.1473 3.1446.7187 5.1895-.112.535-.3554.7123-.7812 1.6367-.5098 1.1065-.383 2.588.3594 3.5293.6723.8488 1.879 1.2321 3.0527.9492 2.1065-.5042 3.0646-2.2822 2.8965-4.2851-.1317-1.58-.8154-2.7536-2.754-4.961-.9607-1.0925-1.6072-2.409-1.5624-3.4062.1373-1.2074.6582-1.832.6582-1.832zM4.8928 15.1936c-.0222.0145-.0439.0614-.0586.1602a.0469.0469 0 0 1-.0059.0195v.01c-.1148.5406-.1649 1.823.1153 2.9687.353 1.4427 1.4175 3.902 4.412 5.129 2.5184 1.0336 5.718.5411 7.8497-1.627.5294-.5435.408-.4897-.4883-.2012v-.002c-1.1121.3558-3.5182.5463-4.7676-1-1.5239-1.8852-.4302-3.3633-1.3574-3.1504-3.6164.8348-5.2667-1.4657-5.5469-2.1016-.0023-.002-.0857-.2487-.1523-.205z"/><text x="223.8" y="71.0" text-anchor="middle">Backblaze</text><circle class="w" cx="351.9" cy="67.2" r="24"/><text class="mg" x="351.9" y="71.2" text-anchor="middle">P</text><text x="351.9" y="36.2" text-anchor="middle">Pushover</text></svg><svg class="ill hub hub-m" viewBox="0 0 400 530" role="img" aria-hidden="true"><rect class="f" x="80" y="0" width="240" height="56"/><text class="inv ctr" x="200" y="25" text-anchor="middle">Your Claude</text><text class="inv" x="200" y="42" text-anchor="middle">+ your vault</text><circle class="w" cx="50" cy="110" r="22"/><path class="f" transform="translate(39 99) scale(0.917)" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/><text x="50" y="150" text-anchor="middle">WhatsApp</text><circle class="w" cx="150" cy="110" r="22"/><path class="f" transform="translate(139 99) scale(0.917)" d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/><text x="150" y="150" text-anchor="middle">Telegram</text><circle class="w" cx="250" cy="110" r="22"/><path class="f" transform="translate(239 99) scale(0.917)" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/><text x="250" y="150" text-anchor="middle">Gmail</text><circle class="w" cx="350" cy="110" r="22"/><path class="f" transform="translate(339 99) scale(0.917)" d="M18.316 5.684H24v12.632h-5.684V5.684zM5.684 24h12.632v-5.684H5.684V24zM18.316 5.684V0H1.895A1.894 1.894 0 0 0 0 1.895v16.421h5.684V5.684h12.632zm-7.207 6.25v-.065c.272-.144.5-.349.687-.617s.279-.595.279-.982c0-.379-.099-.72-.3-1.025a2.05 2.05 0 0 0-.832-.714 2.703 2.703 0 0 0-1.197-.257c-.6 0-1.094.156-1.481.467-.386.311-.65.671-.793 1.078l1.085.452c.086-.249.224-.461.413-.633.189-.172.445-.257.767-.257.33 0 .602.088.816.264a.86.86 0 0 1 .322.703c0 .33-.12.589-.36.778-.24.19-.535.284-.886.284h-.567v1.085h.633c.407 0 .748.109 1.02.327.272.218.407.499.407.843 0 .336-.129.614-.387.832s-.565.327-.924.327c-.351 0-.651-.103-.897-.311-.248-.208-.422-.502-.521-.881l-1.096.452c.178.616.505 1.082.977 1.401.472.319.984.478 1.538.477a2.84 2.84 0 0 0 1.293-.291c.382-.193.684-.458.902-.794.218-.336.327-.72.327-1.149 0-.429-.115-.797-.344-1.105a2.067 2.067 0 0 0-.881-.689zm2.093-1.931l.602.913L15 10.045v5.744h1.187V8.446h-.827l-2.158 1.557zM22.105 0h-3.289v5.184H24V1.895A1.894 1.894 0 0 0 22.105 0zm-3.289 23.5l4.684-4.684h-4.684V23.5zM0 22.105C0 23.152.848 24 1.895 24h3.289v-5.184H0v3.289z"/><text x="350" y="150" text-anchor="middle">Calendar</text><circle class="w" cx="50" cy="198" r="22"/><path class="f" transform="translate(39 187) scale(0.917)" d="M.4403 15.4142a13.7061 13.7061 0 0 1-.4362-3.4403 13.7 13.7 0 0 1 .4362-3.4401c1.7144.2103 3.0438 1.6686 3.0438 3.44 0 1.771-1.3287 3.23-3.0438 3.4404zm3.9728-3.4403c0 .6004.4866 1.0873 1.0872 1.0873.601 0 1.088-.487 1.088-1.0873s-.487-1.088-1.088-1.088c-.6006 0-1.0872.4876-1.0872 1.088zM23.56 8.5338c-1.7151.2103-3.044 1.6686-3.044 3.44 0 1.771 1.3289 3.23 3.044 3.4404a13.7313 13.7313 0 0 0 .436-3.4403c0-1.1883-.1518-2.3413-.436-3.4401zm-6.148 3.44c0 .6005.4865 1.0874 1.0877 1.0874.6002 0 1.088-.487 1.088-1.0873s-.4878-1.088-1.088-1.088c-.6012 0-1.0877.4876-1.0877 1.088zm-5.4347 8.5465c-1.7709 0-3.229 1.33-3.44 3.044a13.7364 13.7364 0 0 0 3.441.4357c1.1885 0 2.3403-.1515 3.44-.4357-.2107-1.714-1.6687-3.044-3.441-3.044zm.001-3.1046c-.6012 0-1.0878.4876-1.0878 1.0883s.4866 1.0882 1.0878 1.0882c.6 0 1.087-.4874 1.087-1.0882s-.487-1.0883-1.087-1.0883zm0-13.936c1.7713 0 3.2295-1.3292 3.4399-3.0438A13.7353 13.7353 0 0 0 11.9782 0c-1.1887 0-2.3412.1519-3.441.4359.211 1.7146 1.6691 3.0438 3.441 3.0438zm0 .9291c-.6012 0-1.0878.4866-1.0878 1.0876 0 .6002.4866 1.0876 1.0878 1.0876.6 0 1.087-.4874 1.087-1.0876 0-.601-.487-1.0876-1.087-1.0876zm6.032 13.5965c-1.2514 1.2523-1.344 3.2211-.2825 4.582a13.762 13.762 0 0 0 4.8636-4.8654c-1.3608-1.0597-3.3299-.9673-4.5812.2834zm-.6568-2.1948c-.425-.4245-1.1135-.4245-1.539 0-.4243.4252-.4243 1.1136 0 1.5383.4255.4253 1.114.4253 1.539 0 .424-.4247.424-1.1131 0-1.5383zM5.9648 5.9603c1.2516-1.2513 1.3437-3.2206.2825-4.5813a13.7677 13.7677 0 0 0-4.8644 4.8643c1.3612 1.0616 3.3306.9687 4.582-.283zm.6567.6572c-.424.4247-.424 1.1139 0 1.5383.4245.4246 1.114.4246 1.5382 0 .4248-.4244.4248-1.1136 0-1.5383-.4243-.4243-1.1137-.4243-1.5382 0zm15.9625-.3857a13.7597 13.7597 0 0 0-4.8637-4.8642c-1.0614 1.3609-.969 3.33.2823 4.5818 1.2517 1.2507 3.2204 1.3436 4.5814.2824zM17.346 8.1443c.4237-.4248.4237-1.1135 0-1.5383-.425-.4247-1.1145-.4247-1.5388 0-.4241.4248-.4241 1.1135 0 1.5383.4243.4243 1.1137.4243 1.5388 0zM1.3772 17.7087a13.763 13.763 0 0 0 4.8647 4.8654c1.0613-1.3608.9685-3.3297-.2833-4.5818-1.2512-1.251-3.2204-1.3436-4.5814-.2836zm5.2385-1.9115c-.4238.4247-.4238 1.1136 0 1.5384.425.4246 1.1141.4246 1.5382 0 .425-.4248.425-1.1137 0-1.5384-.4241-.4245-1.1131-.4245-1.5382 0z"/><text x="50" y="238" text-anchor="middle">Canvas</text><circle class="w" cx="150" cy="198" r="22"/><path class="f" transform="translate(139 187) scale(0.917)" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/><text x="150" y="238" text-anchor="middle">Strava</text><circle class="w" cx="250" cy="198" r="22"/><text class="mg" x="250" y="202" text-anchor="middle">W</text><text x="250" y="238" text-anchor="middle">WHOOP</text><circle class="w" cx="350" cy="198" r="22"/><path class="f" transform="translate(339 187) scale(0.917)" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/><text x="350" y="238" text-anchor="middle">LinkedIn</text><circle class="w" cx="50" cy="286" r="22"/><path class="f" transform="translate(39 275) scale(0.917)" d="M.001 11.639C.001 4.949 5.241 0 12.001 0S24 4.95 24 11.639c0 6.689-5.24 11.638-12 11.638-1.21 0-2.38-.16-3.47-.46a.96.96 0 00-.64.05l-2.39 1.05a.96.96 0 01-1.35-.85l-.07-2.14a.97.97 0 00-.32-.68A11.39 11.389 0 01.002 11.64zm8.32-2.19l-3.52 5.6c-.35.53.32 1.139.82.75l3.79-2.87c.26-.2.6-.2.87 0l2.8 2.1c.84.63 2.04.4 2.6-.48l3.52-5.6c.35-.53-.32-1.13-.82-.75l-3.79 2.87c-.25.2-.6.2-.86 0l-2.8-2.1a1.8 1.8 0 00-2.61.48z"/><text x="50" y="326" text-anchor="middle">Messenger</text><circle class="w" cx="150" cy="286" r="22"/><path class="f" transform="translate(139 275) scale(0.917)" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/><text x="150" y="326" text-anchor="middle">Instagram</text><circle class="w" cx="250" cy="286" r="22"/><path class="f" transform="translate(239 275) scale(0.917)" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/><text x="250" y="326" text-anchor="middle">Shortcuts</text><circle class="w" cx="350" cy="286" r="22"/><path class="f" transform="translate(339 275) scale(0.917)" d="M6.004 15.492v2.504L0 11.992l1.258-1.249Zm2.504 2.504H6.004L12.008 24l1.253-1.253zm14.24-4.747L24 11.997 12.003 0 10.75 1.251 15.491 6h-2.865L9.317 2.692 8.065 3.944l2.06 2.06H8.691v9.31H18v-1.432l2.06 2.06 1.252-1.252-3.312-3.32V8.506ZM6.63 5.372 5.38 6.625l1.342 1.343 1.251-1.253Zm10.655 10.655-1.247 1.251 1.342 1.343 1.253-1.251zM3.944 8.059 2.692 9.31l3.312 3.314v-2.506zm9.936 9.937h-2.504l3.314 3.312 1.25-1.252z"/><text x="350" y="326" text-anchor="middle">Raycast</text><circle class="w" cx="50" cy="374" r="22"/><path class="f" transform="translate(39 363) scale(0.917)" d="M19.355 18.538a68.967 68.959 0 0 0 1.858-2.954.81.81 0 0 0-.062-.9c-.516-.685-1.504-2.075-2.042-3.362-.553-1.321-.636-3.375-.64-4.377a1.707 1.707 0 0 0-.358-1.05l-3.198-4.064a3.744 3.744 0 0 1-.076.543c-.106.503-.307 1.004-.536 1.5-.134.29-.29.6-.446.914l-.31.626c-.516 1.068-.997 2.227-1.132 3.59-.124 1.26.046 2.73.815 4.481.128.011.257.025.386.044a6.363 6.363 0 0 1 3.326 1.505c.916.79 1.744 1.922 2.415 3.5zM8.199 22.569c.073.012.146.02.22.02.78.024 2.095.092 3.16.29.87.16 2.593.64 4.01 1.055 1.083.316 2.198-.548 2.355-1.664.114-.814.33-1.735.725-2.58l-.01.005c-.67-1.87-1.522-3.078-2.416-3.849a5.295 5.295 0 0 0-2.778-1.257c-1.54-.216-2.952.19-3.84.45.532 2.218.368 4.829-1.425 7.531zM5.533 9.938c-.023.1-.056.197-.098.29L2.82 16.059a1.602 1.602 0 0 0 .313 1.772l4.116 4.24c2.103-3.101 1.796-6.02.836-8.3-.728-1.73-1.832-3.081-2.55-3.831zM9.32 14.01c.615-.183 1.606-.465 2.745-.534-.683-1.725-.848-3.233-.716-4.577.154-1.552.7-2.847 1.235-3.95.113-.235.223-.454.328-.664.149-.297.288-.577.419-.86.217-.47.379-.885.46-1.27.08-.38.08-.72-.014-1.043-.095-.325-.297-.675-.68-1.06a1.6 1.6 0 0 0-1.475.36l-4.95 4.452a1.602 1.602 0 0 0-.513.952l-.427 2.83c.672.59 2.328 2.316 3.335 4.711.09.21.175.43.253.653z"/><text x="50" y="414" text-anchor="middle">Obsidian</text><circle class="w" cx="150" cy="374" r="22"/><path class="f" transform="translate(139 363) scale(0.917)" d="M0 0v24h24V0H0zm4.602 4.025h2.244c.509 0 .716.215.716.717v5.64h8.883v-5.64c0-.509.215-.717.717-.717h2.229c.5 0 .71.23.724.717v14.516c0 .509-.215.717-.717.717h-2.23c-.51 0-.717-.215-.717-.717v-5.735H7.562v5.735c0 .516-.215.717-.716.717H4.602c-.51 0-.717-.208-.717-.717V4.742c0-.509.207-.717.717-.717z"/><text x="150" y="414" text-anchor="middle">Hetzner</text><circle class="w" cx="250" cy="374" r="22"/><path class="f" transform="translate(239 363) scale(0.917)" d="M24 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-9 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm0-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6-6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3 24a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm18 .5a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm9-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-3 2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM3 5.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/><text x="250" y="414" text-anchor="middle">Tailscale</text><circle class="w" cx="350" cy="374" r="22"/><path class="f" transform="translate(339 363) scale(0.917)" d="M9.3108.0003c.6527 1.3502 1.5666 4.0812-1.3887 7.1738-1.8096 1.8796-3.078 3.8487-2.3496 6.0644.3642 1.1037 1.1864 2.5079 2.8867 2.7852.6107.1008 1.3425-.0006 1.7403-.1406 2.4538-.8544 2.098-3.4138 1.5546-5.0469-.07-.2129-.1915-.7333-.2363-.9238-.3726-1.6023.776-2.6562 1.129-3.8047.028-.0925.0534-.1819.0702-.2715.042-.21.067-.423.0781-.6387 0-1.8264-.9882-2.6303-1.7754-3.5996C10.1794.5643 9.3107.0003 9.3107.0003Zm6.2754 6.0175s-.709.3366-1.2188.8829c-.4454.4818-.8635.8789-1.2949 1.8593-.028.14-.0518.2863-.0742.4375-.2325 1.6416 1.1473 3.1446.7187 5.1895-.112.535-.3554.7123-.7812 1.6367-.5098 1.1065-.383 2.588.3594 3.5293.6723.8488 1.879 1.2321 3.0527.9492 2.1065-.5042 3.0646-2.2822 2.8965-4.2851-.1317-1.58-.8154-2.7536-2.754-4.961-.9607-1.0925-1.6072-2.409-1.5624-3.4062.1373-1.2074.6582-1.832.6582-1.832zM4.8928 15.1936c-.0222.0145-.0439.0614-.0586.1602a.0469.0469 0 0 1-.0059.0195v.01c-.1148.5406-.1649 1.823.1153 2.9687.353 1.4427 1.4175 3.902 4.412 5.129 2.5184 1.0336 5.718.5411 7.8497-1.627.5294-.5435.408-.4897-.4883-.2012v-.002c-1.1121.3558-3.5182.5463-4.7676-1-1.5239-1.8852-.4302-3.3633-1.3574-3.1504-3.6164.8348-5.2667-1.4657-5.5469-2.1016-.0023-.002-.0857-.2487-.1523-.205z"/><text x="350" y="414" text-anchor="middle">Backblaze</text><circle class="w" cx="50" cy="462" r="22"/><text class="mg" x="50" y="466" text-anchor="middle">P</text><text x="50" y="502" text-anchor="middle">Pushover</text></svg></div>
+    <div class="ints">
+      <div><span class="mono">Chat</span><p>WhatsApp, Telegram, LinkedIn, Messenger, Instagram</p></div>
+      <div><span class="mono">Mail and time</span><p>Gmail, Google Calendar</p></div>
+      <div><span class="mono">School</span><p>Canvas courses, files and assignments</p></div>
+      <div><span class="mono">Health</span><p>Strava, WHOOP</p></div>
+      <div><span class="mono">Capture</span><p>Apple Shortcuts, Raycast</p></div>
+      <div><span class="mono">Notes</span><p>Obsidian on Mac, iPhone and server</p></div>
+      <div><span class="mono">Infrastructure</span><p>Hetzner, Tailscale, Backblaze B2, Pushover</p></div>
+      <div><span class="mono">Anything else</span><p>Ask your Claude to add it</p></div>
+    </div>
+  </section>
+
+  <section id="week">
+    <div class="head"><span class="mono">03 / Your week</span><h2>Not a notes app. An assistant that knows your goals, time and commitments.</h2></div>
+    <div class="feat">
+      <span class="mono n">3.1</span>
+      <div class="txt"><h3>It messages you. You tap once.</h3><p>Claude can message you on Telegram when something needs you. Have it watch for what you care about, like sign-ups for a speaker you would love to hear. It messages you, you reply "sign me up", and before it acts it asks for your OK with one tap.</p></div>
+      <div class="vis"><svg class="ill pic" viewBox="0 0 460 330" role="img" aria-hidden="true">
+<rect class="w" x="120" y="14" width="190" height="300" rx="22"/><line class="s" x1="196" y1="28" x2="234" y2="28"/>
+<line class="s l" x1="120" y1="64" x2="310" y2="64"/><circle class="f" cx="140" cy="48" r="5"/><text x="152" y="52">Your Claude</text>
+<rect class="g" x="136" y="80" width="150" height="62" rx="4"/>
+<text class="tx" x="146" y="100">Sign-ups just opened for</text><text class="tx" x="146" y="116">a speaker you'd love.</text><text class="tx" x="146" y="132">Register you?</text>
+<rect class="f" x="200" y="154" width="94" height="28" rx="4"/><text class="inv tx" x="214" y="173">sign me up</text>
+<rect class="g" x="136" y="194" width="150" height="38" rx="4"/><text class="tx" x="146" y="217">OK to submit the form?</text>
+<rect class="f" x="136" y="244" width="72" height="30"/><text class="inv" x="172" y="263" text-anchor="middle">Allow</text>
+<rect class="w" x="214" y="244" width="72" height="30"/><text x="250" y="263" text-anchor="middle">Deny</text>
+<circle class="w" cx="202" cy="272" r="9"/><circle class="s l" cx="202" cy="272" r="17"/>
+<path class="s thick" d="M350 140 L370 162 L410 112"/><text x="360" y="190">Done</text></svg></div>
+    </div>
+    <div class="feat">
+      <span class="mono n">3.2</span>
+      <div class="txt"><h3>Your ideal week, planned for you.</h3><p>Describe it once: wake and bed times, focus blocks, sport, classes, friends. Claude schedules your tasks, assignments and readings around it, reads your calendars, says plainly when the week is overbooked, and writes the blocks into your calendar once you approve.</p></div>
+      <div class="vis"><svg class="ill pic" viewBox="0 0 440 340" role="img" aria-hidden="true"><text x="88" y="28" text-anchor="middle">M</text><line class="s l" x1="60" y1="40" x2="60" y2="282"/><rect class="f" x="64" y="62" width="40" height="62"/><rect class="gb" x="64" y="128" width="40" height="40"/><rect class="hatch" x="64" y="194" width="40" height="29.0"/><text x="140" y="28" text-anchor="middle">T</text><line class="s l" x1="112" y1="40" x2="112" y2="282"/><rect class="gb" x="116" y="62" width="40" height="40"/><rect class="f" x="116" y="106" width="40" height="51.0"/><rect class="w" x="116" y="216" width="40" height="40"/><text x="192" y="28" text-anchor="middle">W</text><line class="s l" x1="164" y1="40" x2="164" y2="282"/><rect class="f" x="168" y="62" width="40" height="62"/><rect class="gb" x="168" y="128" width="40" height="40"/><rect class="hatch" x="168" y="194" width="40" height="29.0"/><text x="244" y="28" text-anchor="middle">T</text><line class="s l" x1="216" y1="40" x2="216" y2="282"/><rect class="gb" x="220" y="62" width="40" height="40"/><rect class="f" x="220" y="106" width="40" height="51.0"/><rect class="hatch" x="220" y="172" width="40" height="29.0"/><rect class="w" x="220" y="216" width="40" height="40"/><text x="296" y="28" text-anchor="middle">F</text><line class="s l" x1="268" y1="40" x2="268" y2="282"/><rect class="f" x="272" y="62" width="40" height="73.0"/><rect class="w" x="272" y="216" width="40" height="51.0"/><text x="348" y="28" text-anchor="middle">S</text><line class="s l" x1="320" y1="40" x2="320" y2="282"/><rect class="hatch" x="324" y="84" width="40" height="51.0"/><rect class="w" x="324" y="172" width="40" height="62"/><text x="400" y="28" text-anchor="middle">S</text><line class="s l" x1="372" y1="40" x2="372" y2="282"/><rect class="f" x="376" y="106" width="40" height="40"/><rect class="w" x="376" y="194" width="40" height="29.0"/><line class="s" x1="60" y1="40" x2="424" y2="40"/><line class="s" x1="60" y1="282" x2="424" y2="282"/><text x="20" y="44">07</text><text x="20" y="132">12</text><text x="20" y="220">18</text><text x="20" y="286">23</text><rect class="s d" x="212" y="56" width="56" height="210"/><rect class="f" x="186" y="274" width="104" height="20"/><text class="inv" x="238" y="288" text-anchor="middle">Thu +2h over</text><rect class="f" x="64" y="318" width="12" height="12"/><text x="84" y="328">Focus</text><rect class="gb" x="156" y="318" width="12" height="12"/><text x="176" y="328">Class</text><rect class="hatch" x="248" y="318" width="12" height="12"/><text x="268" y="328">Sport</text><rect class="w" x="340" y="318" width="12" height="12"/><text x="360" y="328">Social</text></svg></div>
+    </div>
+    <div class="feat">
+      <span class="mono n">3.3</span>
+      <div class="txt"><h3>Priorities that mean something.</h3><p>A North Star note holds what matters this quarter. Rate Health, Work, Play and Love, set an objective for each, then rank three to five priorities. Every prioritisation pass reads it first, so urgent never quietly beats important.</p></div>
+      <div class="vis"><svg class="ill pic" viewBox="0 0 440 250" role="img" aria-hidden="true"><rect class="w" x="20" y="40" width="100" height="80"/><text x="32" y="62">Health</text><rect class="g" x="32" y="80" width="76" height="6"/><rect class="f" x="32" y="80" width="53" height="6"/><text class="num-s" x="32" y="108">7/10</text><rect class="w" x="132" y="40" width="100" height="80"/><text x="144" y="62">Work</text><rect class="g" x="144" y="80" width="76" height="6"/><rect class="f" x="144" y="80" width="61" height="6"/><text class="num-s" x="144" y="108">8/10</text><rect class="w" x="20" y="136" width="100" height="80"/><text x="32" y="158">Play</text><rect class="g" x="32" y="176" width="76" height="6"/><rect class="f" x="32" y="176" width="30" height="6"/><text class="num-s" x="32" y="204">4/10</text><rect class="w" x="132" y="136" width="100" height="80"/><text x="144" y="158">Love</text><rect class="g" x="144" y="176" width="76" height="6"/><rect class="f" x="144" y="176" width="46" height="6"/><text class="num-s" x="144" y="204">6/10</text><path class="s" d="M252 134 H284"/><path class="s" d="M278 128 L285 134 L278 140"/><rect class="w" x="294" y="40" width="130" height="176"/><rect class="f" x="294" y="40" width="130" height="28"/><text class="inv" x="306" y="58">North Star</text><rect class="f" x="306" y="86" width="16" height="16"/><text class="inv" x="314" y="98" text-anchor="middle">1</text><line class="s" x1="330" y1="94" x2="414" y2="94"/><rect class="f" x="306" y="118" width="16" height="16"/><text class="inv" x="314" y="130" text-anchor="middle">2</text><line class="s" x1="330" y1="126" x2="400" y2="126"/><rect class="f" x="306" y="150" width="16" height="16"/><text class="inv" x="314" y="162" text-anchor="middle">3</text><line class="s l" x1="330" y1="158" x2="388" y2="158"/><rect class="f" x="306" y="182" width="16" height="16"/><text class="inv" x="314" y="194" text-anchor="middle">4</text><line class="s l" x1="330" y1="190" x2="374" y2="190"/></svg></div>
+    </div>
+  </section>
+
+  <section id="learns">
+    <div class="head"><span class="mono">04 / Memory</span><h2>The longer you use it, the better it knows you.</h2></div>
+    <div class="rows">
+      <div><span class="mono">Wiki</span><h3>A second brain that maintains itself</h3><p>After Karpathy's LLM wiki: Claude compiles your notes, readings and lessons into a small wiki, and answers from what you yourself concluded, with citations.</p></div>
+      <div><span class="mono">Profile</span><h3>Memory you can read and edit</h3><p>Dated notes of your preferences, routines, people and goals. Claude adds to them as you work. Works with any model.</p></div>
+      <div><span class="mono">Code</span><h3>Fully yours to change</h3><p>Plain files and readable code. Drop what you do not need; build what fits you.</p></div>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="head"><span class="mono">05 / Setup</span><div><h2>Four steps. Then Claude takes over.</h2><p>It explains what the system does and where your data goes, and builds nothing until you say "I understand, continue". Progress is saved, so you can stop at any point.</p></div></div>
+    <ol class="steps">
+      <li><div>Install Claude Code<span>From claude.com. Needs a paid plan, Pro or Max.</span></div></li>
+      <li><div>Unzip the kit into your home folder<span>So it sits at <code>~/vaultkit</code>.</span></div></li>
+      <li><div>Open the folder in Claude Code<span>The desktop app's Code tab, or <code>cd ~/vaultkit &amp;&amp; claude</code>.</span></div></li>
+      <li><div>Type<br><span class="cmd">start the setup</span></div></li>
+    </ol>
+  </section>
+
+  <section id="cost">
+    <div class="head"><span class="mono">06 / Time and cost</span><h2>One afternoon. A few coffees a month.</h2></div>
+    <div class="stats">
+      <div><strong>2&ndash;3h</strong><p>in total, including waiting. Two sittings work well.</p></div>
+      <div><strong>$30&ndash;40</strong><p>a month, typically, plus about $5 once.</p></div>
+      <div><strong>15&ndash;45m</strong><p>extra per optional module.</p></div>
+    </div>
+    <div class="tbl">
+      <div><span>Claude Pro, required (Max is $100 or $200)</span><span>$20/mo</span></div>
+      <div><span>Hetzner server, CX23</span><span>&euro;6/mo</span></div>
+      <div><span>Obsidian Sync</span><span>$4/mo</span></div>
+      <div><span>Pushover, phone alerts</span><span>$5 once</span></div>
+      <div><span>Backblaze B2 backups, first 10 GB free</span><span>$0</span></div>
+      <div><span>Tailscale, Healthchecks.io, Google Cloud</span><span>$0</span></div>
+      <div><span>Optional: Strava, for the fitness sync</span><span>$12/mo</span></div>
+    </div>
+    <p class="mono fine">Prices checked Oct 4, 2026</p>
+  </section>
+
+  <section id="privacy">
+    <div class="head"><span class="mono">07 / Privacy</span><h2>Every account is yours.</h2></div>
+    <div class="rows">
+      <div><span class="mono">Anthropic</span><h3>What Claude reads, Anthropic processes</h3><p>Your notes, and mail and WhatsApp if you turn them on. Avoiding this would need a local model, which the kit does not support.</p></div>
+      <div><span class="mono">Server</span><h3>Everything else is locked down</h3><p>Reachable only through your private Tailscale network. Keys in locked files. Backups encrypted before they leave.</p></div>
+      <div><span class="mono">András</span><h3>Sees nothing</h3><p>No access to your server, vault or accounts.</p></div>
+      <div><span class="mono">WhatsApp</span><h3>Optional, off by default</h3><p>It uses an unofficial connection, which can get a number banned.</p></div>
+    </div>
+    <div class="notice"><span class="mono">Notice</span><p>Shared for educational purposes only, provided as is, with no warranty of any kind. András Habsburg takes no responsibility for the kit or anything that results from using it, including data loss, security incidents, costs, account suspensions or broken services. Setting it up is your decision: your server, your accounts, your data, your bills, and the terms of every service you connect.</p></div>
+  </section>
+
+  <section id="updates">
+    <div class="head"><span class="mono">08 / Updates</span><div><h2>What changed, and when.</h2><p>Every change to the live system is published here automatically. The download is always the latest version.</p></div></div>
+    <div class="log">
+      <!-- CHANGELOG -->
+      <div><time>Oct 30, 2026</time><h3>Carmen goes online<small>v1.1</small></h3><p>The kit gets a home: an always-current download, the Start Here guide and this history.</p></div>
+      <div><time>Oct 19, 2026</time><h3>Vault upkeep</h3><p>Dormant-properties block, so a property software writes only now and then is not reported unused.</p></div>
+      <div><time>Oct 16, 2026</time><h3>LinkedIn, Messenger, Instagram</h3><p>Messages from all three reach Claude, with a push when someone new writes. Recorded meetings are filed next to their project.</p></div>
+      <div><time>Oct 14, 2026</time><h3>Travel</h3><p>Door-to-door search across nearby airports, trains and ferries, with price watches that push you when a fare drops.</p></div>
+      <div><time>Oct 12, 2026</time><h3>Morning check-in, Maintenance, Weekly briefs</h3><p>No '(draft ready)' in step titles. Drafts list the slots they offer (msg.slots), for calendar holds. Busy times from the blocking calendars to 21 days ahead, for slot checks in drafts. Plus 8 more changes.</p></div>
+      <div><time>Oct 7, 2026</time><h3>Tasks that stay well-formed</h3><p>A checker runs after every edit, so every task keeps a clear next step.</p></div>
+      <div><time>Oct 6, 2026</time><h3>Morning check-in</h3><p>Read the split plan-today skill (SKILL.md + reference/panel.md + reference/background.md). Include the calendar (today-3 to today+5) for the day plan. Read every WhatsApp chat via the delta fetch (paged overview, no lastMessage pre-filter). Plus 2 more changes.</p></div>
+      <div><time>Oct 5, 2026</time><h3>Morning check-in, prepared overnight</h3><p>At dawn the server reads mail, WhatsApp, calendar and tasks, and drafts today's plan. Class tasks list their readings with direct links.</p></div>
+      <div><time>Oct 4, 2026</time><h3>First version<small>v1.0</small></h3><p>The kit, the Start Here guide, 18 modules and a vault template.</p></div>
+      <div><time>Oct 3, 2026</time><h3>Telegram, Maintenance, Docs checks</h3><p>Sessions run bypassPermissions with an explicit ask list. Push an alert when a 409 lasts past 2 minutes. A stalled poller reconnects, then exits for systemd to restart. Plus 16 more changes.</p></div>
+      <div><time>Sep 30, 2026</time><h3>Canvas, Weekly briefs, Claude</h3><p>A task's own URL line wins over related-assignment links. Every new assignment task links a writing file in _mine/Assignments. Weekly Claude Code update on vault-host, headless probe, rollback on failure. Plus 4 more changes.</p></div>
+      <div><time>Sep 28, 2026</time><h3>Routine reminders, Canvas</h3><p>Link uses the Obsidian vault name, not the host folder name. Link: [[Note]] line becomes a tappable Pushover URL (GSB Outfits). Dropped/ group for current-quarter courses Canvas no longer lists.</p></div>
+      <!-- /CHANGELOG -->
+    </div>
+  </section>
+</div>
+
+<div class="end">
+  <div class="wrap">
+    <h2>Set it up this weekend.</h2>
+    <a class="btn" href="carmen-latest.zip">Download the kit <span>&darr;</span></a>
+    <footer class="mono"><span>Carmen &middot; shared by <a class="me" href="https://andrashabsburg.com">András Habsburg</a></span><span>Names are trademarks of their owners. No affiliation.</span></footer>
+  </div>
+</div>
+
+</body>
+</html>

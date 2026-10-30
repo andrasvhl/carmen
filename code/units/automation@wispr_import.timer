@@ -1,0 +1,13 @@
+# Wispr Flow meetings into the vault. Hourly: a run with nothing new makes two
+# MCP calls and no Claude call, and a meeting is only listed once finalized.
+[Unit]
+Description=Schedule for automation job wispr_import
+
+[Timer]
+OnCalendar=*-*-* *:17:00
+Persistent=true
+RandomizedDelaySec=120
+Unit=automation@wispr_import.service
+
+[Install]
+WantedBy=timers.target

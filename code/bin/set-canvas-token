@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Put a Canvas access token into ~/.automation.env, correctly, without anyone
+# typing a filename or a key name.
+#
+# This exists because two hand-attempts failed in two different ways: a paste
+# landed in the command line instead of the prompt and overwrote the literal
+# text CANVAS_TOKEN, then a paste in an editor landed on the neighbouring line
+# so the token became the value of CANVAS_TOKEN_EXPIRES. Both left a file that
+# looked plausible and was wrong, and both burned a token.
+#
+#   ssh -t vault-host automation/bin/set-canvas-token
+#
+# It validates the shape of both values before writing anything, strips every
+# existing CANVAS_ line so a retry cannot leave duplicates, and never echoes
+# the token or writes it to a temp file outside the same directory.
+set -euo pipefail
+umask 077
+
+ENV="$HOME/.automation.env"
+[ -f "$ENV" ] || { echo "no $ENV on this machine"; exit 1; }
+
+read -rsp "Canvas token (input hidden): " TOKEN; echo
+read -rp  "Expiry as YYYY-MM-DD: " EXPIRES
+
+# Stanford tokens are <numeric id>~<alphanumeric>. Checking the shape is what
+# catches an empty read or a mis-aimed paste before it reaches the file.
+if [[ ! "$TOKEN" =~ ^[0-9]+~[A-Za-z0-9]+$ ]]; then
+    echo "That is not a Canvas token (expected 1234~alphanumeric). Nothing written." >&2
+    exit 1
+fi
+if [[ ! "$EXPIRES" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    echo "Expiry must be YYYY-MM-DD. Nothing written." >&2
+    exit 1
+fi
+
+TMP="$(mktemp "$(dirname "$ENV")/.automation.env.XXXXXX")"
+trap 'rm -f "$TMP"' EXIT
+grep -v '^CANVAS_' "$ENV" > "$TMP" || true
+{
+    echo "CANVAS_HOST=canvas.stanford.edu"
+    echo "CANVAS_TOKEN=$TOKEN"
+    echo "CANVAS_TOKEN_EXPIRES=$EXPIRES"
+} >> "$TMP"
+chmod 600 "$TMP"
+mv "$TMP" "$ENV"
+trap - EXIT
+
+echo "written: $(grep -c '^CANVAS_' "$ENV") CANVAS_ lines, expiry $EXPIRES"

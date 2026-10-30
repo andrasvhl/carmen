@@ -1,0 +1,17 @@
+# Copy this per job. The service is a shared template; only the schedule differs.
+# Save as automation@<jobname>.timer, then:
+#   sudo systemctl enable --now automation@<jobname>.timer
+
+[Unit]
+Description=Schedule for automation job <jobname>
+
+[Timer]
+OnCalendar=*-*-* 07:30:00
+# Run on next boot if the box was down when this was due.
+Persistent=true
+# Stagger, so several jobs never start in the same second.
+RandomizedDelaySec=300
+Unit=automation@<jobname>.service
+
+[Install]
+WantedBy=timers.target

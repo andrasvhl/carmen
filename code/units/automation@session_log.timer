@@ -1,0 +1,14 @@
+[Unit]
+Description=Schedule for automation job session_log
+
+[Timer]
+# 04:30 closes yesterday before the morning run; 13:00 adds the morning so far
+# (owner decision, 2026-10-05). Pacific, explicitly: the box runs on UTC.
+OnCalendar=*-*-* 04:30:00 America/Los_Angeles
+OnCalendar=*-*-* 13:00:00 America/Los_Angeles
+Persistent=true
+RandomizedDelaySec=120
+Unit=automation@session_log.service
+
+[Install]
+WantedBy=timers.target

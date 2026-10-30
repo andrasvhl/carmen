@@ -1,0 +1,15 @@
+[Unit]
+Description=Schedule for automation job core_learnings
+
+[Timer]
+# Daily at 07:44 — after wiki (07:40) and before the status join (07:50), so a
+# backlog that crosses a threshold reaches the same morning's maintenance-status
+# page rather than tomorrow's. The delay ceiling matters: 07:44 + 120s still
+# lands before 07:50.
+OnCalendar=*-*-* 07:44:00
+Persistent=true
+RandomizedDelaySec=120
+Unit=automation@core_learnings.service
+
+[Install]
+WantedBy=timers.target

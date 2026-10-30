@@ -1,0 +1,13 @@
+[Unit]
+Description=Schedule for automation job claude_update
+
+[Timer]
+# Sunday 03:00 Pacific: a day's margin before Monday's build_brief (14:00 PT),
+# and nowhere near the daily AI jobs (red_notebook 07:20 UTC, wiki 07:40 UTC).
+OnCalendar=Sun *-*-* 03:00:00 America/Los_Angeles
+Persistent=true
+RandomizedDelaySec=300
+Unit=automation@claude_update.service
+
+[Install]
+WantedBy=timers.target

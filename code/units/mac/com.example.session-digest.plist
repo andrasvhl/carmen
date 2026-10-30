@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Mac side of jobs/session_log: every 30 min while awake, digest this Mac's
+     Claude transcripts and copy them to vault-host over SSH. The only Mac-side
+     piece; the box job runs without it (Mac sessions only exist while it is on).
+     Install: cp to ~/Library/LaunchAgents/ and
+     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.example.session-digest.plist -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.example.session-digest</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string><string>-c</string>
+    <string>cd "$HOME/automation" &amp;&amp; exec "$HOME/automation/.venv/bin/python" -m tools.session_digest --push</string>
+  </array>
+  <key>StartInterval</key><integer>1800</integer>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/tmp/session-digest.log</string>
+  <key>StandardErrorPath</key><string>/tmp/session-digest.log</string>
+</dict>
+</plist>

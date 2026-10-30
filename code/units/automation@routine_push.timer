@@ -1,0 +1,17 @@
+[Unit]
+Description=Schedule for automation job routine_push
+
+[Timer]
+# Morning and evening routine reminders (2026-09-27). Times are Pacific and
+# must match SLOTS in jobs/routine_push.py and the [!push] headers in the notes.
+OnCalendar=*-*-* 07:40:00 America/Los_Angeles
+OnCalendar=*-*-* 21:30:00 America/Los_Angeles
+OnCalendar=*-*-* 22:00:00 America/Los_Angeles
+OnCalendar=*-*-* 22:30:00 America/Los_Angeles
+# Not Persistent: a routine reminder hours late after a reboot is worse than none.
+Persistent=false
+AccuracySec=1s
+Unit=automation@routine_push.service
+
+[Install]
+WantedBy=timers.target

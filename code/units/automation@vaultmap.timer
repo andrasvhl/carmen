@@ -1,0 +1,15 @@
+[Unit]
+Description=Schedule for automation job vaultmap
+
+[Timer]
+# Monday, well before status (07:50) joins the morning's results. This job
+# makes up to two model calls, so it needs far more headroom than a job that
+# only reads files - starting it alongside inventory at 07:47 would risk its
+# findings missing that morning's maintenance-status page entirely.
+OnCalendar=Mon *-*-* 07:00:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=automation@vaultmap.service
+
+[Install]
+WantedBy=timers.target

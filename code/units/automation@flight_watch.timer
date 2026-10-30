@@ -1,0 +1,17 @@
+# Flight price watcher (2026-10-14): re-prices every flight-watch block in the
+# trip pages and pushes deals only. Twice a day is enough for fares and keeps
+# Skiplagged, which rate-limits, well inside its allowance. A push that falls
+# in quiet hours waits for the next run (jobs/flight_watch.py).
+
+[Unit]
+Description=Schedule for automation job flight_watch
+
+[Timer]
+OnCalendar=*-*-* 08:10:00 America/Los_Angeles
+OnCalendar=*-*-* 18:10:00 America/Los_Angeles
+Persistent=true
+RandomizedDelaySec=600
+Unit=automation@flight_watch.service
+
+[Install]
+WantedBy=timers.target

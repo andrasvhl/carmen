@@ -1,0 +1,18 @@
+# The text-extraction half needs the first block. The Canvas pull itself is
+# stdlib-only on purpose, so an archive run never depends on a venv existing.
+#
+#   python3 -m venv ~/automation/.venv
+#   ~/automation/.venv/bin/pip install -r ~/automation/requirements.txt
+#
+# bin/run-job and bin/vt both prefer .venv/bin/python when it is present.
+pypdf[crypto]>=4.0
+python-pptx>=0.6.23
+python-docx>=1.1
+openpyxl>=3.1
+trafilatura>=1.8
+
+# The Telegram bridge (jobs/tg_bridge). The Agent SDK drives the box's own
+# claude binary via cli_path, never its bundled one; 0.2.163 verified on the
+# box under Python 3.14 (docs-tg/phase0-spike-results.md, 2026-10-03).
+claude-agent-sdk>=0.2.163
+httpx>=0.28

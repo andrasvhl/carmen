@@ -1,0 +1,162 @@
+{
+ "version": "1.1",
+ "released": "2026-10-30",
+ "entries": [
+  {
+   "date": "2026-10-30",
+   "display_date": "Oct 30, 2026",
+   "title": "Carmen goes online",
+   "summary": "The kit gets a home: an always-current download, the Start Here guide and this history.",
+   "source": "manual",
+   "version": "v1.1"
+  },
+  {
+   "date": "2026-10-19",
+   "display_date": "Oct 19, 2026",
+   "title": "Vault upkeep",
+   "summary": "Dormant-properties block, so a property software writes only now and then is not reported unused.",
+   "changes": 1,
+   "source": "git"
+  },
+  {
+   "date": "2026-10-16",
+   "display_date": "Oct 16, 2026",
+   "title": "LinkedIn, Messenger, Instagram",
+   "summary": "Messages from all three reach Claude, with a push when someone new writes. Recorded meetings are filed next to their project.",
+   "source": "manual"
+  },
+  {
+   "date": "2026-10-14",
+   "display_date": "Oct 14, 2026",
+   "title": "Travel",
+   "summary": "Door-to-door search across nearby airports, trains and ferries, with price watches that push you when a fare drops.",
+   "source": "manual"
+  },
+  {
+   "date": "2026-10-12",
+   "display_date": "Oct 12, 2026",
+   "title": "Morning check-in, Maintenance, Weekly briefs",
+   "summary": "No '(draft ready)' in step titles. Drafts list the slots they offer (msg.slots), for calendar holds. Busy times from the blocking calendars to 21 days ahead, for slot checks in drafts. Plus 8 more changes.",
+   "changes": 11,
+   "source": "git"
+  },
+  {
+   "date": "2026-10-07",
+   "display_date": "Oct 7, 2026",
+   "title": "Tasks that stay well-formed",
+   "summary": "A checker runs after every edit, so every task keeps a clear next step.",
+   "source": "manual"
+  },
+  {
+   "date": "2026-10-06",
+   "display_date": "Oct 6, 2026",
+   "title": "Morning check-in",
+   "summary": "Read the split plan-today skill (SKILL.md + reference/panel.md + reference/background.md). Include the calendar (today-3 to today+5) for the day plan. Read every WhatsApp chat via the delta fetch (paged overview, no lastMessage pre-filter). Plus 2 more changes.",
+   "changes": 5,
+   "source": "git"
+  },
+  {
+   "date": "2026-10-05",
+   "display_date": "Oct 5, 2026",
+   "title": "Morning check-in, prepared overnight",
+   "summary": "At dawn the server reads mail, WhatsApp, calendar and tasks, and drafts today's plan. Class tasks list their readings with direct links.",
+   "source": "manual"
+  },
+  {
+   "date": "2026-10-04",
+   "display_date": "Oct 4, 2026",
+   "title": "First version",
+   "summary": "The kit, the Start Here guide, 18 modules and a vault template.",
+   "source": "manual",
+   "version": "v1.0"
+  },
+  {
+   "date": "2026-10-03",
+   "display_date": "Oct 3, 2026",
+   "title": "Telegram, Maintenance, Docs checks",
+   "summary": "Sessions run bypassPermissions with an explicit ask list. Push an alert when a 409 lasts past 2 minutes. A stalled poller reconnects, then exits for systemd to restart. Plus 16 more changes.",
+   "changes": 19,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-30",
+   "display_date": "Sep 30, 2026",
+   "title": "Canvas, Weekly briefs, Claude",
+   "summary": "A task's own URL line wins over related-assignment links. Every new assignment task links a writing file in _mine/Assignments. Weekly Claude Code update on vault-host, headless probe, rollback on failure. Plus 4 more changes.",
+   "changes": 7,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-28",
+   "display_date": "Sep 28, 2026",
+   "title": "Routine reminders, Canvas",
+   "summary": "Link uses the Obsidian vault name, not the host folder name. Link: [[Note]] line becomes a tappable Pushover URL (GSB Outfits). Dropped/ group for current-quarter courses Canvas no longer lists.",
+   "changes": 3,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-27",
+   "display_date": "Sep 27, 2026",
+   "title": "Routine reminders, Tasks, Canvas",
+   "summary": "Read the routine notes from Areas/Personal/Routines (moved from Projects/<PROJECT>). Critical repeats twice, two minutes apart (retry 120 s, expire 245 s). 'critical' level (Pushover emergency, one ring: retry 30 s, expire 30 s). Plus 3 more changes.",
+   "changes": 6,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-23",
+   "display_date": "Sep 23, 2026",
+   "title": "Server health, Canvas, Vault upkeep",
+   "summary": "Push critical alerts via Pushover, mail stays the record. Pushover channel (send_push) for alerts that expire within minutes. Prove WhatsApp is readable by the documented path, not just that waha runs. Plus 17 more changes.",
+   "changes": 20,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-22",
+   "display_date": "Sep 22, 2026",
+   "title": "Canvas",
+   "summary": "OCR renders once and runs two single-threaded workers; always unwrap. OCR scanned PDFs with tesseract (--ocr). Order-independent matching; profile pages never compete.",
+   "changes": 3,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-16",
+   "display_date": "Sep 16, 2026",
+   "title": "Server health, WhatsApp, Vault upkeep",
+   "summary": "Watch the WhatsApp bridge daemons. Ban tripwire, latched, plus account-standing poll. Recovery mail only after a real down-alert. Plus 6 more changes.",
+   "changes": 9,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-15",
+   "display_date": "Sep 15, 2026",
+   "title": "Vault upkeep, Maintenance, Tasks",
+   "summary": "Put back correct lines the model perturbed. Discard the model's narration instead of failing on it. Escalation counts distinct days, not runs. Plus 8 more changes.",
+   "changes": 11,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-02",
+   "display_date": "Sep 2, 2026",
+   "title": "Vault upkeep, Server health, Maintenance",
+   "summary": "Refuse an answer that opens with preamble. Write the map, and stop reporting that it worked. One call, regenerate and diff, instead of find-then-patch. Plus 22 more changes.",
+   "changes": 25,
+   "source": "git"
+  },
+  {
+   "date": "2026-09-01",
+   "display_date": "Sep 1, 2026",
+   "title": "Maintenance",
+   "summary": "A module rename left the readings' recorded paths behind, and links recreated every old folder. Module folder names come from an alias map the tool owns. The stub test still expected the wikilink form that was fixed yesterday. Plus 54 more changes.",
+   "changes": 57,
+   "source": "git"
+  },
+  {
+   "date": "2026-08-28",
+   "display_date": "Aug 28, 2026",
+   "title": "Maintenance, Server health",
+   "summary": "Take binary embeds out of the dead-link check entirely. Fix the dead-wikilink check: it was 98% false positives. Check the mechanical half of the documentation standard. Plus 25 more changes.",
+   "changes": 28,
+   "source": "git"
+  }
+ ]
+}

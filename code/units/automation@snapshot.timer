@@ -1,0 +1,13 @@
+[Unit]
+Description=Schedule for automation job snapshot
+
+[Timer]
+# Every 15 minutes, offset from the hour so it doesn't line up with jobs
+# that fire on the hour or half-hour.
+OnCalendar=*-*-* *:0/15:00
+Persistent=true
+RandomizedDelaySec=60
+Unit=automation@snapshot.service
+
+[Install]
+WantedBy=timers.target

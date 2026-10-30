@@ -1,0 +1,13 @@
+[Unit]
+Description=Schedule for automation job rc_reap
+
+[Timer]
+# After heartbeat (07:30), which warns a day ahead at WARN_IDLE_DAYS. A
+# session is therefore always reported before it is closed.
+OnCalendar=*-*-* 08:00:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=automation@rc_reap.service
+
+[Install]
+WantedBy=timers.target

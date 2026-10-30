@@ -1,0 +1,37 @@
+[Unit]
+Description=Telegram bridge to the vault (long poll in, Claude Agent SDK out)
+After=network-online.target
+Wants=network-online.target
+# Both belong in [Unit]. In [Service] systemd ignores them without error, which
+# is how the WhatsApp units first shipped with an inert cap (whatsapp-bridge.md).
+# A crash loop is capped at 5 starts in 10 minutes, then the alert mails.
+StartLimitIntervalSec=600
+StartLimitBurst=5
+OnFailure=automation-alert@tg_bridge.service
+
+[Service]
+# A daemon, not a oneshot: its own unit, like wa-consumer, never automation@.
+Type=simple
+User=<user>
+WorkingDirectory=/home/<user>/automation
+Environment=HOME=/home/<user>
+Environment=PYTHONUNBUFFERED=1
+# Via the wrapper, so it runs under the repo .venv that holds claude-agent-sdk
+# and httpx.
+ExecStart=/home/<user>/automation/bin/run-job tg_bridge
+Restart=on-failure
+RestartSec=10
+# 78 is a bad config (missing token, owner id, or claude binary). Restarting
+# cannot fix it, so systemd must not try.
+RestartPreventExitStatus=78
+# SIGTERM to the bridge only, so it can let a running turn finish and close
+# its Claude clients; whatever is left after TimeoutStopSec is killed.
+KillMode=mixed
+TimeoutStopSec=150
+# If the kernel kills a Claude child for memory, the bridge itself survives
+# and reports the failed turn.
+OOMPolicy=continue
+# No StandardOutput=append:. Everything goes to journald, which rotates.
+
+[Install]
+WantedBy=multi-user.target
