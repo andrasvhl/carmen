@@ -84,6 +84,13 @@
   .log h3 small { font: 500 11px var(--mono); border: 1px solid var(--bk); padding: 2px 6px; margin-left: 8px; vertical-align: 3px; }
   .log p { grid-column: 8 / 13; color: var(--g4); }
 
+  .log .phase { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: 56px 0 20px; border-top: 1px solid var(--bk); }
+  .log .phase:first-child { padding-top: 8px; }
+  .log .phase .mono { grid-column: 1 / 4; color: var(--bk); padding-top: 6px; }
+  .log .phase h3 { grid-column: 4 / 8; font-size: 28px; letter-spacing: -.03em; line-height: 1.1; }
+  .log .phase p { grid-column: 8 / 13; color: var(--g4); }
+  .log .phase + div { border-top: 0; }
+
   .end { background: var(--bk); color: var(--wh); }
   .end .wrap { padding-top: 120px; padding-bottom: 40px; }
   .end h2 { font: 500 clamp(48px, 8.4vw, 116px)/.95 var(--sans); letter-spacing: -.055em; }
@@ -132,7 +139,7 @@
     nav ul li:not(:last-child) { display: none; }
     .hero { padding-top: 64px; }
     .hero-row, .head, .rows > div, .feat, .steps li, .tbl > div, .notice, .log > div { grid-template-columns: 1fr; gap: 10px; }
-    .hero-row > *, .head > *, .rows > div > *, .feat > *, .steps li > *, .steps li::before, .tbl span, .notice > *, .log > div > * { grid-column: 1 / -1 !important; }
+    .hero-row > *, .head > *, .rows > div > *, .feat > *, .steps li > *, .steps li::before, .tbl span, .notice > *, .log > div > *, .log .phase > * { grid-column: 1 / -1 !important; }
     .tbl span:last-child { text-align: left; }
     .hero-row { padding-bottom: 80px; gap: 32px; }
     section { padding-bottom: 80px; }
@@ -144,6 +151,8 @@
     .feat .vis { padding: 24px 16px; }
     .stats { grid-template-columns: 1fr; gap: 32px; }
     .end footer { flex-direction: column; gap: 8px; }
+    .log .phase { padding-top: 40px; }
+    .log .phase h3 { font-size: 24px; }
   }
 </style>
 </head>
@@ -157,7 +166,7 @@
       <li><a href="#why">Why</a></li>
       <li><a href="#start">Setup</a></li>
       <li><a href="#cost">Cost</a></li>
-      <li><a href="#updates">Updates</a></li>
+      <li><a href="#updates">Evolution</a></li>
       <li><a class="dl" href="carmen-latest.zip">Download</a></li>
     </ul>
   </nav>
@@ -309,21 +318,51 @@
   </section>
 
   <section id="updates">
-    <div class="head"><span class="mono">08 / Updates</span><div><h2>What changed, and when.</h2><p>Every change to the live system is published here automatically. The download is always the latest version.</p></div></div>
+    <div class="head"><span class="mono">08 / Evolution</span><div><h2>Three months, five phases.</h2><p>It started on Jul 31 as a way out of Notion and grew one piece at a time, each built because something was missing that week. Every change from now on is added here automatically, and the download is always the latest version.</p></div></div>
     <div class="log">
       <!-- CHANGELOG -->
-      <div><time>Oct 30, 2026</time><h3>Carmen goes online<small>v1.1</small></h3><p>The kit gets a home: an always-current download, the Start Here guide and this history.</p></div>
-      <div><time>Oct 19, 2026</time><h3>Vault upkeep</h3><p>Dormant-properties block, so a property software writes only now and then is not reported unused.</p></div>
-      <div><time>Oct 16, 2026</time><h3>LinkedIn, Messenger, Instagram</h3><p>Messages from all three reach Claude, with a push when someone new writes. Recorded meetings are filed next to their project.</p></div>
-      <div><time>Oct 14, 2026</time><h3>Travel</h3><p>Door-to-door search across nearby airports, trains and ferries, with price watches that push you when a fare drops.</p></div>
-      <div><time>Oct 12, 2026</time><h3>Morning check-in, Maintenance, Weekly briefs</h3><p>No '(draft ready)' in step titles. Drafts list the slots they offer (msg.slots), for calendar holds. Busy times from the blocking calendars to 21 days ahead, for slot checks in drafts. Plus 8 more changes.</p></div>
-      <div><time>Oct 7, 2026</time><h3>Tasks that stay well-formed</h3><p>A checker runs after every edit, so every task keeps a clear next step.</p></div>
-      <div><time>Oct 6, 2026</time><h3>Morning check-in</h3><p>Read the split plan-today skill (SKILL.md + reference/panel.md + reference/background.md). Include the calendar (today-3 to today+5) for the day plan. Read every WhatsApp chat via the delta fetch (paged overview, no lastMessage pre-filter). Plus 2 more changes.</p></div>
-      <div><time>Oct 5, 2026</time><h3>Morning check-in, prepared overnight</h3><p>At dawn the server reads mail, WhatsApp, calendar and tasks, and drafts today's plan. Class tasks list their readings with direct links.</p></div>
-      <div><time>Oct 4, 2026</time><h3>First version<small>v1.0</small></h3><p>The kit, the Start Here guide, 18 modules and a vault template.</p></div>
-      <div><time>Oct 3, 2026</time><h3>Telegram, Maintenance, Docs checks</h3><p>Sessions run bypassPermissions with an explicit ask list. Push an alert when a 409 lasts past 2 minutes. A stalled poller reconnects, then exits for systemd to restart. Plus 16 more changes.</p></div>
-      <div><time>Sep 30, 2026</time><h3>Canvas, Weekly briefs, Claude</h3><p>A task's own URL line wins over related-assignment links. Every new assignment task links a writing file in _mine/Assignments. Weekly Claude Code update on vault-host, headless probe, rollback on failure. Plus 4 more changes.</p></div>
-      <div><time>Sep 28, 2026</time><h3>Routine reminders, Canvas</h3><p>Link uses the Obsidian vault name, not the host folder name. Link: [[Note]] line becomes a tappable Pushover URL (GSB Outfits). Dropped/ group for current-quarter courses Canvas no longer lists.</p></div>
+      <div class="phase"><span class="mono">Phase 5</span><h3>Sharing it</h3><p>The kit gets a public home that updates itself.</p></div>
+      <div><time>Oct 30, 2026</time><h3>Carmen goes online<small>v1.1</small></h3><p>The kit gets a public home: an always-current download, the Start Here guide and this history. Every night the code is copied, stripped of anything personal, checked by two privacy scanners and only then published.</p></div>
+      <div class="phase"><span class="mono">Phase 4</span><h3>Running the day</h3><p>From storing things to planning them: mornings, weeks, trips and every inbox.</p></div>
+      <div><time>Oct 16, 2026</time><h3>LinkedIn, Messenger, Instagram</h3><p>Messages from all three reach Claude, read-only, with a push when someone new writes.</p></div>
+      <div><time>Oct 16, 2026</time><h3>Meeting recordings</h3><p>Recorded meetings and talks are pulled from Wispr Flow and filed next to the project they belong to, readable with the laptop off.</p></div>
+      <div><time>Oct 14, 2026</time><h3>Travel</h3><p>Door-to-door search across every nearby airport, trains and ferries, with bags included in every price, and fare watches that push you when a price drops.</p></div>
+      <div><time>Oct 12, 2026</time><h3>Realistic weeks</h3><p>How long recurring things really take, door to door, and the rules for placing work into a day, so a week plan says plainly when it does not fit.</p></div>
+      <div><time>Oct 11, 2026</time><h3>Listen to your readings</h3><p>Documents go to Speechify in one request, to listen to on a walk or a commute.</p></div>
+      <div><time>Oct 7, 2026</time><h3>Tasks that stay well-formed</h3><p>A checker runs after every edit, so every task keeps a clear next step, whoever wrote it.</p></div>
+      <div><time>Oct 7, 2026</time><h3>When is the group free?</h3><p>Ask when most of a group chat can do dinner, and Claude compares everyone's calendars in one request.</p></div>
+      <div><time>Oct 5, 2026</time><h3>The morning check-in</h3><p>Overnight the server reads mail, chats and the calendar and guesses where every task stands. After the morning journal you confirm with one click per task, and today goes into the calendar.</p></div>
+      <div><time>Oct 5, 2026</time><h3>Sessions that remember</h3><p>A rolling log of what every Claude session worked on, so the next one picks up where the last stopped.</p></div>
+      <div class="phase"><span class="mono">Phase 3</span><h3>Talking to it</h3><p>You message the vault from your phone, and it starts messaging you back.</p></div>
+      <div><time>Oct 4, 2026</time><h3>The kit<small>v1.0</small></h3><p>The whole setup packaged for friends: a Start Here guide, a walkthrough, a vault template and the code, set up by Claude one approved step at a time.</p></div>
+      <div><time>Oct 4, 2026</time><h3>Telegram, and the vault speaks first</h3><p>The vault becomes a Telegram bot: voice notes, files, one thread per topic, and Allow / Deny buttons before anything goes out. For the first time the server messages you, starting with the weekly brief.</p></div>
+      <div><time>Oct 3, 2026</time><h3>One Monday brief</h3><p>Everything that needs you from the maintenance side arrives as one note on Monday, instead of a stream of mail.</p></div>
+      <div><time>Oct 1, 2026</time><h3>Readings on the Kindle</h3><p>Course readings, cases and articles go to the Kindle in one request.</p></div>
+      <div><time>Sep 30, 2026</time><h3>Build backlog</h3><p>Ideas tagged during the week become one plan on Monday, with each item scoped by its own Claude session.</p></div>
+      <div><time>Sep 27, 2026</time><h3>People</h3><p>One note per person, with circles from inner to dormant, open loops as fields and nine views. Contacts, class lists and chats can be imported into it.</p></div>
+      <div><time>Sep 27, 2026</time><h3>Routine reminders</h3><p>Morning and evening routine pushes to the phone, with the text kept in the vault so changing a routine means editing a note.</p></div>
+      <div><time>Sep 23, 2026</time><h3>Alerts you actually see</h3><p>Urgent things go out as a push to the phone, and only what can wait goes to email.</p></div>
+      <div><time>Sep 17, 2026</time><h3>WhatsApp bridge</h3><p>Message your vault on WhatsApp and Claude answers, files and acts on it, with alerts if the connection drops.</p></div>
+      <div><time>Sep 15, 2026</time><h3>It tests itself</h3><p>The server runs its own test suite on a timer and catches jobs that run but were never committed, and tasks sitting where no view can see them.</p></div>
+      <div class="phase"><span class="mono">Phase 2</span><h3>The server takes over</h3><p>Jobs run on the server with nobody watching, and the system starts checking itself.</p></div>
+      <div><time>Sep 14, 2026</time><h3>A morning journal</h3><p>A meditation and journal note is created every morning. It later becomes the start of the morning check-in.</p></div>
+      <div><time>Sep 11, 2026</time><h3>Learnings, consolidated</h3><p>Insights captured during the week are distilled into one running notebook, in the language they were written in.</p></div>
+      <div><time>Sep 2, 2026</time><h3>Backups and a map</h3><p>Encrypted nightly backups to Backblaze B2 with restore tests, and a map of every folder that is rewritten from disk each week.</p></div>
+      <div><time>Sep 2, 2026</time><h3>Your own wiki</h3><p>Claude distils your sources into topic articles, so a question about what you know or think is answered from your own material first.</p></div>
+      <div><time>Sep 2, 2026</time><h3>Transcription</h3><p>Lectures, podcasts and videos are transcribed offline in about 99 languages, straight into the notes.</p></div>
+      <div><time>Sep 1, 2026</time><h3>Course archive</h3><p>Every Canvas course, page, file and assignment archived into the vault with the text extracted, so Claude can say what a class covered and which readings are due.</p></div>
+      <div><time>Aug 28, 2026</time><h3>Jobs with a watchdog</h3><p>One shared runner for every scheduled job, a heartbeat that watches the others, and a weekly all-green digest. The code gets its own history from here on.</p></div>
+      <div><time>Aug 28, 2026</time><h3>Profiles with a shelf life</h3><p>Facts about you live in one Master Profile with sub-profiles, each fact dated so stale ones get questioned rather than trusted. A registry of property names stops two systems claiming the same one.</p></div>
+      <div class="phase"><span class="mono">Phase 1</span><h3>Leaving Notion</h3><p>Everything moves into plain files on your own machine, and the first ways in: capture, mail, chat and fitness.</p></div>
+      <div><time>Aug 21, 2026</time><h3>Working conditions</h3><p>A note of when work can realistically happen, so plans respect energy, classes and commitments instead of assuming an empty week.</p></div>
+      <div><time>Aug 7, 2026</time><h3>Nothing goes stale silently</h3><p>A registry of everything that can quietly stop being true, from login tokens to documents, each with how it gets checked.</p></div>
+      <div><time>Aug 6, 2026</time><h3>Fitness data</h3><p>Strava and WHOOP sync to the server, so training and recovery sit next to everything else.</p></div>
+      <div><time>Aug 5, 2026</time><h3>Both mailboxes</h3><p>Personal and school Gmail, readable and draftable by Claude from one place.</p></div>
+      <div><time>Aug 4, 2026</time><h3>Capture in two seconds</h3><p>The iPhone Action Button and a Mac hotkey drop any thought into the Inbox.</p></div>
+      <div><time>Aug 4, 2026</time><h3>A task cockpit and a daily loop</h3><p>Tasks become notes with a status, priority and next step, reviewed in one Obsidian layout. Dump, commit, prioritise, schedule becomes the rhythm.</p></div>
+      <div><time>Aug 3, 2026</time><h3>Chats as a source</h3><p>WhatsApp becomes material Claude can read, so plans and promises made in messages stop getting lost.</p></div>
+      <div><time>Jul 31, 2026</time><h3>An always-on server</h3><p>A small Linux server keeps a synced copy of the vault and runs Claude Code around the clock, reachable only over a private network.</p></div>
+      <div><time>Jul 31, 2026</time><h3>From Notion to plain files</h3><p>Notes, tasks and plans move out of Notion into an Obsidian vault of Markdown files, so an AI agent can search thousands of them locally in milliseconds instead of one API call per page.</p></div>
       <!-- /CHANGELOG -->
     </div>
   </section>
