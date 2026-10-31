@@ -191,13 +191,87 @@
   dialog.next .foot a { text-decoration: underline; text-underline-offset: 3px; }
   @media (max-width: 860px) { dialog.next h3 { font-size: 26px; } dialog.next .body, dialog.next .top, dialog.next .foot { padding-left: 18px; padding-right: 18px; } }
 
-  /* step mockups (popup and Setup section) */
+
   .mock { margin-top: 12px; max-width: 420px; }
   .ill text.mo { font: 400 10.5px var(--mono); letter-spacing: 0; text-transform: none; }
   .ill text.mo.l { fill: var(--g3); }
   .steps li .mock { grid-column: 4 / 11; margin-top: 4px; }
   dialog.next .mock { max-width: none; margin-top: 10px; }
   .steps li div span.cmd { color: var(--wh); }
+
+  /* app-window drawings for the setup steps */
+  .mk { border: 1px solid var(--bk); background: var(--wh); font: 400 13px/1.4 var(--sans); color: var(--bk); margin-top: 14px; max-width: 520px; }
+  .mk-bar { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-bottom: 1px solid var(--bk); background: var(--g1); }
+  .mk-bar i { width: 9px; height: 9px; border: 1px solid var(--bk); border-radius: 50%; }
+  .mk-bar span { flex: 1; text-align: center; font: 11px var(--mono); color: var(--g4); margin-right: 39px; }
+  .mk-body { padding: 18px; position: relative; }
+  .mk .tag { position: absolute; top: -10px; right: -10px; background: var(--bk); color: var(--wh); font: 500 10px var(--mono); text-transform: uppercase; padding: 3px 6px; letter-spacing: .04em; }
+  .mk .hl { position: relative; outline: 2px solid var(--bk); outline-offset: 3px; }
+  .mk .hl-drop { position: relative; outline: 2px dashed var(--bk); outline-offset: 1px; }
+  .mk-dl { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .mk-h { font-weight: 500; font-size: 20px; letter-spacing: -.02em; }
+  .mk-sub { color: var(--g4); }
+  .mk-btns { display: flex; gap: 8px; }
+  .mk-btn { border: 1px solid var(--bk); padding: 8px 12px; font-weight: 500; white-space: nowrap; }
+  .mk-btn.solid { background: var(--bk); color: var(--wh); }
+  .mk-note { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--g2); color: var(--g4); }
+  .mk-finder { display: grid; grid-template-columns: 130px 1fr; margin: -18px; }
+  .mk-side { border-right: 1px solid var(--g2); padding: 12px 10px; background: var(--g1); }
+  .mk-cap { font: 500 10px var(--mono); text-transform: uppercase; color: var(--g3); margin-bottom: 6px; }
+  .mk-it { padding: 4px 6px; margin-bottom: 4px; }
+  .mk-it.sel { background: var(--g2); }
+  .mk-files { padding: 12px 14px; }
+  .mk-row { display: flex; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid var(--g2); }
+  .mk-row span { color: var(--g3); font-size: 12px; }
+  .mk-row.hl { background: var(--bk); color: var(--wh); border-bottom: 0; margin-top: 8px; }
+  .mk-row.hl span { color: #bbb; }
+  .mk-hint { margin-top: 14px; color: var(--g4); font-size: 12px; }
+  .mk-app { position: relative; }
+  .mk-tabs { display: inline-flex; border: 1px solid var(--bk); }
+  .mk-tabs span { padding: 5px 14px; }
+  .mk-tabs .on { background: var(--bk); color: var(--wh); }
+  .mk-new { margin-top: 14px; font-weight: 500; font-size: 16px; }
+  .mk-input { margin-top: 8px; border: 1px solid var(--bk); padding: 10px 12px; }
+  .mk-ph { color: var(--g3); }
+  .mk-chips { display: flex; gap: 8px; margin-top: 18px; }
+  .mk-chip { border: 1px solid var(--bk); padding: 3px 8px; font-size: 12px; }
+  .mk-chip.ghost { border-color: var(--g2); color: var(--g3); }
+  .mk-menu { position: absolute; left: 0; top: 152px; width: 200px; border: 1px solid var(--bk); background: var(--wh); padding: 8px; box-shadow: 4px 4px 0 var(--bk); }
+  .mk-app { padding-bottom: 92px; }
+  .mk-chat { display: flex; flex-direction: column; gap: 10px; }
+  .mk-me { align-self: flex-end; background: var(--bk); color: var(--wh); padding: 8px 12px; }
+  .mk-ai { background: var(--g1); padding: 10px 12px; max-width: 88%; }
+  .mk-ai.small { font-size: 12px; }
+  .mk-input.slim { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .mk-send { width: 24px; height: 24px; background: var(--bk); color: var(--wh); display: grid; place-items: center; font-size: 13px; }
+  .steps li .mk { grid-column: 4 / 11; margin-top: 6px; }
+  dialog.next .mk { max-width: none; }
+  dialog.next .alt { margin-top: 8px; color: var(--g3); font-size: 13px; }
+  @media (max-width: 860px) { .mk-finder { grid-template-columns: 104px 1fr; } .mk-menu { width: 170px; } }
+
+  /* keep the step styles from leaking into the drawings */
+  .steps li .mk div, dialog.next li .mk div { grid-column: auto; font-size: inherit; letter-spacing: 0; }
+  .steps li .mk span, dialog.next li .mk span { display: inline; color: inherit; font-size: inherit; margin-top: 0; }
+  .steps li .mk .mk-btn, dialog.next li .mk .mk-btn, .steps li .mk .mk-chip, dialog.next li .mk .mk-chip { display: inline-block; }
+  .steps li .mk .mk-tabs span, dialog.next li .mk .mk-tabs span { display: inline-block; }
+  .steps li .mk .mk-send, dialog.next li .mk .mk-send { display: grid; color: var(--wh); }
+  .steps li .mk .mk-bar span, dialog.next li .mk .mk-bar span { display: block; color: var(--g4); font-size: 11px; }
+  .steps li .mk .mk-row span, dialog.next li .mk .mk-row span { color: var(--g3); font-size: 12px; }
+  .steps li .mk .mk-row.hl span, dialog.next li .mk .mk-row.hl span { color: #bbb; }
+  .steps li .mk .mk-btn.solid, dialog.next li .mk .mk-btn.solid, .steps li .mk .mk-tabs .on, dialog.next li .mk .mk-tabs .on { color: var(--wh); }
+  .steps li .mk .mk-chip.ghost, dialog.next li .mk .mk-chip.ghost { color: var(--g3); }
+  .mk-app { padding-bottom: 108px; }
+  .mk-menu { top: auto; bottom: 0; left: 12px; }
+  .mk-ai.small { font-size: 13px; }
+
+  .steps li div.mk, dialog.next li div.mk { font-size: 13px; line-height: 1.4; }
+  .steps li .mk div.mk-h, dialog.next li .mk div.mk-h { font-size: 20px; letter-spacing: -.02em; }
+  .steps li .mk div.mk-new, dialog.next li .mk div.mk-new { font-size: 16px; }
+  .steps li .mk div.mk-cap, dialog.next li .mk div.mk-cap { font: 500 10px var(--mono); letter-spacing: .02em; }
+  .steps li .mk div.mk-hint, dialog.next li .mk div.mk-hint { font-size: 12px; }
+  .mk-it { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mk .hl-drop { overflow: visible; display: flex; justify-content: space-between; align-items: center; }
+  .mk .hl-drop .tag { position: static; padding: 2px 4px; font-size: 9px; }
 </style>
 </head>
 <body>
@@ -326,10 +400,10 @@
   <section id="start">
     <div class="head"><span class="mono">05 / Setup</span><div><h2>Four steps. Then Claude takes over.</h2><p>It explains what the system does and where your data goes, and builds nothing until you say "I understand, continue". Progress is saved, so you can stop at any point.</p></div></div>
     <ol class="steps">
-      <li><div>Install Claude Code<span>From claude.com. Needs a paid plan, Pro or Max.</span></div></li>
-      <li><div>Unzip the kit into your home folder<span>So it sits at <code>~/vaultkit</code>.</span></div></li>
-      <li><div>Open the folder in Claude Code<span>The desktop app's Code tab, or <code>cd ~/vaultkit &amp;&amp; claude</code>.</span></div></li>
-      <li><div>Type<br><span class="cmd">start the setup</span></div></li>
+      <li><div>Download the Claude app<span>From claude.com/download, then sign in. Claude Code needs a paid plan, Pro or Max.</span></div><div class="mk" aria-hidden="true"><div class="mk-bar"><i></i><i></i><i></i><span>claude.com/download</span></div><div class="mk-body"><div class="mk-dl"><div><div class="mk-h">Download Claude</div><div class="mk-sub">The desktop app, with Claude Code built in.</div></div><div class="mk-btns"><span class="mk-btn solid hl">Download for Mac<b class="tag">Click</b></span><span class="mk-btn">Windows</span></div></div><div class="mk-note">Then open the app and sign in. Claude Code needs <b>Pro</b> or <b>Max</b>.</div></div></div></li>
+      <li><div>Unzip the kit into your home folder<span>Double-click the zip, then drag the <code>vaultkit</code> folder onto Home.</span></div><div class="mk" aria-hidden="true"><div class="mk-bar"><i></i><i></i><i></i><span>Downloads</span></div><div class="mk-body"><div class="mk-finder"><div class="mk-side"><div class="mk-cap">Favourites</div><div class="mk-it hl-drop">&#8962; Home<b class="tag">Drop here</b></div><div class="mk-it sel">&#8595; Downloads</div><div class="mk-it">&#9636; Desktop</div><div class="mk-it">&#9636; Documents</div></div><div class="mk-files"><div class="mk-row">&#9707; carmen-latest.zip<span>1.6 MB</span></div><div class="mk-row hl">&#9636; vaultkit<span>Folder</span><b class="tag">Drag</b></div><div class="mk-hint">Double-click the zip, then drag <b>vaultkit</b> onto <b>Home</b>.</div></div></div></div></div></li>
+      <li><div>Open the Code tab and choose the folder<span>In the Claude app, switch to Code, then pick <code>vaultkit</code> for a new session. Prefer the terminal: <code>cd ~/vaultkit &amp;&amp; claude</code>.</span></div><div class="mk" aria-hidden="true"><div class="mk-bar"><i></i><i></i><i></i><span>Claude</span></div><div class="mk-body"><div class="mk-app"><div class="mk-tabs"><span>Chat</span><span class="on hl">Code<b class="tag">1</b></span></div><div class="mk-new">New session</div><div class="mk-input"><div class="mk-ph">Describe a task&hellip;</div><div class="mk-chips"><span class="mk-chip hl">&#9636; vaultkit &#9662;<b class="tag">2</b></span><span class="mk-chip ghost">Opus</span></div></div><div class="mk-menu"><div class="mk-cap">Choose folder</div><div class="mk-it sel">&#9636; ~/vaultkit</div><div class="mk-it">&#9636; ~/Documents</div></div></div></div></div></li>
+      <li><div>Type<br><span class="cmd">start the setup</span></div><div class="mk" aria-hidden="true"><div class="mk-bar"><i></i><i></i><i></i><span>Claude &middot; vaultkit</span></div><div class="mk-body"><div class="mk-chat"><div class="mk-me">start the setup</div><div class="mk-ai">Welcome. Before anything is built, here is what this sets up and where your data goes: your notes stay as files on your computer and your own server. I will go one step at a time.</div><div class="mk-ai small">Reply <b>&ldquo;I understand, continue&rdquo;</b> when you are ready.</div><div class="mk-input slim"><div class="mk-ph">I understand, continue</div><span class="mk-send">&#8593;</span></div></div></div></div></li>
     </ol>
   </section>
 
@@ -457,11 +531,12 @@
     <h3 id="next-title">Your download has started.</h3>
     <p class="lead">Setup takes an afternoon or a weekend. Claude walks you through it, explains where your data goes, and builds nothing until you say so.</p>
     <ol>
-      <li><div><b>Install Claude Code</b><span>From claude.com. It needs a paid plan, Pro or Max.</span></div></li>
-      <li><div><b>Unzip the kit into your home folder</b><span>So it sits at <code>~/vaultkit</code>.</span></div></li>
-      <li><div><b>Open the folder in Claude Code</b><span>In the desktop app's Code tab, or in a terminal: <code>cd ~/vaultkit &amp;&amp; claude</code><button type="button" class="copy" data-copy="cd ~/vaultkit &amp;&amp; claude">Copy</button></span></div></li>
-      <li><div><b>Type &ldquo;start the setup&rdquo;</b><span>Progress is saved, so you can stop at any point and pick up later.</span></div></li>
+      <li><div><b>Download the Claude app</b><span>From claude.com/download, then sign in. Claude Code needs a paid plan, Pro or Max.</span><div class="mk" aria-hidden="true"><div class="mk-bar"><i></i><i></i><i></i><span>claude.com/download</span></div><div class="mk-body"><div class="mk-dl"><div><div class="mk-h">Download Claude</div><div class="mk-sub">The desktop app, with Claude Code built in.</div></div><div class="mk-btns"><span class="mk-btn solid hl">Download for Mac<b class="tag">Click</b></span><span class="mk-btn">Windows</span></div></div><div class="mk-note">Then open the app and sign in. Claude Code needs <b>Pro</b> or <b>Max</b>.</div></div></div></div></li>
+      <li><div><b>Unzip the kit into your home folder</b><span>Double-click the zip, then drag the <code>vaultkit</code> folder onto Home.</span><div class="mk" aria-hidden="true"><div class="mk-bar"><i></i><i></i><i></i><span>Downloads</span></div><div class="mk-body"><div class="mk-finder"><div class="mk-side"><div class="mk-cap">Favourites</div><div class="mk-it hl-drop">&#8962; Home<b class="tag">Drop here</b></div><div class="mk-it sel">&#8595; Downloads</div><div class="mk-it">&#9636; Desktop</div><div class="mk-it">&#9636; Documents</div></div><div class="mk-files"><div class="mk-row">&#9707; carmen-latest.zip<span>1.6 MB</span></div><div class="mk-row hl">&#9636; vaultkit<span>Folder</span><b class="tag">Drag</b></div><div class="mk-hint">Double-click the zip, then drag <b>vaultkit</b> onto <b>Home</b>.</div></div></div></div></div></div></li>
+      <li><div><b>Open the Code tab and choose the folder</b><span>In the Claude app, switch to <b>Code</b>, then pick <code>vaultkit</code> as the folder for a new session.</span><div class="mk" aria-hidden="true"><div class="mk-bar"><i></i><i></i><i></i><span>Claude</span></div><div class="mk-body"><div class="mk-app"><div class="mk-tabs"><span>Chat</span><span class="on hl">Code<b class="tag">1</b></span></div><div class="mk-new">New session</div><div class="mk-input"><div class="mk-ph">Describe a task&hellip;</div><div class="mk-chips"><span class="mk-chip hl">&#9636; vaultkit &#9662;<b class="tag">2</b></span><span class="mk-chip ghost">Opus</span></div></div><div class="mk-menu"><div class="mk-cap">Choose folder</div><div class="mk-it sel">&#9636; ~/vaultkit</div><div class="mk-it">&#9636; ~/Documents</div></div></div></div></div></div></li>
+      <li><div><b>Type &ldquo;start the setup&rdquo;</b><span>Claude explains each step and builds nothing until you say so. Progress is saved.</span><div class="mk" aria-hidden="true"><div class="mk-bar"><i></i><i></i><i></i><span>Claude &middot; vaultkit</span></div><div class="mk-body"><div class="mk-chat"><div class="mk-me">start the setup</div><div class="mk-ai">Welcome. Before anything is built, here is what this sets up and where your data goes: your notes stay as files on your computer and your own server. I will go one step at a time.</div><div class="mk-ai small">Reply <b>&ldquo;I understand, continue&rdquo;</b> when you are ready.</div><div class="mk-input slim"><div class="mk-ph">I understand, continue</div><span class="mk-send">&#8593;</span></div></div></div></div></div></li>
     </ol>
+    <p class="alt">Prefer the terminal? <code>cd ~/vaultkit &amp;&amp; claude</code><button type="button" class="copy" data-copy="cd ~/vaultkit &amp;&amp; claude">Copy</button></p>
     <p class="sk">Skeleton comes without skills. Once it runs, ask Claude to build your first one; the conventions are in <code>_system/skills/README.md</code>.</p>
   </div>
   <div class="foot">The full guide, START HERE.pdf, is inside the zip.</div>
