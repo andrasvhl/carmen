@@ -32,6 +32,7 @@
   .btn { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border: 1px solid var(--bk); font-weight: 500; transition: background .15s, color .15s; }
   .btn:hover, .btn.solid { background: var(--bk); color: var(--wh); }
   .btn.solid:hover { background: var(--wh); color: var(--bk); }
+  .act .hint { font-size: 13px; color: var(--g3); margin: -2px 0 8px; }
   .tier { border: 1px solid var(--bk); }
   .tier + .tier { margin-top: 10px; }
   .tier .btn { border: 0; border-bottom: 1px solid var(--bk); }
@@ -190,8 +191,10 @@
     <div class="hero-row">
       <p>A kit that sets up a personal AI system on your notes, tasks and plans, with Claude working on them around the clock. Built on files you own, running on a server you control. Claude does the setup; you approve each step.</p>
       <div class="act">
-        <div class="tier"><a class="btn solid" href="carmen-latest.zip">Download Carmen <span>&darr;</span></a><p>The complete agent, as I use it.</p></div>
-        <div class="tier"><a class="btn" href="skeleton-latest.zip">Skeleton only <span>&darr;</span></a><p>Just the wiring. Build your own agent on it.</p></div>
+        <a class="btn solid" href="carmen-latest.zip">Download Carmen <span>&darr;</span></a>
+        <span class="hint">The complete agent, as I use it.</span>
+        <a class="btn" href="skeleton-latest.zip">Skeleton only <span>&darr;</span></a>
+        <span class="hint">Just the wiring. Build your own agent on it.</span>
         <a class="btn" href="start-here.pdf">Read Start Here <span>&rarr;</span></a>
         <span class="mono meta">v1.1 &middot; Oct 30, 2026 &middot; updates automatically</span>
       </div>
