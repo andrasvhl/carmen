@@ -169,6 +169,27 @@
     .log .phase { padding-top: 40px; }
     .log .phase h3 { font-size: 24px; }
   }
+
+  /* next-steps popup after a download */
+  dialog.next { margin: auto; max-height: calc(100vh - 32px); overflow: auto; border: 1px solid var(--bk); padding: 0; max-width: 560px; width: calc(100% - 32px); background: var(--wh); color: var(--bk); }
+  dialog.next::backdrop { background: rgba(10,10,10,.55); }
+  dialog.next .top { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--bk); }
+  dialog.next .top button { background: none; border: 0; font: 500 22px/1 var(--sans); cursor: pointer; color: var(--bk); padding: 0 2px; }
+  dialog.next .body { padding: 24px 24px 8px; }
+  dialog.next h3 { font: 500 30px/1.05 var(--sans); letter-spacing: -.035em; }
+  dialog.next .lead { margin-top: 10px; color: var(--g4); }
+  dialog.next ol { list-style: none; counter-reset: n; margin-top: 22px; }
+  dialog.next li { counter-increment: n; display: grid; grid-template-columns: 36px 1fr; gap: 8px; padding: 14px 0; border-top: 1px solid var(--g2); }
+  dialog.next li::before { content: "0" counter(n); font: 500 13px var(--mono); padding-top: 3px; }
+  dialog.next li b { font-weight: 500; }
+  dialog.next li span { display: block; color: var(--g4); font-size: 15px; margin-top: 2px; }
+  dialog.next code { font: 13px var(--mono); background: var(--g1); padding: 2px 6px; }
+  dialog.next .copy { margin-left: 6px; font: 500 11px var(--mono); text-transform: uppercase; border: 1px solid var(--bk); background: var(--wh); padding: 2px 6px; cursor: pointer; }
+  dialog.next .sk { display: none; margin-top: 4px; padding: 14px 16px; background: var(--g1); font-size: 15px; }
+  dialog.next[data-tier="skeleton"] .sk { display: block; }
+  dialog.next .foot { padding: 16px 24px 20px; color: var(--g3); font-size: 13px; }
+  dialog.next .foot a { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 860px) { dialog.next h3 { font-size: 26px; } dialog.next .body, dialog.next .top, dialog.next .foot { padding-left: 18px; padding-right: 18px; } }
 </style>
 </head>
 <body>
@@ -421,5 +442,43 @@
   </div>
 </div>
 
+
+<dialog class="next" id="next" aria-labelledby="next-title">
+  <div class="top"><span class="mono">Next steps</span><button type="button" data-close aria-label="Close">&times;</button></div>
+  <div class="body">
+    <h3 id="next-title">Your download has started.</h3>
+    <p class="lead">Setup takes an afternoon or a weekend. Claude walks you through it, explains where your data goes, and builds nothing until you say so.</p>
+    <ol>
+      <li><div><b>Install Claude Code</b><span>From claude.com. It needs a paid plan, Pro or Max.</span></div></li>
+      <li><div><b>Unzip the kit into your home folder</b><span>So it sits at <code>~/vaultkit</code>.</span></div></li>
+      <li><div><b>Open the folder in Claude Code</b><span>In the desktop app's Code tab, or in a terminal: <code>cd ~/vaultkit &amp;&amp; claude</code><button type="button" class="copy" data-copy="cd ~/vaultkit &amp;&amp; claude">Copy</button></span></div></li>
+      <li><div><b>Type &ldquo;start the setup&rdquo;</b><span>Progress is saved, so you can stop at any point and pick up later.</span></div></li>
+    </ol>
+    <p class="sk">Skeleton comes without skills. Once it runs, ask Claude to build your first one; the conventions are in <code>_system/skills/README.md</code>.</p>
+  </div>
+  <div class="foot">The full guide, START HERE.pdf, is inside the zip.</div>
+</dialog>
+<script>
+(function () {
+  var d = document.getElementById("next");
+  if (!d || typeof d.showModal !== "function") return;
+  var title = document.getElementById("next-title");
+  document.querySelectorAll('a[href$="-latest.zip"]').forEach(function (a) {
+    a.addEventListener("click", function () {
+      var sk = /skeleton/.test(a.getAttribute("href"));
+      d.dataset.tier = sk ? "skeleton" : "carmen";
+      title.textContent = sk ? "Skeleton is downloading." : "Carmen is downloading.";
+      setTimeout(function () { d.showModal(); }, 150);
+    });
+  });
+  d.addEventListener("click", function (e) {
+    if (e.target === d || e.target.hasAttribute("data-close")) d.close();
+    var c = e.target.closest && e.target.closest("[data-copy]");
+    if (c && navigator.clipboard) {
+      navigator.clipboard.writeText(c.getAttribute("data-copy")).then(function () { c.textContent = "Copied"; setTimeout(function () { c.textContent = "Copy"; }, 1500); }, function () {});
+    }
+  });
+})();
+</script>
 </body>
 </html>
