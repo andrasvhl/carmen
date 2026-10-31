@@ -32,6 +32,17 @@
   .btn { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border: 1px solid var(--bk); font-weight: 500; transition: background .15s, color .15s; }
   .btn:hover, .btn.solid { background: var(--bk); color: var(--wh); }
   .btn.solid:hover { background: var(--wh); color: var(--bk); }
+  .tier { border: 1px solid var(--bk); }
+  .tier + .tier { margin-top: 10px; }
+  .tier .btn { border: 0; border-bottom: 1px solid var(--bk); }
+  .tier p { padding: 14px 20px 16px; font-size: 14px; line-height: 1.45; color: var(--g4); grid-column: auto; letter-spacing: 0; }
+  .tier p b { color: var(--bk); font-weight: 500; }
+  .end .tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 56px; max-width: 864px; }
+  .end .tier { border-color: var(--wh); }
+  .end .tier + .tier { margin-top: 0; }
+  .end .tier .btn { margin-top: 0; max-width: none; border-bottom: 1px solid var(--wh); }
+  .end .tier p { color: #aaa; }
+  .end .tier p b { color: var(--wh); }
   .meta { color: var(--g3); margin-top: 6px; }
 
   section { border-top: 1px solid var(--bk); padding: 28px 0 120px; }
@@ -151,6 +162,7 @@
     .feat .vis { padding: 24px 16px; }
     .stats { grid-template-columns: 1fr; gap: 32px; }
     .end footer { flex-direction: column; gap: 8px; }
+    .end .tiers { grid-template-columns: 1fr; }
     .log .phase { padding-top: 40px; }
     .log .phase h3 { font-size: 24px; }
   }
@@ -176,7 +188,8 @@
     <div class="hero-row">
       <p>A kit that sets up a personal AI system on your notes, tasks and plans, with Claude working on them around the clock. Built on files you own, running on a server you control. Claude does the setup; you approve each step.</p>
       <div class="act">
-        <a class="btn solid" href="carmen-latest.zip">Download the kit <span>&darr;</span></a>
+        <div class="tier"><a class="btn solid" href="carmen-latest.zip">Download Carmen <span>&darr;</span></a><p><b>Carmen: the platform.</b> Server, connections, automations, the daily check-in and your task cockpit.</p></div>
+        <div class="tier"><a class="btn" href="carmena-latest.zip">Add CarmenA <span>&darr;</span></a><p><b>CarmenA: how I actually use it, anonymized.</b> Travel, coffee chats, group planning, reading and more, on top of Carmen.</p></div>
         <a class="btn" href="start-here.pdf">Read Start Here <span>&rarr;</span></a>
         <span class="mono meta">v1.1 &middot; Oct 30, 2026 &middot; updates automatically</span>
       </div>
@@ -322,6 +335,7 @@
     <div class="log">
       <!-- CHANGELOG -->
       <div class="phase"><span class="mono">Phase 5</span><h3>Sharing it</h3><p>Public, and updating itself. The current phase: new changes land here as they ship.</p></div>
+      <div><time>Oct 30, 2026</time><h3>The kit catches up with the real setup</h3><p>Seven skills join the kit: the daily check-in, travel planning, coffee chats, group planning, sending to Kindle, sending to Speechify and video transcription, with about 50 new or updated guides, each rewritten for a new owner and checked before release. The kit now comes in two parts: Carmen, the platform, and CarmenA, an add-on with how I actually use it.</p></div>
       <div><time>Oct 30, 2026</time><h3>Carmen goes online<small>v1.1</small></h3><p>The kit gets a public home: an always-current download, the Start Here guide and this history. Every night the code is copied, stripped of anything personal, checked by two privacy scanners and only then published.</p></div>
       <div class="phase"><span class="mono">Phase 4</span><h3>Running the day</h3><p>From storing things to planning them: mornings, weeks, trips and every inbox.</p></div>
       <div><time>Oct 16, 2026</time><h3>LinkedIn, Messenger, Instagram</h3><p>Messages from all three reach Claude, read-only, with a push when someone new writes.</p></div>
@@ -371,7 +385,10 @@
 <div class="end">
   <div class="wrap">
     <h2>Set it up this weekend.</h2>
-    <a class="btn" href="carmen-latest.zip">Download the kit <span>&darr;</span></a>
+    <div class="tiers">
+      <div class="tier"><a class="btn" href="carmen-latest.zip">Download Carmen <span>&darr;</span></a><p><b>Carmen: the platform.</b> Server, connections, automations, the daily check-in and your task cockpit.</p></div>
+      <div class="tier"><a class="btn" href="carmena-latest.zip">Add CarmenA <span>&darr;</span></a><p><b>CarmenA: how I actually use it, anonymized.</b> Travel, coffee chats, group planning, reading and more, on top of Carmen.</p></div>
+    </div>
     <footer class="mono"><span>Carmen &middot; shared by <a class="me" href="https://andrashabsburg.com">András Habsburg</a></span><span>Names are trademarks of their owners. No affiliation.</span></footer>
   </div>
 </div>

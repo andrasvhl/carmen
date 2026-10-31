@@ -3,7 +3,8 @@
 A personal AI setup you can copy: an Obsidian vault, Claude Code, and a small
 server that keeps working while your laptop is off.
 
-- **Download the kit:** [`carmen-latest.zip`](carmen-latest.zip), always the latest version.
+- **Download Carmen, the platform:** [`carmen-latest.zip`](carmen-latest.zip), always the latest version.
+- **Add CarmenA:** [`carmena-latest.zip`](carmena-latest.zip), how the author actually uses it, anonymized. Unzip it over Carmen.
 - **Read first:** [`start-here.pdf`](start-here.pdf).
 - **What changed:** [`changelog.json`](changelog.json), also shown on the site.
 - **The code:** [`code/`](code/), the server automation, with personal values replaced by
