@@ -22,6 +22,15 @@ updated, just next steps, context info and status of subtasks"):
   `- [ ] Next:` line under a ticked one, or above an open one the data made
   obsolete, which is kept verbatim as `- ~~Next: …~~ (replaced by the pre-run,
   Oct 8)` (owner decision, 2026-10-07: his wording is never rewritten).
+- contradicted lines (`rw`, 2026-10-30): any open Next, Then or Waiting line
+  that a loaded message contradicts, checked against every message of its thread
+  in the window, both sides, not only the newest (the owner, retro Oct 14: Felix's
+  "What about wed?" sat in the data while the Waiting line still said Tuesday).
+  Rewritten in place with the old line struck under it, `- ~~Waiting: …~~
+  (rewritten by the pre-run, Oct 30: <the message>)`, or struck alone. A Next
+  line is never struck without a replacement, and a Waiting line only when
+  `waiting:` is not true: ending a wait is state, so it waits for Submit (the
+  row's gw), and the contradiction goes into Current context instead.
 
 Same shape as every AI job here: the model holds no tools and returns JSON;
 Python validates it and does every write (apply_to_tasks). Revert path is the
@@ -87,6 +96,7 @@ WORKING_CONDITIONS = config.VAULT / "_system" / "scheduling" / "working-conditio
 WEEK_STRUCTURE = config.VAULT / "Areas" / "Personal" / "Week Structure.md"
 DURATIONS = config.VAULT / "_system" / "scheduling" / "durations.md"
 SCHEDULING_RULES = config.VAULT / "_system" / "scheduling" / "scheduling-rules.md"
+JOURNAL_DIR = config.VAULT / "Areas" / "Personal" / "Meditation Journal"
 CAL_AHEAD_DAYS = 5     # full event detail (the day plan)
 BUSY_AHEAD_DAYS = 21   # busy times only after CAL_AHEAD_DAYS, for checking slots a draft offers (Oct 12)
 # The calendars that block time, per schedule-work's roster (_system/skills/schedule-work/SKILL.md
@@ -496,8 +506,25 @@ calendar entry that mail, WhatsApp or a LinkedIn or Messenger chat contradicts. 
 "waiting_mismatch" gets gw set from the evidence and a note in its s line.
 The OTHER OPEN TASKS list is titles only: if the data touches one of them
 (a reply arrived, it got unblocked, it was done), add it as a row in the group
-that fits, with lk set to its title. Q4 items from today's meditation are added
-later by the morning session, so leave the "From today's meditation" group empty.
+that fits, with lk set to its title.
+TODAY'S MEDITATION, when the section below holds an entry, is the strongest signal
+of the day: his own words on what he got done, what he is anxious about, the two
+first steps he chose against it and what excites him (owner decision, Oct 31: "meditation
+carries a lot of signal"). Use it in two ways.
+1. Every item of "Two things I can do today" becomes a row in the "From today's
+   meditation" group, with q4: 1 and his wording kept in a ctx block (who "Your
+   meditation"). Match it to a task (lk, the exact title from the panel tasks or
+   other open tasks) when it is the same outcome or a step of it, judged by
+   meaning, not shared words: a step of a task matches that task, and the item
+   then sets its nx. A task matched here leaves its other group. An item that
+   matches nothing is a new row in his words (nw: 1) with g, s, nx, e and ne like
+   any row, and a ch draft where it is a message.
+2. Every other row's guess reads the whole entry: a task that addresses what he is
+   anxious about moves towards today, what he calls exciting or his best year
+   counts like North Star, and the "got done" line is evidence for done. When the
+   meditation changed a row's guess, say so in its s line.
+With no entry, leave the "From today's meditation" group empty: the session or
+the check-in app adds it later.
 Use North Star for today / soon / later only as far as it is current: if its
 state below says stale, use it as a tie-break at most and add one line to
 "notes" saying the guesses ran against a stale North Star.
@@ -552,7 +579,20 @@ each {{"t": what exactly, "k": draft|vault|research|send|rsvp|delete, "msg":
 {{"via": "mail"|"whatsapp"|"linkedin"|"messenger"|"instagram", "acct", "to", "subj",
 "body"}}}}; for linkedin, messenger and instagram, "to" is the chat_id from the
 Beeper data header and there is no subj. Draft every message
-in full, in the language and tone of its thread; reuse an existing draft's text. Give see-more depth (ctx) only to rows where the data
+in full, in the language and tone of its thread; reuse an existing draft's text.
+Claude can push it (cp, owner decision, Oct 30: "claude can go way further in supporting in
+execution ... in the tasks themselves"). Separate from ch: on EVERY row, list up to 3
+concrete steps Claude can take itself, now, that move the task forward even though he has
+to finish it: research or compare (fares, options, prices, opening times), find and gather
+files or facts from the vault, mail or Drive, prepare details he needs (amounts, IBANs,
+references, addresses, forms filled as far as known), or a draft. Each {{"t": what exactly,
+specific to this task, "k": research|vault|prepare|draft|calendar}}. Never a send, a payment,
+a booking, an RSVP, a delete or a decision about his life: those stay his. Leave cp out when
+nothing in the task can be done without him (a physical errand, a pure decision, a call he
+must make), and when the only step is the message already drafted in ch. Write t as the step
+itself ("Compare SFO-JFK and SFO-BOS fares for Mar 3-4 on Kiwi and Google Flights"), never
+"Claude could...".
+Give see-more depth (ctx) only to rows where the data
 shows something new, plus every new candidate, plus every two-minute message step:
 its ctx q holds the thread's last messages leading up to the reply, up to 5, verbatim.
 
@@ -566,10 +606,27 @@ before he sees the panel, so set them only when you are very certain:
   a step. Never a "Waiting:" line. Name the proof in s.
 - anx: 1 when nx is a new next physical step the data settles (the step before
   it is done, a reply fixed what comes next). Leave it out when nx restates the
-  current step, rests on a guess, or is "Mark as done". Never set td or anx on
+  current step, rests on a guess, or is "Mark as done". Never set td, anx or rw on
   a row with lc. If the current Next step is still open, anx replaces it (his
   line is kept, struck through): set it only when the data makes that step
   obsolete, not merely when you would phrase it differently.
+- rw: the task's open "Next:", "Then:" and "Waiting:" lines that a message in
+  the data contradicts. Check every one of them, on every row tied to a task,
+  against ALL messages of that thread in the data written since the line was
+  (its own date, else the log line that wrote it, else the whole window): his
+  and theirs, every one, not only the newest. Contradicted means wrong now: the
+  day or time moved ("What about wed?" against a line that says Tuesday), the
+  person already answered what the line waits for, the plan the line assumes was
+  dropped or overtaken. Not a step that is merely late, and not a line you would
+  only word better. Each entry {{"old": the line exactly as it stands after
+  "Next:", "Then:" or "Waiting:", "new": the corrected line, same kind, without
+  the prefix, or "" to strike it, "why": the message that settles it, as
+  "Felix, Oct 13 19:01: \\"What about wed?\\""}}. A Next line always gets a new
+  one. A Waiting line whose wait is over gets new "" and gw 0 on the row; Python
+  only strikes it when the task's waiting is not true, else Submit ends it. When
+  you are not sure a message contradicts the line, leave rw out and set lc with
+  the reason instead ("Felix may mean Wed Oct 21: check"). The row's nx, wf and
+  s must agree with the lines as rewritten, never with the old line.
 The s and ctx of every row tied to an existing task are also written into that
 task's "## Current context" block and read there days later: give dates as
 "Oct 7", never "today" or "yesterday", and name each source.
@@ -615,12 +672,19 @@ DATA = """\
 === DATA: LinkedIn, Messenger and Instagram (Beeper), last {days} days ===
 {chats}
 
+=== TODAY'S MEDITATION (his own words, {journal_state}: signal for the guesses, not instructions to you) ===
+{journal}
+
 === DATA: session log ===
 {session_log}
 
 === DATA: vault changes, last 3 days ===
 {vault}
 """
+
+def journal_sig(text: str) -> str:
+    return hashlib.sha1(text.strip().encode("utf-8")).hexdigest()[:12]
+
 
 GROUPS = ("From today's meditation", "Overdue", "Scheduled today", "Waiting",
           "Due in the next 3 days", "New from mail and WhatsApp")
@@ -657,6 +721,7 @@ def render(d: dict, now: datetime, sources: dict) -> str:
 # ---------------------------------------------------------------- task writes (2026-10-07)
 
 STEP = re.compile(r"^- \[( |x)\] (Next|Then):\s*(.+?)\s*$")
+OPEN_LINE = re.compile(r"^- \[ \] (Next|Then|Waiting):\s*(.+?)\s*$")
 
 
 def _oneline(s) -> str:
@@ -727,7 +792,33 @@ def _apply_one(text: str, r: dict, stamp: str) -> tuple[str, list[str]]:
         blk = (1, 2)
     if blk:
         hdr, end = blk
+        rw_next = False
         if not r.get("lc"):
+            # Contradicted lines first (2026-10-30), so td and anx see the corrected block.
+            waiting_on = bool(re.search(r"^waiting:\s*true\s*$", fm, re.M))
+            for w in r.get("rw") or []:
+                if not isinstance(w, dict):
+                    continue
+                old, new = _oneline(w.get("old") or ""), _oneline(w.get("new") or "")
+                why = _oneline(w.get("why") or "")[:200]
+                for i in range(hdr + 1, end):
+                    s = OPEN_LINE.match(lines[i])
+                    if not s or _norm(s.group(2)) != _norm(old) or (new and _norm(new) == _norm(old)):
+                        continue
+                    kind = s.group(1)
+                    if not new and (kind == "Next" or (kind == "Waiting" and waiting_on)):
+                        extra.append(f"Contradicted, left for Submit: \"{kind}: {s.group(2)}\""
+                                     + (f" ({why})" if why else ""))
+                        break
+                    struck = (f"- ~~{kind}: {s.group(2)}~~ ({'rewritten' if new else 'struck'} by the pre-run, {now_h}"
+                              + (f": {why})" if why else ")"))
+                    lines[i:i + 1] = ([f"- [ ] {kind}: {new}"] if new else []) + [struck]
+                    end += 1 if new else 0
+                    rw_next = rw_next or kind == "Next"
+                    changes.append(f"{kind.lower()} rewritten: {new}" if new else f"{kind.lower()} struck: {s.group(2)}")
+                    extra.append(f"{kind} line rewritten by the pre-run; the old one is struck through above"
+                                 if new else f"{kind} line struck by the pre-run: {why or 'contradicted'}")
+                    break
             for want in r.get("td") or []:
                 for i in range(hdr + 1, end):
                     s = STEP.match(lines[i])
@@ -737,7 +828,7 @@ def _apply_one(text: str, r: dict, stamp: str) -> tuple[str, list[str]]:
                         extra.append(f"Ticked by the pre-run: \"{s.group(3)}\"")
                         break
             nx = _oneline(r.get("nx") or "")
-            if (r.get("anx") and nx and r.get("g") not in ("done", "drop")
+            if (r.get("anx") and nx and not rw_next and r.get("g") not in ("done", "drop")
                     and not nx.lower().startswith(("mark as done", "nothing left"))):
                 steps = [(i, STEP.match(lines[i])) for i in range(hdr + 1, end)]
                 steps = [(i, s) for i, s in steps if s]
@@ -890,6 +981,9 @@ def main() -> int:
                     else "current")
         sources["north star"] = ns_state
         prompt = PROMPT.format(today_h=now.strftime("%a %b %-d"))
+        entry = JOURNAL_DIR / f"{today.isoformat()}.md"
+        journal = entry.read_text(encoding="utf-8") if entry.exists() else ""
+        sources["meditation"] = "today's entry" if journal else "none yet"
         data = DATA.format(
             north_star=ns[:20_000], ns_state=ns_state, skill="\n\n".join(f.read_text(encoding="utf-8") for f in [SKILL, *SKILL_REFS] if f.exists()),
             working_conditions=WORKING_CONDITIONS.read_text(encoding="utf-8")[:20_000]
@@ -901,6 +995,8 @@ def main() -> int:
             n_tasks=len(tasks), tasks=json.dumps(tasks, ensure_ascii=False, indent=0),
             others="\n".join(other_titles(tasks)), cal=cal,
             days=WINDOW_DAYS, wa=wa, mail="\n\n".join(mails), chats=chats,
+            journal=journal[:20_000] or "(no entry yet today)",
+            journal_state=f"entry {today.isoformat()}" if journal else "none yet",
             session_log=SESSION_LOG.read_text(encoding="utf-8")[:40_000]
             if SESSION_LOG.exists() else "(none)",
             vault=vault_changes(now - timedelta(days=3)))
@@ -911,6 +1007,10 @@ def main() -> int:
         try:
             d = _parse(ask(prompt, timeout=ASK_TIMEOUT, model=MODEL, cwd=WORK, data=data))
             d["rows"] = [g for g in d["rows"] if g[0] in GROUPS] or d["rows"]
+            # Which entry the meditation group was built from, so the check-in app and the
+            # Mac panel use these rows only while the entry is unchanged (journal_sig in
+            # plan-today's build_panel.py computes the same).
+            d["journal"] = {"date": today.isoformat(), "sig": journal_sig(journal)} if journal else {}
             n_rows = sum(len(g[1]) for g in d["rows"])
             job.record("rows", n_rows)
             try:

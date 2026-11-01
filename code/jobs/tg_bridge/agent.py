@@ -285,9 +285,11 @@ the vault as your working directory; the MacBook may be off.
 - Never print secrets into a reply."""
 
 
-def system_append(style_path: Path) -> str:
+def system_append(style_path: Path, channel: str = CHANNEL_CONTEXT) -> str:
+    """The reply style, then the channel's own paragraph. The check-in app's chat
+    (jobs/checkin_app/chat.py) passes its own channel; everything else is shared."""
     style = reply_style(style_path)
-    return f"{style}\n\n{CHANNEL_CONTEXT}" if style else CHANNEL_CONTEXT
+    return f"{style}\n\n{channel}" if style else channel
 
 
 # --- transcript health -------------------------------------------------------
@@ -625,8 +627,9 @@ class AgentPool:
                  env: dict[str, str] | None = None, mode: str | None = None,
                  settings: str | None = None, max_warm: int = MAX_WARM,
                  idle_close_s: float = IDLE_CLOSE_S, clock: Callable[[], float] = time.monotonic,
-                 limits: dict[str, float] | None = None):
+                 limits: dict[str, float] | None = None, channel: str = CHANNEL_CONTEXT):
         self.store = store
+        self.channel = channel
         self.factory = factory
         self.cwd = cwd
         self.cli_path = cli_path
@@ -713,7 +716,7 @@ class AgentPool:
     async def _run_locked(self, session_id: int, prompt: str,
                           on_event: EventHook | None) -> TurnResult:
         notes: list[str] = []
-        append = system_append(self.style_path)
+        append = system_append(self.style_path, self.channel)
         session = self.store.get(session_id)
         warm = self._warm.get(session_id)
         if warm and warm.claude_id != session.claude_session_id:

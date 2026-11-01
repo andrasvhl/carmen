@@ -27,11 +27,12 @@ Secrets are never in the code: they are read from `~/.automation.env`
 | `<SAMPLE_VAULT_FILE_2>` | See <SAMPLE_VAULT_FILE_1>. | `bin/restore-test.sh` |
 | `<SAMPLE_VAULT_FILE_3>` | See <SAMPLE_VAULT_FILE_1>. | `bin/restore-test.sh` |
 | `<SAMPLE_VAULT_FILE_4>` | See <SAMPLE_VAULT_FILE_1>. | `bin/restore-test.sh` |
-| `<user>` | Your Unix user name (home paths /home/<user>, /Users/<user>; systemd User=; launchd label com.<user>.*). Set in units/*.service and units/mac/*.plist. | `jobs/tg_bridge/agent.py`, `jobs/wa_consumer.py`, `tests/session_digest.py`, `tests/tg_bridge/_fakes.py`, `tests/tg_bridge/delivery_notify.py`, `tests/tg_bridge/sessions_health.py` and 5 more |
+| `<user>` | Your Unix user name (home paths /home/<user>, /Users/<user>; systemd User=; launchd label com.<user>.*). Set in units/*.service and units/mac/*.plist. | `jobs/tg_bridge/agent.py`, `jobs/wa_consumer.py`, `tests/session_digest.py`, `tests/tg_bridge/_fakes.py`, `tests/tg_bridge/delivery_notify.py`, `tests/tg_bridge/sessions_health.py` and 6 more |
 | `<VAULT_NAME>` | Your Obsidian vault's name (folder name, and the obsidian:// vault= parameter). Set in runner/config.py, tools/check_tasks.py, tools/check_docs.py and the OBSIDIAN_VAULT / VAULT_NAME constants. | `jobs/build_brief.py`, `jobs/maintenance_brief.py`, `jobs/routine_push.py`, `runner/config.py`, `tests/canvas_tasks.py`, `tools/build_capture_shortcut.py` and 4 more |
-| `<YOUR_EMAIL>` | Your main Google account (calendar + Gmail the jobs read). Set in tools/freetime.py ACCOUNT, jobs/plan_today_prerun.py, tools/trains.py UA. | `jobs/plan_today_prerun.py`, `tools/freetime.py`, `tools/trains.py` |
+| `<WORK_MAIL_DOMAIN>` | The domain of your work or school mailbox (e.g. a university). jobs/checkin_app labels calendars and mailboxes on it "Work". Leave the placeholder if you have one mailbox. | `jobs/checkin_app/__init__.py`, `jobs/checkin_app/page.html` |
+| `<YOUR_EMAIL>` | Your main Google account (calendar + Gmail the jobs read). Set in tools/freetime.py ACCOUNT, jobs/plan_today_prerun.py, tools/trains.py UA. | `jobs/checkin_app/page.html`, `jobs/plan_today_prerun.py`, `tests/checkin_app_send.py`, `tools/freetime.py`, `tools/trains.py` |
 | `<YOUR_PERSONAL_ACCOUNT>` | Label for that second account in comments. | `jobs/plan_today_prerun.py` |
-| `<YOUR_PERSONAL_EMAIL>` | Optional second Google account whose calendar/mail is also read. Set in jobs/plan_today_prerun.py or delete the entry. | `jobs/plan_today_prerun.py` |
+| `<YOUR_PERSONAL_EMAIL>` | Optional second Google account whose calendar/mail is also read. Set in jobs/plan_today_prerun.py or delete the entry. | `jobs/checkin_app/__init__.py`, `jobs/checkin_app/page.html`, `jobs/plan_today_prerun.py`, `tests/checkin_app_send.py` |
 
 Course numbers in comments and test fixtures are made up; the subject codes are real Stanford ones.
 

@@ -25,6 +25,7 @@ from typing import Any, Iterable
 
 from runner.config import VAULT
 
+from . import cache as cache_mod
 from . import extract as extract_mod
 from . import state as state_mod
 from .layout import (DROPPED, PROGRAM, STATUS_DIRS, course_dir, course_dirs, group_key,
@@ -51,7 +52,10 @@ UNFILED = "_Unfiled"
 # being listed in modules and the Files tab. On courses whose readings are all
 # "links", this is the ONLY place they appear: F25-OB-779 has 19 files and
 # 68.8 MB reachable this way and nothing at all in the other two.
-FILE_LINK = re.compile(r"/courses/\d+/files/(\d+)")
+# Course-scoped (`/courses/1/files/2`) or bare (`/files/2/download`, how the
+# GSB Home-page template links its syllabus PDFs). The bare form must follow a
+# Canvas host, a quote or a paren, so `/users/1/files/2` is not taken for a course file.
+FILE_LINK = re.compile(r"(?:/courses/\d+|//[^/\s\"']*canvas[^/\s\"']*|[\"'(])/files/(\d+)")
 
 # Pages link to other pages. A subpage reached only that way is in no module
 # and, on a course with the Pages tab disabled, in no listing either - so the
@@ -556,6 +560,18 @@ class Puller:
         listed, status = self.client.try_paginate(f"courses/{cid}/pages")
         slugs = [p["url"] for p in listed if p.get("url")]
         seen = set(slugs)
+        # The course Home page is often a wiki page in no module, and on GSB
+        # courses it is where the real syllabus sits while the Syllabus tab is
+        # an empty template (STRAMGT 387, 2026-10-29). Readable even with the
+        # Pages tab off. A replay miss here is safe to skip, unlike elsewhere:
+        # a front page never recorded was never written, so prune loses nothing.
+        try:
+            front = self.client.get(f"courses/{cid}/front_page").get("url")
+        except (Unavailable, CanvasError, cache_mod.Miss):
+            front = None
+        if front and front not in seen:
+            slugs.append(front)
+            seen.add(front)
         for (kind, ident) in module_of:
             if kind == "page" and ident and ident not in seen:
                 slugs.append(ident)

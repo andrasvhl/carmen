@@ -1,0 +1,21 @@
+[Unit]
+Description=Check-in Mini App (plan-today rows inside the Telegram bot, 127.0.0.1:8790)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=600
+StartLimitBurst=5
+OnFailure=automation-alert@checkin_app.service
+
+[Service]
+# A daemon like tg-bridge, never automation@. Tailscale Funnel path /checkin proxies it.
+Type=simple
+User=<user>
+WorkingDirectory=/home/<user>/automation
+Environment=HOME=/home/<user>
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/<user>/automation/bin/run-job checkin_app
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

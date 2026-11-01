@@ -1,0 +1,1924 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carmen</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#F5F4F0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Carmen">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  /* Design: the approved mock, Oct 30. */
+  :root {
+    --ground: #F5F4F0; --surface: #FFFFFF; --ink: #17171C; --ink2: #3A3A42; --muted: #5E5E66;
+    --line: #EEEDE8; --soft: #F1F0EC; --accent: #2D4FD8; --accent-ink: #1F3AA8; --accent-soft: #EEF1FD;
+    --amber-soft: #FBEFDF; --amber-ink: #8F4E08; --onaccent: #FFFFFF; --bar: rgba(255,255,255,.92);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0F0F12; --surface: #1C1C21; --ink: #F2F2F5; --ink2: #D4D4DA; --muted: #A0A0A8;
+      --line: #2A2A30; --soft: #2A2A30; --accent: #6F8BFF; --accent-ink: #A9B9FF; --accent-soft: #1E2547;
+      --amber-soft: #3A2A12; --amber-ink: #F3C46B; --onaccent: #0F0F12; --bar: rgba(28,28,33,.92);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--ground); color: var(--ink);
+    font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif; }
+  main { max-width: 560px; margin: 0 auto;
+    padding: calc(16px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom)); }
+  button { font: inherit; border: 0; cursor: pointer; }
+  /* iPhone: no double-tap zoom on taps, and 16px fields so focusing one never zooms */
+  html, button, a, .item { touch-action: manipulation; }
+  input, textarea { font-size: 16px !important; }
+  button:disabled { opacity: .45; cursor: default; }
+
+  .head { padding: 8px 4px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .head .sub { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .head .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { margin: 18px 4px 8px; font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: baseline; }
+  h2 span { font-size: 13px; color: var(--muted); font-weight: 400; flex: 1; margin-left: 8px; }
+  h2 .pill { height: 34px; }
+  .pill { height: 40px; padding: 0 12px; border-radius: 12px; background: var(--surface); color: var(--accent);
+    font-weight: 500; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+
+  .banner { font-size: 13px; padding: 9px 12px; border-radius: 12px; margin: 0 0 12px; background: var(--surface); color: var(--muted); }
+  .banner.test { background: var(--amber-soft); color: var(--amber-ink); }
+  .banner a { color: var(--accent); font-weight: 600; text-decoration: none; }
+
+  .card { background: var(--surface); border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; }
+  .hero { border-radius: 20px; padding: 18px; box-shadow: 0 1px 2px rgba(23,23,28,.06), 0 8px 24px rgba(23,23,28,.06); }
+  .tag { display: inline-block; font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+    padding: 4px 8px; border-radius: 6px; background: var(--amber-soft); color: var(--amber-ink); }
+  .tagline { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .title { font-weight: 600; line-height: 1.3; }
+  .hero .title { font-size: 20px; letter-spacing: -.01em; margin-top: 10px; }
+  .next { font-size: 14.5px; color: var(--ink2); margin-top: 6px; }
+  .next b { color: var(--muted); font-weight: 400; }
+  .why { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .src { color: var(--muted); font-size: 12px; }
+  .ask { background: var(--ground); border-radius: 12px; padding: 10px 12px; margin-top: 6px; }
+  .askq { font-weight: 600; font-size: 14.5px; }
+  .askopts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .askopts .addpill { width: auto !important; max-width: 100%; height: auto !important; min-height: 36px; border-radius: 10px !important; padding: 7px 12px !important; font-size: 14px !important; line-height: 1.3 !important; white-space: normal !important; text-align: left; }
+  .askfree { display: flex; gap: 6px; margin-top: 8px; }
+  .askfree input { flex: 1; min-width: 0; background: var(--surface); }
+  .askfree .addpill { width: auto !important; border-radius: 10px !important; padding: 0 14px !important; font-size: 14px !important; }
+  .waitbox { margin-top: 8px; background: var(--accent-soft); color: var(--accent-ink); border-radius: 10px; padding: 8px 10px; font-size: 13.5px; }
+  .acts { display: flex; gap: 8px; margin-top: 12px; }
+  .acts button { height: 44px; border-radius: 12px; padding: 0 14px; font-weight: 600; font-size: 14.5px; background: var(--soft); color: var(--ink); }
+  .acts .primary { background: var(--accent); color: var(--onaccent); flex: 1; }
+  .acts .soft { background: var(--accent-soft); color: var(--accent); }
+
+  .list { background: var(--surface); border-radius: 18px; overflow: hidden; }
+  .item { padding: 13px 16px; border-bottom: 1px solid var(--line); }
+  .item:last-child { border-bottom: 0; }
+  .item .top { display: flex; gap: 12px; align-items: flex-start; }
+  .check { width: 26px; height: 26px; border-radius: 13px; border: 1.75px solid #B9B8B2; background: transparent; flex: none; margin-top: -1px; }
+  .check:active { background: var(--accent-soft); }
+  .item .body { flex: 1; min-width: 0; }
+  .item .title { font-size: 15px; font-weight: 550; }
+  .item .nx { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .item .est { font-size: 12px; color: var(--muted); flex: none; margin-top: 2px; }
+  .item .more { display: none; }
+  .item.open .more { display: block; }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 2px 0; }
+  .chips button { height: 36px; border-radius: 10px; padding: 0 12px; font-size: 13px; font-weight: 500; background: var(--soft); color: var(--ink); }
+  .chips button.on { background: var(--accent-soft); color: var(--accent); }
+
+  .who { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 36px; height: 36px; border-radius: 18px; background: var(--accent-soft); color: var(--accent-ink);
+    font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex: none; }
+  .who .name { font-weight: 600; }
+  .who .via { font-size: 12.5px; color: var(--muted); }
+  textarea.draft { display: block; width: 100%; box-sizing: border-box; border: 0; resize: vertical; font: inherit; font-size: 16px; min-height: 90px; }
+  .draft { margin-top: 10px; background: var(--ground); border-radius: 12px; padding: 10px 12px; font-size: 14.5px; color: var(--ink2); white-space: pre-wrap; }
+  .steps { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .steps .lbl { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .step { display: flex; gap: 8px; font-size: 14px; color: var(--ink2); }
+  .step i { font-style: normal; width: 20px; height: 20px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-ink);
+    font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex: none; margin-top: 1px; }
+
+  .edit { display: none; margin-top: 10px; }
+  .editing .edit { display: block; }
+  .edit label { font-size: 12px; color: var(--muted); display: block; margin: 8px 0 4px; }
+  input, textarea { width: 100%; border: 0; border-radius: 12px; padding: 10px 12px; font: inherit; background: var(--ground); color: var(--ink); }
+  textarea { min-height: 72px; resize: vertical; }
+  .addbar { display: none; gap: 8px; margin-bottom: 12px; }
+  .addbar.on { display: flex; }
+  .addbar input { background: var(--surface); }
+  .addbar button { height: 44px; padding: 0 16px; border-radius: 12px; background: var(--accent); color: var(--onaccent); font-weight: 600; }
+
+  .seg { display: flex; background: var(--soft); border-radius: 12px; padding: 3px; margin: 0 0 12px; }
+  .seg button { flex: 1; height: 38px; border-radius: 9px; background: none; color: var(--muted); font-weight: 600; font-size: 14px; }
+  .seg button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(23,23,28,.12); }
+  .cta { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; height: 52px; margin-top: 16px;
+    border-radius: 14px; background: var(--ink); color: var(--ground); font-weight: 600; font-size: 15.5px; }
+  .plist .item .check { display: none; }
+  .addpill { flex: none; height: 36px; padding: 0 14px; border-radius: 10px; background: var(--accent-soft); color: var(--accent);
+    font-weight: 600; font-size: 13.5px; align-self: center; }
+  .addpill.on, .acts .primary.on { background: var(--accent); color: var(--onaccent); }
+  .addpill.ghost, .acts .primary.ghost { background: var(--soft); color: var(--ink); }
+  .pair { display: flex; gap: 6px; flex: none; align-self: center; }
+  .addpill .ico { display: none; }
+  @media (max-width: 600px) {
+    .pair { flex-direction: column; gap: 6px; align-self: flex-start; }
+    .addpill { width: 40px; height: 40px; padding: 0; border-radius: 20px; font-size: 20px; line-height: 40px; }
+    .addpill .lbl { display: none; }
+    .addpill .ico { display: inline; }
+    /* Done / Not done have no icon: small text chips, not 40 px circles (Oct 31) */
+    .addpill.txt { width: auto; height: 34px; padding: 0 12px; border-radius: 17px; font-size: 14px; line-height: 34px; white-space: nowrap; }
+    .item .top { gap: 10px; }
+    /* 3 lines: as tall as the two stacked buttons, so the card wastes no space (Oct 30) */
+    .item:not(.open) .nx { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  }
+  /* Each row its own card, close together (Oct 30: "more card like without taking a lot more space") */
+  .list { background: none; border-radius: 0; overflow: visible; display: flex; flex-direction: column; gap: 6px; }
+  .item { background: var(--surface); position: relative; touch-action: pan-y pinch-zoom; border-radius: 14px;
+    border: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 11px 14px;
+    box-shadow: 0 1px 2px rgba(23,23,28,.05); }
+  .item:last-child { border-bottom: 1px solid var(--line); }
+  /* iOS Safari only sends taps on plain elements to a document listener when they look clickable */
+  .item, [data-id], .item .top, .item .body { cursor: pointer; }
+  .item.sw-add { background: var(--accent-soft); }
+  .item.sw-rem { background: var(--amber-soft); }
+  .item.sw-go.sw-add { background: #C9D3FA; }
+  .item.sw-go.sw-rem { background: #F6D9B4; }
+  .detail { margin-top: 10px; }
+  /* Open card: the next step stays at the top in full, beside the buttons (no gap there),
+     then the actions, then the details without a second copy of it (Oct 30) */
+  .item .detail .dsec.dnext { display: none; }
+  .item .more > .acts.small:first-child { margin-top: 10px; }
+  .hero .detail { display: none; }
+  .hero.open .detail { display: block; }
+  .dgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px;
+    background: var(--ground); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+  .dgrid label, .dsec label { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 1px; }
+  .dsec { margin-top: 10px; font-size: 14px; color: var(--ink2); }
+  .dsec .desc { white-space: pre-wrap; }
+  .by { font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 2px 6px; border-radius: 5px; vertical-align: 2px; }
+  .acts.small { margin-top: 8px; }
+  .acts.small button { height: 36px; font-size: 13.5px; font-weight: 500; }
+  .item .removebox { margin-top: 10px; }
+  .item.removing .removebox { display: block; }
+  /* Sticky, so the budget stays in view while scrolling (owner decision, Oct 30) */
+  .bwrap { position: sticky; top: 0; z-index: 5; margin: 0 -16px 12px; padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+    background: var(--ground); }
+  .budget { background: var(--surface); border-radius: 14px; padding: 10px 14px; box-shadow: 0 6px 16px rgba(23,23,28,.08); }
+  .budget .brow { display: flex; justify-content: space-between; font-size: 13.5px; }
+  .budget .brow span { color: var(--muted); }
+  .budget .bar { height: 6px; border-radius: 3px; background: var(--soft); margin-top: 8px; overflow: hidden; }
+  .budget .bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .25s; }
+  .budget.over .bar i { background: #C9771E; }
+  .budget .bnote { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .budget.over .bnote:last-child { color: var(--amber-ink); font-weight: 600; }
+  .removebox { display: none; margin-top: 10px; }
+  .removing .removebox { display: block; }
+  /* Remove as a vertical dropdown (owner decision, Oct 30) */
+  .pop { position: fixed; z-index: 50; }
+  /* Feel (Oct 30, "like Things 3"): things give way under the finger and move with a spring */
+  button, .item, .card { transition: transform .14s cubic-bezier(.2,.8,.2,1), background-color .15s; }
+  button:active:not(:disabled) { transform: scale(.94); }
+  /* No press scale on cards: iOS marks every scroll touch as a press, so cards bounced while reading (Oct 30) */
+  .pop.sheet { animation: sheetup .32s cubic-bezier(.2,.9,.25,1.05); }
+  .pop.dialog { animation: popin .22s cubic-bezier(.2,.9,.3,1.1); }
+  .pop.full { animation: fullin .28s cubic-bezier(.2,.9,.3,1); }
+  .pop:not(.sheet):not(.dialog):not(.full) .removebox { animation: dropin .18s cubic-bezier(.2,.9,.3,1.1); transform-origin: top left; }
+  .scrim:not([hidden]) { animation: fade .25s ease-out; }
+  @keyframes sheetup { from { transform: translateY(100%); } to { transform: none; } }
+  @keyframes popin { from { opacity: 0; transform: translate(-50%, -48%) scale(.96); } to { opacity: 1; transform: translate(-50%, -50%); } }
+  @keyframes fullin { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @keyframes dropin { from { opacity: 0; transform: scale(.95) translateY(-4px); } to { opacity: 1; transform: none; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  /* A display rule (the full-screen edit page's flex) must never beat hidden: that left a black screen after Cancel */
+  [hidden] { display: none !important; }
+  .scrim { position: fixed; inset: 0; z-index: 49; background: rgba(0,0,0,.35); }
+  .pop.sheet { left: 0; right: 0; top: auto; bottom: 0; width: auto; transition: top .18s ease-out; }
+  .pop.sheet .removebox { border-radius: 18px 18px 0 0; padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); border-bottom: 0; }
+  .sheet-title { position: relative; z-index: 1; margin: 0 12px -4px; padding: 12px 4px 8px; font-weight: 600; font-size: 14px;
+    color: var(--muted); background: var(--surface); border-radius: 18px 18px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pop.sheet .sheet-title { margin: 0; padding: 14px 16px 6px; border: 1px solid var(--line); border-bottom: 0; }
+  .pop.sheet .sheet-title + .removebox { border-radius: 0; border-top: 0; }
+  body.kbd nav { display: none; }
+  .pop.dialog { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100vw - 32px)); }
+  .scrim { touch-action: none; }
+  .pop.full { inset: 0; background: var(--ground); display: flex; flex-direction: column; }
+  .pop.full .fullbar { flex: none; display: flex; align-items: center; justify-content: space-between;
+    padding: calc(6px + env(safe-area-inset-top)) 8px 6px; border-bottom: 1px solid var(--line); background: var(--surface); }
+  .pop.full .fullbar b { font-size: 16px; }
+  .pop.full .fullbar button { background: none; color: var(--accent); font-size: 16px; height: 44px; padding: 0 10px; }
+  .pop.full .fullbar .strong { font-weight: 700; }
+  .pop.full .editform { flex: 1; max-height: none; border: 0; border-radius: 0; box-shadow: none; background: var(--ground);
+    padding: 8px 16px calc(24px + env(safe-area-inset-bottom)) !important; }
+  .pop.full .editform .whyhead { margin-top: 6px; }
+  .pop.full .editform textarea, .pop.full .editform input { background: var(--surface); }
+  .pop.sheet .removebox { overflow-y: auto; overscroll-behavior: contain; }
+  .editform { max-height: 85vh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(14px + env(safe-area-inset-bottom)) !important; }
+  .editform label { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+    letter-spacing: .04em; margin: 10px 0 4px; }
+  .editform textarea, .editform input { background: var(--ground); }
+  /* iOS gives date inputs an intrinsic width that pushed Scheduled past the edge (Oct 31) */
+  .editform .frow > div { min-width: 0; }
+  .editform input[type="date"] { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; box-sizing: border-box; display: block; }
+  .editform .fstatus button { font-size: 13px; padding: 0 4px; }
+  .editform .frow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .editform .seg { margin: 0; }
+  .sendform .sfrom button { font-size: 12.5px; padding: 0 4px; }
+  .sendform .s-body { min-height: 180px; }
+  .sendform .linkbtn { background: none; color: var(--accent); padding: 0; height: auto; font-size: inherit; font-weight: 600; }
+  .sendform .s-warn { color: var(--ink); font-weight: 600; }
+  .sendform .s-hist, .sendform .s-rel { margin-top: 8px; font-size: 13.5px; }
+  .sendform .s-rel { margin-top: 16px; }
+  .sendform .s-hist .lbl, .sendform .s-rel .lbl { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 8px 0 4px; }
+  .sendform .hmsg { background: var(--soft); border-radius: 10px; padding: 7px 10px; margin-bottom: 5px; color: var(--ink2); }
+  .sendform .hrel { display: block; padding: 6px 0; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+  .sendform .hrel small { display: block; color: var(--muted); }
+  .sendform .s-held { margin-top: 10px; background: var(--soft); border-radius: 12px; padding: 8px 10px; font-size: 13.5px; }
+  .editform .acts button { flex: 1; }
+  .journal .jcheck { display: flex; gap: 10px; align-items: center; text-transform: none; letter-spacing: 0; font-size: 15px;
+    font-weight: 500; color: var(--ink); margin: 6px 0; }
+  .journal .jcheck input { width: 22px; height: 22px; }
+  .whystep { padding: 14px 14px calc(12px + env(safe-area-inset-bottom)) !important; }
+  .whyhead { font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+  .whystep .acts button { flex: 1; }
+  .pop .removebox { display: block; margin: 0; }
+  .removebox { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 8px;
+    box-shadow: 0 12px 32px rgba(23,23,28,.18); }
+  .removebox .in-why { margin-top: 6px; }
+  .pop .removebox { padding: 4px; }
+  .reasons { display: flex; flex-direction: column; }
+  .reasons button { text-align: left; min-height: 48px; padding: 8px 10px; border-radius: 10px; background: none;
+    color: var(--ink); font-weight: 600; font-size: 15px; display: flex; flex-direction: column; justify-content: center; }
+  .reasons button + button { border-top: 1px solid var(--line); border-radius: 0; }
+  .reasons button:active { background: var(--soft); }
+  .reasons small { font-size: 12.5px; color: var(--muted); font-weight: 400; margin-top: 1px; }
+  .empty { text-align: center; color: var(--muted); padding: 40px 16px; }
+  .upsum { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; margin: 0 0 10px; font-size: 14px; }
+  .upsum summary { cursor: pointer; color: var(--muted); font-weight: 600; list-style: none; }
+  .upsum summary::-webkit-details-marker { display: none; }
+  .upsum summary::after { content: " ›"; }
+  .upsum[open] summary::after { content: " ⌄"; }
+  .upsum ul { margin: 8px 0 2px; padding-left: 18px; color: var(--ink2); }
+  .upsum li { margin: 0 0 6px; line-height: 1.35; }
+  .seemore { margin-top: 8px; font-size: 14px; }
+  .seemore summary { cursor: pointer; color: var(--accent); font-weight: 600; list-style: none; }
+  .seemore summary::-webkit-details-marker { display: none; }
+  .seemore[open] summary { margin-bottom: 4px; }
+  .seemore .step span, .seemore .why { overflow-wrap: anywhere; }
+  .mind { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .cando { font-size: 13.5px; color: var(--ink2); margin-top: 8px; line-height: 1.4; display: flex; gap: 10px; align-items: center; }
+  .cando > span { flex: 1; }
+  .cando .start { flex: none; height: 32px; padding: 0 16px; border-radius: 16px; background: var(--accent); color: var(--onaccent, #fff); font-size: 14px; font-weight: 600; border: 0; cursor: pointer; }
+  .cando b { color: var(--muted); font-weight: 600; }
+  .cando .more-n { color: var(--muted); }
+  .cando .link { background: none; border: 0; padding: 0; height: auto; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
+  .acts.small button { white-space: nowrap; }
+  .mind .link { background: none; border: 0; padding: 0; height: auto; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
+  .refresh { color: var(--accent); font-weight: 600; cursor: pointer; }
+  .refresh.on { color: var(--muted); cursor: default; }
+  #ptr { position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top) + 6px); z-index: 30;
+         display: flex; justify-content: center; pointer-events: none; opacity: 0; }
+  #ptr span { background: var(--surface); color: var(--muted); font-size: 13px; font-weight: 600;
+              padding: 7px 14px; border-radius: 999px; box-shadow: 0 2px 10px rgba(23,23,28,.14); }
+  #ptr.ready span { color: var(--accent); }
+  .soon { text-align: center; color: var(--muted); padding: 28px 18px; }
+  .soon .title { color: var(--ink); font-size: 17px; margin-bottom: 6px; }
+  .foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 16px; }
+
+  nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bar); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line); padding: 0 8px env(safe-area-inset-bottom); display: flex; justify-content: center; }
+  nav .tabs { display: flex; width: 100%; max-width: 560px; }
+  nav button { flex: 1; background: none; color: #8A8A92; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10.5px; font-weight: 500; padding: 8px 0 6px; min-height: 52px; position: relative; }
+  nav button.on { color: var(--accent); }
+  nav svg { width: 24px; height: 24px; }
+  nav .badge { position: absolute; top: 4px; left: calc(50% + 8px); min-width: 17px; height: 17px; border-radius: 9px; padding: 0 5px;
+    background: var(--accent); color: var(--onaccent); font-size: 10.5px; font-weight: 700; line-height: 17px; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(10px);
+    background: var(--ink); color: var(--ground); padding: 10px 14px; border-radius: 12px; font-size: 13.5px; opacity: 0;
+    transition: opacity .2s, transform .2s; max-width: calc(100% - 32px); pointer-events: none; }
+  .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .gone { animation: gone .35s forwards; }
+  /* Chat in the app (Oct 31): Talk, Let Claude, Save & send and Plan it with Claude open this
+     sheet instead of Telegram. Full screen on the phone, a window on the Mac. */
+  .pop.chatpop.dialog { height: min(680px, calc(100vh - 48px)); width: min(520px, calc(100vw - 32px)); display: flex; }
+  .chat { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--ground); }
+  .pop.dialog .chat { border-radius: 16px; overflow: hidden; box-shadow: 0 12px 32px rgba(23,23,28,.18); border: 1px solid var(--line); }
+  .chat .chead { flex: none; display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .chat .chead b { flex: 1; min-width: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat .chead button { background: none; color: var(--accent); font-size: 15px; height: 36px; padding: 0 6px; }
+  .cmsgs { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    padding: 12px 12px 4px; display: flex; flex-direction: column; gap: 8px; }
+  #clog { display: flex; flex-direction: column; gap: 8px; }
+  .pop.full .chead { padding-top: calc(8px + env(safe-area-inset-top)); }
+  /* The Plan page (Oct 31): tasks, then the day, then the chat, each its own section. */
+  .psec { margin: 14px 0 0; }
+  .psec > h2 { margin: 18px 2px 8px; }
+  .ptasks > summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 15px; }
+  .ptasks > summary::-webkit-details-marker { display: none; }
+  .ptasks > summary span { color: var(--muted); font-size: 13.5px; margin-left: auto; }
+  .ptasks > summary::after { content: "⌄"; color: var(--muted); }
+  .ptasks[open] > summary::after { content: "⌃"; }
+  .ptasks[open] > summary { margin-bottom: 10px; }
+  .pday .cday { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .pday .cday-h { cursor: default; }
+  .pday .cday-h::after { content: none; }
+  .pday .cday-s { max-height: 50vh; }
+  #pbook .cta { margin-top: 10px; }
+  .pday .tl [data-blk] { cursor: pointer; }
+  .pday .tl .on { outline: 2px solid var(--accent); outline-offset: 1px; z-index: 3; }
+  .bdet { margin-top: 10px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--muted); border-radius: 12px; padding: 10px 12px; }
+  .bdet.prop { border-left: 3px dashed var(--accent); }
+  .bdh { display: flex; align-items: flex-start; gap: 8px; }
+  .bdh b { flex: 1; font-size: 15px; }
+  .bdh button { background: none; border: 0; color: var(--muted); height: auto; padding: 0 2px; font-size: 15px; cursor: pointer; }
+  .bdm { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .bdd { font-size: 14px; color: var(--ink2); margin-top: 8px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .chat.inline { background: none; }
+  .chat.inline .cmsgs { overflow: visible; padding: 0 0 4px; }
+  .chat.inline .ccomp { position: sticky; bottom: calc(60px + env(safe-area-inset-bottom)); z-index: 4; margin-top: 8px;
+    border: 1px solid var(--line); border-radius: 16px; padding: 8px 10px; }
+  body.kbd .chat.inline .ccomp { bottom: 0; }
+  /* The Plan chat's day view (Oct 31): the calendar on top, the chat below. */
+  .cday { flex: none; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .cday-h { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 8px; background: none; border: 0;
+    height: auto; padding: 8px 12px; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; }
+  .cday-h #cday-n { color: var(--muted); font-weight: 500; }
+  .cday-h::after { content: "⌃"; color: var(--muted); margin-left: 4px; }
+  .cday.min .cday-h::after { content: "⌄"; }
+  .cday-s { max-height: 36vh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 0 10px 8px; }
+  .cday.min .cday-s { display: none; }
+  .pop.dialog .cday-s { max-height: 300px; }
+  .tl-all { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 6px 40px; }
+  .tl-all span { font-size: 11.5px; background: var(--soft); color: var(--ink2); border-radius: 6px; padding: 2px 6px; }
+  .tl-lanes { position: sticky; top: 0; z-index: 2; display: flex; margin-left: 40px; background: var(--surface); padding: 2px 0 4px;
+    font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .tl-lanes span { flex: 1; }
+  .tl-lanes span + span { padding-left: 8px; color: var(--accent); }
+  .tl { position: relative; margin-left: 40px; }
+  .tl .hr { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line); }
+  .tl .hr span { position: absolute; left: -40px; top: -7px; font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tl .ev, .tl .pr { position: absolute; border-radius: 6px; padding: 2px 6px; font-size: 11.5px; line-height: 1.25; overflow: hidden; box-sizing: border-box; }
+  .tl .ev { background: var(--soft); color: var(--ink2); border-left: 3px solid var(--muted); }
+  /* The calendar's colour on the left edge, as in his Calendar app (schedule-work roster). */
+  .tl .ev.k-main { border-left-color: #2D6BE0; }
+  .tl .ev.k-focus { border-left-color: #8E8E93; }
+  .tl .ev.k-social { border-left-color: #34A853; }
+  .tl .ev.k-canvas { border-left-color: #D9483B; }
+  .tl .ev.k-personal { border-left-color: #E5534B; }
+  .tl .ev.tent { opacity: .65; border-left-style: dashed; }
+  .tl .pr { left: calc(50% + 6px); right: 4px; background: var(--accent-soft); color: var(--accent-ink); border: 1.5px dashed var(--accent); }
+  .tl .t { font-weight: 600; }
+  .tl .tm { font-size: 10.5px; opacity: .8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tl .tl-plan { position: absolute; top: 0; bottom: 0; left: 50%; right: 0; background: color-mix(in srgb, var(--accent) 5%, transparent);
+    border-left: 1px solid var(--line); border-radius: 0 8px 8px 0; }
+  /* A short block shows its title over two lines and no time: the title is what he reads. */
+  .tl .short { padding-top: 1px; line-height: 1.2; }
+  .tl .short .t { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 11px; }
+  .tl .short .tm { display: none; }
+  .tl .nowl { position: absolute; left: -4px; right: 0; border-top: 2px solid #D9483B; z-index: 1; }
+  .cctx { background: var(--surface); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; color: var(--ink2); border: 1px solid var(--line); }
+  .cctx .title { font-size: 14.5px; }
+  .cctx .src { margin-top: 4px; }
+  .ctest { font-size: 12.5px; padding: 7px 10px; border-radius: 10px; background: var(--amber-soft); color: var(--amber-ink); }
+  .msg { max-width: 86%; padding: 9px 12px; border-radius: 16px; font-size: 15px; line-height: 1.38; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.you { align-self: flex-end; background: var(--accent); color: var(--onaccent); border-bottom-right-radius: 5px; }
+  .msg.claude { align-self: flex-start; background: var(--surface); color: var(--ink); border-bottom-left-radius: 5px; border: 1px solid var(--line); }
+  .msg.claude pre { white-space: pre-wrap; background: var(--ground); border-radius: 8px; padding: 8px; margin: 4px 0; font-size: 13px; }
+  .msg code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .msg a { color: var(--accent); }
+  .msg.note { align-self: center; max-width: 92%; background: none; color: var(--muted); font-size: 12.5px; text-align: center; padding: 2px 8px; }
+  .msg.thinking { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13.5px; white-space: normal; }
+  .dots { display: inline-flex; gap: 3px; flex: none; }
+  .dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--muted); animation: blink 1.2s infinite ease-in-out; }
+  .dots i:nth-child(2) { animation-delay: .15s; } .dots i:nth-child(3) { animation-delay: .3s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: .25; transform: none; } 40% { opacity: 1; transform: translateY(-2px); } }
+  .msg.in { animation: msgin .26s cubic-bezier(.2,.9,.3,1.1); }
+  @keyframes msgin { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
+  .capprove { align-self: stretch; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+  .capprove pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--ground); border-radius: 8px; padding: 8px; margin: 6px 0 0;
+    font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; max-height: 40vh; overflow-y: auto; }
+  .capprove .acts button { flex: 1; }
+  .ccomp { flex: none; display: flex; gap: 8px; align-items: flex-end; padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    background: var(--surface); border-top: 1px solid var(--line); }
+  .pop.dialog .ccomp { padding-bottom: 10px; }
+  .ccomp textarea { flex: 1; min-height: 40px; max-height: 140px; resize: none; border-radius: 20px; padding: 9px 14px; line-height: 1.35; }
+  .ccomp button { flex: none; height: 40px; padding: 0 16px; border-radius: 20px; background: var(--accent); color: var(--onaccent); font-weight: 600; }
+  .ccomp button.stop { background: var(--soft); color: var(--ink); }
+  /* Voice messages (Oct 31): record, then Cancel or Send; transcribed on vault-host as in Telegram */
+  .ccomp .cmic { width: 40px; padding: 0; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; }
+  .ccomp .cmic svg { width: 20px; height: 20px; }
+  .crec { display: none; flex: 1; align-items: center; gap: 10px; height: 40px; padding: 0 4px 0 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .crec .rdot { width: 10px; height: 10px; border-radius: 5px; background: #D93A2B; animation: blink 1.2s infinite ease-in-out; }
+  .crec span { flex: 1; }
+  .ccomp .crec button { background: none; color: var(--muted); padding: 0 8px; }
+  .ccomp.recording .crec { display: flex; }
+  .ccomp.recording textarea, .ccomp.recording .cmic { display: none; }
+  .cdot { display: inline-block; width: 6px; height: 6px; border-radius: 3px; background: var(--accent); margin-left: 5px; vertical-align: 2px; }
+  @keyframes gone { to { opacity: 0; transform: translateX(24px); height: 0; padding: 0; margin: 0; } }
+</style>
+</head>
+<body>
+<main id="app"><div class="empty">Loading…</div></main>
+<nav aria-label="Tabs"><div class="tabs" id="tabs"></div></nav>
+<div class="toast" id="toast" role="status"></div>
+<div class="scrim" id="scrim" hidden></div>
+<div class="pop" id="pop" hidden></div>
+<script>
+const tg = window.Telegram && Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); }
+const base = location.pathname.endsWith("/") ? location.pathname : location.pathname + "/";
+const initData = tg ? tg.initData : "";
+const inTg = !!initData;   // in Chrome, Safari or Claude's browser the cookie from /login does the auth
+
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
+let testMode = store("checkin-live") !== "1";
+let tab = store("checkin-tab") || "today";
+if (tab === "chat") tab = "today";   // Chat left the bar (Oct 30)
+let view = null, fold = null;
+// From 19:00 the evening is for choosing tomorrow (owner decision, Oct 30); he can switch back.
+let day = new Date().getHours() >= 19 ? "tomorrow" : "today";
+let polling = null, lastJson = "", lastFrame = "";
+let planDay = null;
+let openSummary = false;
+document.addEventListener("toggle", e => {
+  const d = e.target;
+  if (d.classList && d.classList.contains("ptasks") && planUi[d.dataset.pday]) planUi[d.dataset.pday].folded = !d.open;
+}, true);   // the update summary stays as he left it across redraws
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("upsum")) openSummary = e.target.open; }, true);
+const openMore = new Set();   // Claude cards he unfolded stay unfolded across redraws
+document.addEventListener("toggle", e => {
+  const c = e.target.classList && e.target.classList.contains("seemore") && e.target.closest(".card");
+  if (c) e.target.open ? openMore.add(c.dataset.id) : openMore.delete(c.dataset.id);
+}, true);
+const later = () => day === "tomorrow" ? "Day after" : "Tomorrow";
+function dayName(which) {
+  const d = new Date(); if (which === "tomorrow") d.setDate(d.getDate() + 1);
+  return d.toLocaleDateString([], {weekday: "long", month: "short", day: "numeric"});
+}
+// His selection per day (Add, Oct 30). Live: a tap changes it at once, in test mode too.
+const sel = {today: [], tomorrow: []};
+function syncSel() {
+  for (const d of ["today", "tomorrow"]) {
+    const server = (view[d].selection || []).map(r => r.id);
+    if (!testMode) sel[d] = server;
+    else if (!sel._init) sel[d] = server;
+  }
+  sel._init = true;
+}
+function poolOf(which) {
+  const t = view[which];
+  return [].concat(t.one ? [t.one] : [], t.needs, t.more, t.done, t.waiting, t.suggest || []);
+}
+function selection(which) {
+  const byId = {}; poolOf(which).forEach(r => { if (!byId[r.id]) byId[r.id] = r; });
+  return sel[which].map(i => byId[i]).filter(Boolean);
+}
+const isSel = r => sel[day].includes(r.id);
+function mins(est) {
+  const m = /^\s*(?:(\d+)h)?\s*(\d+)?\s*m?\s*$/.exec(est || "");
+  return m && (m[1] || m[2]) ? (+(m[1] || 0)) * 60 + (+(m[2] || 0)) : null;
+}
+const fmt = m => m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? " " + (m % 60) : ""}` : `${m}m`;
+// Free time, live: the day's window from now on, minus the calendar's busy spans.
+function freeMin(which) {
+  const b = view[which].budget;
+  if (!b || b.free_min === null) return null;
+  const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes();
+  const start = which === "today" ? Math.max(b.day_start, nowMin) : b.day_start;
+  let free = Math.max(0, b.day_end - start);
+  for (const [s, f] of b.busy) free -= Math.max(0, Math.min(f, b.day_end) - Math.max(s, start));
+  return Math.max(0, free);
+}
+function budgetBar() {
+  const rows = selection(day), planned = rows.reduce((a, r) => a + (mins(r.est) || 0), 0);
+  const unest = rows.filter(r => mins(r.est) === null).length, free = freeMin(day);
+  const pct = free ? Math.min(100, Math.round(planned / free * 100)) : (planned ? 100 : 0);
+  const over = free !== null && planned > free;
+  return `<div class="bwrap"><div class="budget${over ? " over" : ""}">
+    <div class="brow"><b>${fmt(planned)} planned</b><span>${free === null ? "calendar not readable" : fmt(free) + " free " + (day === "today" ? "from now" : "tomorrow")}</span></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    ${unest ? `<div class="bnote">${unest} without an estimate</div>` : ""}
+    ${over ? `<div class="bnote">Over by ${fmt(planned - free)}</div>` : ""}
+  </div></div>`;
+}
+// On a phone the chips shrink to icons (Oct 30: "the buttons take up way too much space");
+// swipe does the same job there.
+const removeBtn = () => `<button class="addpill ghost" data-a="removeopen" aria-label="Remove"><span class="lbl">Remove</span><span class="ico">−</span></button>`;
+function addBtn(r) {
+  return isSel(r)
+    ? `<button class="addpill on" data-a="unselect" aria-label="Added, tap to take out"><span class="lbl">Added ✓</span><span class="ico">✓</span></button>`
+    : `<button class="addpill" data-a="select" aria-label="Add"><span class="lbl">Add</span><span class="ico">+</span></button>`;
+}
+
+// Talk opens the chat sheet; a dot says a conversation is already there (Oct 31).
+function talkBtn(r) {
+  const has = view && view.chats && view.chats["task:" + r.id];
+  return `<button class="soft" data-a="talk">${has ? "Continue chat" : "Chat"}</button>`;
+}
+
+const ICONS = {
+  today: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  replies: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/>',
+  claude: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',
+  plan: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/>',
+  meditate: '<path d="M12 20c-4 0-7-2-8-5 3 0 5 1 8 3 3-2 5-3 8-3-1 3-4 5-8 5z"/><path d="M12 18c-2-2-3-5-3-8 1.5.8 2.5 2 3 3.5.5-1.5 1.5-2.7 3-3.5 0 3-1 6-3 8z"/><circle cx="12" cy="5" r="1.6"/>',
+};
+const TABS = [["today", "ToDo"], ["plan", "Plan"], ["replies", "Replies"], ["claude", "Claude"], ["meditate", "Meditate"]];   // Plan beside ToDo; Meditate replaces Chat until chat is built (Oct 30)
+
+async function api(path, body) {
+  const r = await fetch(base + path, {
+    method: body ? "POST" : "GET",
+    headers: {"x-init-data": initData, "content-type": "application/json"},
+    body: body ? JSON.stringify({day, ...body, test: testMode, tab: (body && body.tab) || tab}) : undefined,
+  });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 403 && !inTg) { location.href = base + "login"; throw new Error("sign in"); }
+  if (!r.ok) throw new Error(j.error || r.status);
+  return j;
+}
+
+const esc = s => (s || "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const initials = s => (s || "?").split(/[\s,@.]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
+let toastTimer;
+function toast(msg) {
+  // Only what the screen does not already show: errors, sends, updates (Oct 30).
+  if (!/fail|sent|would send|copied|telegram|updat|claude|plan|over|could not/i.test(msg || "")) return;
+  const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 2400);
+}
+function haptic() { if (inTg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success"); }
+
+// Remove: the four reasons adopted Oct 30 and an optional why, in one popover that
+// opens over the content right under the tapped Remove (the owner: "i dont want to click
+// around that much and it should be on top of stuff, and it should work on mobile").
+function removeBox() { return ""; }
+let popCard = null;
+const openIds = new Set();
+function setOpen(card, on) {
+  card.classList.toggle("open", on);
+  // The bounce belongs to opening and closing only, after the tap, never to scrolling (Oct 30).
+  if (card.animate) card.animate([{transform: "scale(1)"}, {transform: "scale(.985)"}, {transform: "scale(1)"}],
+                                 {duration: 320, easing: "cubic-bezier(.2,.9,.3,1)"});
+  if (on) openIds.add(card.dataset.id); else openIds.delete(card.dataset.id);
+}
+function removeMenu(isOne) {
+  const notDay = day === "tomorrow" ? "Not tomorrow" : "Not today";
+  return `<div class="removebox" role="menu">
+    <div class="reasons">
+      ${isOne ? '<button role="menuitem" data-a="remove" data-reason="notone">Not the one thing<small>Stays in the list, the next one moves up</small></button>' : ""}
+      <button role="menuitem" data-a="remove" data-reason="done">Already done<small>Marks it done</small></button>
+      <button role="menuitem" data-a="remove" data-reason="nottoday">${notDay}<small>Moves it to the next day</small></button>
+      <button role="menuitem" data-a="remove" data-reason="notimportant">Not important<small>Lower priority, date cleared</small></button>
+      <button role="menuitem" data-a="remove" data-reason="shouldnt">Shouldn't exist<small>Drops the task</small></button>
+    </div>
+    ${isPhone() ? "" : `<input class="in-why" placeholder="Why? (optional, type first)" autocomplete="off" autocorrect="on"
+           name="checkin-why" enterkeyhint="done" data-form-type="other">`}
+  </div>`;
+}
+// Phone, step 2 (owner decision, Oct 30: "ask for written reason after selecting and ability to
+// skip"): only now a text field, in a small sheet, so the screen does not jump.
+const REASON_LABEL = {notone: "Not the one thing", done: "Already done", nottoday: "Not today",
+                      notimportant: "Not important", shouldnt: "Shouldn't exist"};
+function whyStep(reason) {
+  return `<div class="removebox whystep" data-reason="${reason}">
+    <div class="whyhead">${esc(REASON_LABEL[reason] || reason)}</div>
+    <input class="in-why" placeholder="Why? (optional)" autocomplete="off" autocorrect="on"
+           name="checkin-why" enterkeyhint="done" data-form-type="other">
+    <div class="acts"><button data-why="skip">Skip</button><button class="primary" data-why="save">Save</button></div>
+  </div>`;
+}
+
+const isPhone = () => window.matchMedia("(max-width: 600px)").matches;
+// On a phone the menu is a bottom sheet that rides on top of the keyboard (Oct 30:
+// with the dropdown, the keyboard pushed the whole page up).
+function placeSheet() {
+  const pop = document.getElementById("pop"), vv = window.visualViewport;
+  if (!popCard || !pop.classList.contains("sheet") || !vv) return;
+  // Placed from the top of what is visible, so iOS shifting the page cannot push the
+  // sheet under the keyboard (Oct 30: "already done ... hidden below keyboard").
+  const box0 = pop.firstElementChild;
+  pop.style.bottom = "auto";
+  pop.style.top = Math.max(vv.offsetTop + 8, vv.offsetTop + vv.height - pop.offsetHeight) + "px";
+  // The sheet never grows past what is visible above the keyboard (Oct 30: typing at
+  // the top of the edit form pushed the field off screen).
+  const box = pop.querySelector(".editform") || pop.querySelector(".removebox");
+  if (box) box.style.maxHeight = Math.max(160, vv.height - 24) + "px";
+}
+document.addEventListener("focusin", (e) => {
+  if (!e.target.closest || !e.target.closest("#pop")) return;
+  const field = e.target;
+  // After iOS has opened the keyboard: re-fit the sheet, then centre the field inside it.
+  if (document.getElementById("pop").classList.contains("full")) return;   // nothing to fix there
+  setTimeout(() => { placeSheet(); field.scrollIntoView({block: "center", behavior: "smooth"}); window.scrollTo(0, 0); }, 320);
+});
+if (window.visualViewport) {
+  visualViewport.addEventListener("resize", placeSheet);
+  visualViewport.addEventListener("scroll", placeSheet);
+}
+document.addEventListener("focusin", e => { if (e.target.matches("input, textarea")) document.body.classList.add("kbd"); });
+document.addEventListener("focusout", () => setTimeout(() => {
+  const a = document.activeElement; if (!a || !a.matches("input, textarea")) document.body.classList.remove("kbd");
+}, 50));
+
+function openPop(btn, card) {
+  // The reasons need no keyboard: close one left open by + Task or a field first.
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  const pop = document.getElementById("pop");
+  pop.innerHTML = removeMenu(card.classList.contains("hero"));
+  pop.hidden = false; popCard = card;
+  document.getElementById("scrim").hidden = !isPhone();
+  if (isPhone()) {
+    pop.classList.add("sheet");
+    pop.style.left = pop.style.top = pop.style.width = "";
+    pop.insertAdjacentHTML("afterbegin", `<div class="sheet-title">${esc(card.querySelector(".title") ? card.querySelector(".title").textContent : "")}</div>`);
+    lockPage();
+    placeSheet();
+    [150, 400].forEach(ms => setTimeout(placeSheet, ms));   // after a closing keyboard has gone
+    return;
+  }
+  pop.classList.remove("sheet"); pop.style.bottom = "";
+  const r = btn.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+  // Straight down from the button: its left edge is the menu's (the owner: "just draw the
+  // mouse down in the remove, not move to left"); shifted only if the screen ends.
+  const w = Math.min(240, vw - 24);
+  pop.style.width = w + "px";
+  pop.style.left = Math.max(12, Math.min(r.left, vw - w - 12)) + "px";
+  const h = pop.offsetHeight, below = vh - r.bottom - 12;
+  // Under the button; above it when the screen has no room below (bottom of a phone).
+  pop.style.top = (below >= h ? r.bottom + 6 : Math.max(12, r.top - h - 6)) + "px";
+}
+// While a sheet or the edit window is open the page behind stays put (iOS scrolls the
+// page under a fixed sheet otherwise; Oct 30).
+let lockedY = null;
+function lockPage() {
+  if (lockedY !== null) return;
+  lockedY = window.scrollY;
+  Object.assign(document.body.style, {position: "fixed", top: `-${lockedY}px`, left: "0", right: "0", width: "100%"});
+}
+function unlockPage() {
+  if (lockedY === null) return;
+  Object.assign(document.body.style, {position: "", top: "", left: "", right: "", width: ""});
+  window.scrollTo(0, lockedY); lockedY = null;
+}
+
+function closePop() {
+  unlockPage();
+  if (rec) stopRec(false);
+  if (chat && !chat.inline) { clearTimeout(chat.timer); chat = null; }
+  const pop = document.getElementById("pop"); pop.hidden = true; pop.innerHTML = ""; popCard = null;
+  pop.classList.remove("sheet", "dialog", "full"); pop.style.cssText = "";
+  document.getElementById("scrim").hidden = true;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+}
+// Scrolling closes the menu, except while he types the why: the iPhone keyboard
+// scrolls the page itself, which used to close the menu under his finger.
+window.addEventListener("scroll", () => {
+  const typing = document.activeElement && document.activeElement.closest && document.activeElement.closest("#pop");
+  const pc = document.getElementById("pop").classList;
+  if (popCard && !typing && !pc.contains("sheet") && !pc.contains("dialog") && !pc.contains("full")) closePop();
+}, {passive: true});
+
+// The detail view when a task is opened (owner decision, Oct 30): like the old check-in,
+// every field labelled and read live from the note.
+const PRIO = {"4-high": "High", "3-normal": "Normal", "2-low": "Low", "1-none": "None"};
+function dateLabel(iso) {
+  if (!iso) return "–";
+  return new Date(iso + "T12:00").toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
+}
+function detailBlock(r) {
+  const d = r.detail || {};
+  const cell = (l, v) => `<div><label>${l}</label>${esc(v || "–")}</div>`;
+  return `<div class="detail">
+    ${r.task ? `<div class="dgrid">
+      ${cell("Priority", PRIO[d.priority] || d.priority)}${cell("Status", d.status)}
+      ${cell("Due", dateLabel(d.due))}${cell("Scheduled", dateLabel(d.scheduled))}
+      ${cell("Whole task", d.task_est)}${cell("Next step", d.next_est || r.est)}
+    </div>` : ""}
+    ${r.next ? `<div class="dsec dnext"><label>Next step</label>${esc(r.next)}</div>` : ""}
+    ${r.waiting ? `<div class="dsec"><label>Waiting for</label>${esc(r.waiting)}</div>` : ""}
+    ${d.description ? `<div class="dsec"><label>Description</label><div class="desc">${esc(d.description)}</div></div>` : ""}
+    ${r.update ? `<div class="dsec"><label>Latest update</label>${esc(r.update)}</div>` : ""}
+    ${r.why ? `<div class="dsec"><label>Where it stands</label>${esc(r.why)}</div>` : ""}
+    ${r.prep && r.prep.length && r.tab !== "claude" ? `<div class="dsec"><label>Claude can do</label>
+      ${r.prep.map((p, i) => `<div class="step"><i>${i + 1}</i><span>${esc(p)}</span></div>`).join("")}</div>` : ""}
+  </div>`;
+}
+
+// Edit task (Oct 30: "what can i edit?"): one form for every field, as a sheet on the
+// phone and a centred window on the Mac. Only changed fields are sent.
+let editRow = null;
+function findRow(id) {
+  for (const d of ["today", "tomorrow"]) { const r = poolOf(d).find(x => x.id === id); if (r) return r; }
+  return (view.replies || []).concat(view.claude || []).find(x => x.id === id) || null;
+}
+function editForm(r) {
+  const d = r.detail || {}, nextMin = (/\((\d+)\s*min\)\s*$/.exec(r.next || "") || [])[1] || (mins(d.next_est || r.est) || "");
+  const nextText = (r.next || "").replace(/\s*\(\d+\s*min\)\s*$/, "");
+  const prio = ["4-high", "3-normal", "2-low", "1-none"].map(p =>
+    `<button data-prio="${p}" class="${d.priority === p ? "on" : ""}">${PRIO[p]}</button>`).join("");
+  const dis = r.task ? "" : "disabled";
+  const cur = d.status_raw || "open";
+  const status = [["open", "Open"], ["in-progress", "In progress"], ["done", "Done"], ["cancelled", "Cancelled"]]
+    .concat(cur === "inbox" ? [["inbox", "Inbox"]] : []).map(([v, l]) =>
+    `<button data-status="${v}" class="${cur === v ? "on" : ""}" ${dis}>${l}</button>`).join("");
+  return `<div class="removebox editform">
+    <div class="whyhead">${esc(r.title)}</div>
+    ${r.task ? "" : '<div class="why">No task note yet, so only a note to Claude is possible.</div>'}
+    <label>Next step</label><textarea class="f-next" rows="2" ${dis}>${esc(nextText)}</textarea>
+    <div class="frow">
+      <div><label>Next step (min)</label><input class="f-nextmin" inputmode="numeric" value="${esc(String(nextMin))}" ${dis}></div>
+      <div><label>Whole task (min)</label><input class="f-test" inputmode="numeric" value="${esc(String(mins(d.task_est) || ""))}" ${dis}></div>
+    </div>
+    <label>Status</label><div class="seg fstatus">${status}</div>
+    <label>Priority</label><div class="seg fprio">${prio}</div>
+    <div class="frow">
+      <div><label>Due</label><input type="date" class="f-due" value="${esc(d.due || "")}" ${dis}></div>
+      <div><label>Scheduled</label><input type="date" class="f-sched" value="${esc(d.scheduled || "")}" ${dis}></div>
+    </div>
+    <label>Note, in your words</label>
+    <textarea class="f-note" rows="2" placeholder="e.g. already called, waiting on her reply until Tuesday" autocomplete="off"></textarea>
+    <div class="acts"><button data-edit="cancel">Cancel</button><button class="soft" data-edit="send">Save &amp; send</button>
+      <button class="primary" data-edit="save">Save</button></div>
+  </div>`;
+}
+function openEdit(card) {
+  const r = findRow(card.dataset.id); if (!r) return;
+  const pop = document.getElementById("pop");
+  editRow = r; popCard = card;
+  pop.innerHTML = editForm(r); pop.hidden = false;
+  document.getElementById("scrim").hidden = false;
+  pop.classList.remove("sheet", "dialog", "full"); pop.style.cssText = "";
+  // Phone: a full-screen page from the top, like iOS edit screens. Fields sit above the
+  // keyboard, so iOS moves nothing when one is focused (Oct 30: "can the keyboard not
+  // simply go above?"). Mac: a centred window.
+  pop.classList.add(isPhone() ? "full" : "dialog");
+  if (isPhone()) {
+    pop.insertAdjacentHTML("afterbegin", `<div class="fullbar"><button data-edit="cancel">Cancel</button>
+      <b>Edit task</b><button class="strong" data-edit="save">Save</button></div>`);
+    document.getElementById("scrim").hidden = true;
+  }
+  lockPage();
+}
+async function saveEdit(send) {
+  const pop = document.getElementById("pop"), r = editRow, d = r.detail || {}, q = s => pop.querySelector(s);
+  const fields = {};
+  const nextText = (r.next || "").replace(/\s*\(\d+\s*min\)\s*$/, "");
+  const prioOn = pop.querySelector(".fprio .on");
+  if (r.task) {
+    if (q(".f-next").value.trim() !== nextText) fields.next = q(".f-next").value;
+    const nm = (/\((\d+)\s*min\)\s*$/.exec(r.next || "") || [])[1] || String(mins(d.next_est || r.est) || "");
+    if (q(".f-nextmin").value.trim() !== nm) fields.next_min = q(".f-nextmin").value.trim();
+    if (q(".f-test").value.trim() !== String(mins(d.task_est) || "")) fields.time_est = q(".f-test").value.trim();
+    if (prioOn && prioOn.dataset.prio !== d.priority) fields.priority = prioOn.dataset.prio;
+    const stOn = pop.querySelector(".fstatus .on");
+    if (stOn && stOn.dataset.status !== (d.status_raw || "open")) fields.status = stOn.dataset.status;
+    if (q(".f-due").value !== (d.due || "")) fields.due = q(".f-due").value;
+    if (q(".f-sched").value !== (d.scheduled || "")) fields.scheduled = q(".f-sched").value;
+  }
+  const note = q(".f-note").value.trim(), card = popCard;
+  closePop(); editRow = null;
+  try {
+    const msgs = [];
+    if (Object.keys(fields).length) msgs.push((await api("api/act", {id: card.dataset.id, action: "update", fields})).msg);
+    if (note && send) { if (msgs.length) toast(msgs.join(" · ")); openChat({kind: "task", id: card.dataset.id, title: r.title, row: r, send: note, from: "adjust"}); return; }
+    else if (note && r.task) msgs.push((await api("api/act", {id: card.dataset.id, action: "note", text: note})).msg);
+    haptic(); toast(msgs.join(" · ") || "Nothing changed");
+    if (!testMode) load();
+  } catch (e) { toast("Failed: " + e.message); }
+}
+
+// Send a mail draft (Oct 31): the draft as an editable sheet, laid out like Edit task. Opening
+// it asks the server who it goes to and whether it is a reply in the thread; only Send in the
+// sheet sends, and test mode stops short of the send. A [slot] keeps Send off until replaced.
+const MAILBOXES = ["<YOUR_EMAIL>", "<YOUR_PERSONAL_EMAIL>"];
+let sendRow = null, sendInfo = {}, sendForce = false, sendUserFrom = false;
+function sendForm(r) {
+  const d = r.draft || {};
+  return `<div class="removebox editform sendform">
+    <div class="whyhead">${esc(r.title)}</div>
+    <label>From</label><div class="why s-fromwhy">Finding the mailbox…</div><div class="seg sfrom" hidden>${MAILBOXES.map(m =>
+      `<button data-from="${m}" class="${d.acct === m ? "on" : ""}">${m}</button>`).join("")}</div>
+    <label>To</label><input class="s-to" value="${esc(d.to)}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="why s-info">Looking for the thread…</div>
+    <label>Subject</label><input class="s-subj" value="${esc(d.subj)}" autocomplete="off">
+    <label>Message</label><textarea class="s-body" rows="9">${esc(d.body)}</textarea>
+    <div class="s-hist" hidden></div>
+    <div class="s-held" hidden></div>
+    <div class="why s-warn" hidden></div>
+    <div class="acts"><button data-send="cancel">Cancel</button><button class="primary" data-send="send" disabled>Send</button></div>
+    <div class="s-rel" hidden></div>
+  </div>`;
+}
+function sendEdits() {
+  const pop = document.getElementById("pop"), q = s => pop.querySelector(s), d = sendRow.draft || {}, m = {};
+  const to = q(".s-to").value.trim();
+  if (to !== (sendInfo.toShown || d.to || "").trim()) m.to = to;
+  if (q(".s-subj").value !== (d.subj || "")) m.subj = q(".s-subj").value;
+  if (q(".s-body").value !== (d.body || "")) m.body = q(".s-body").value;
+  const from = pop.querySelector(".sfrom .on"); if (from) m.acct = from.dataset.from;
+  if (sendInfo.newThread) m.new_thread = true; else if (sendInfo.thread_id) m.thread_id = sendInfo.thread_id;
+  return m;
+}
+function sendCheck() {
+  const pop = document.getElementById("pop"), q = s => pop.querySelector(s);
+  if (!sendRow || !q(".sendform")) return;
+  const d = sendRow.draft || {}, body = q(".s-body").value;
+  const warn = /\[slot\]/i.test(body) ? "Replace [slot] with a time first."
+    : d.needs_slot && body.trim() === (d.body || "").trim() ? "Put a time in the message first."
+    : !pop.querySelector(".sfrom .on") ? "Pick the mailbox to send from."
+    : !q(".s-to").value.trim() ? "Add who it goes to." : "";
+  q(".s-warn").hidden = !warn; q(".s-warn").textContent = warn;
+  pop.querySelectorAll('[data-send="send"]').forEach(b => { b.disabled = !!warn; b.textContent = sendForce ? "Send anyway" : "Send"; });
+}
+function paintSendInfo() {
+  const el = document.querySelector("#pop .s-info"), i = sendInfo; if (!el) return;
+  const cc = i.cc && i.cc.length && !i.newThread ? ` · cc ${i.cc.join(", ")}` : "";
+  const sw = `<button class="linkbtn" data-send="newthread">${i.newThread ? "Reply in the thread instead" : "Send as a new mail"}</button>`;
+  if (i.thread) el.innerHTML = (i.newThread ? "New mail, not in the thread. " : `Reply in the thread${esc(cc)}. `) + sw;
+  else if (!i.acct) el.textContent = "No thread with them in either mailbox: pick From and check To.";
+  else if (i.error) el.textContent = i.error.replace(/: send it from Gmail$/, "") + ". Type the address in To.";
+  else el.textContent = "New mail: no thread with them in the last 60 days.";
+}
+function paintFrom() {
+  const pop = document.getElementById("pop"), i = sendInfo, fw = pop.querySelector(".s-fromwhy"), seg = pop.querySelector(".sfrom");
+  if (!fw) return;
+  const why = {thread: "where your thread with them is", "earlier mail": "where your last mail with them is",
+               draft: "as drafted; no earlier mail with them"}[i.acct_why];
+  pop.querySelectorAll(".sfrom button").forEach(b => b.classList.toggle("on", b.dataset.from === i.acct));
+  if (i.acct && why) { fw.innerHTML = `<b>${esc(i.acct)}</b>, ${esc(why)}.`; seg.hidden = true; }
+  else { fw.textContent = "No earlier mail with them in either mailbox: pick one."; seg.hidden = false; }
+}
+const mbox = a => /<WORK_MAIL_DOMAIN>/.test(a || "") ? "Work" : "Gmail";
+function paintHistory() {
+  // Under the message, the 2 latest thread messages; other mail at the very bottom (owner decision, Oct 31).
+  const el = document.querySelector("#pop .s-hist"), relEl = document.querySelector("#pop .s-rel"), i = sendInfo; if (!el) return;
+  const hist = (i.history || []).slice(-2).map(m => `<div class="hmsg"><b>${m.mine ? "You" : esc(m.from)}</b> · ${esc(m.when)}<div>${esc(m.snippet)}</div></div>`).join("");
+  const rel = (i.related || []).map(m => `<a class="hrel" target="_blank" rel="noopener"
+      href="https://mail.google.com/mail/?authuser=${encodeURIComponent(m.acct)}#all/${encodeURIComponent(m.thread_id)}">
+      <span>${esc(m.subj || "(no subject)")}</span><small>${esc(m.from)} · ${esc(m.when)} · ${mbox(m.acct)}</small></a>`).join("");
+  el.innerHTML = hist ? `<div class="lbl">Earlier in this thread · ${mbox(i.acct)}</div>${hist}` : "";
+  el.hidden = !hist;
+  relEl.innerHTML = rel ? `<div class="lbl">Other mail with them</div>${rel}` : "";
+  relEl.hidden = !rel;
+}
+function paintHeld(held) {
+  const el = document.querySelector("#pop .s-held"); if (!el || !held || !held.length) return;
+  el.innerHTML = `<b>New in the thread since the draft:</b>` + held.map(m =>
+    `<div>${esc(m.from)}, ${esc(m.when)}: ${esc(m.snippet)}</div>`).join("") + `<div class="why">Edit if it needs it, then Send anyway.</div>`;
+  el.hidden = false;
+}
+async function openSend(card) {
+  const r = findRow(card.dataset.id); if (!r || !r.draft) return;
+  const pop = document.getElementById("pop");
+  sendRow = r; sendInfo = {}; sendForce = false; sendUserFrom = false; popCard = card;
+  pop.innerHTML = sendForm(r); pop.hidden = false;
+  document.getElementById("scrim").hidden = false;
+  pop.classList.remove("sheet", "dialog", "full"); pop.style.cssText = "";
+  pop.classList.add(isPhone() ? "full" : "dialog");
+  if (isPhone()) {
+    pop.insertAdjacentHTML("afterbegin", `<div class="fullbar"><button data-send="cancel">Cancel</button>
+      <b>Email</b><button class="strong" data-send="send" disabled>Send</button></div>`);
+    document.getElementById("scrim").hidden = true;
+  }
+  lockPage(); sendCheck();
+  let res;
+  try { res = await api("api/act", {id: r.id, action: "mailprep", mail: {}}); }
+  catch (e) { if (sendRow === r) { document.querySelector("#pop .s-info").textContent = "Could not read the thread: " + e.message; paintFrom(); } return; }
+  if (sendRow !== r) return;
+  sendInfo = res.mail || {};
+  const toEl = pop.querySelector(".s-to");
+  if (sendInfo.to && sendInfo.to.length && toEl.value.trim() === (r.draft.to || "").trim()) {
+    sendInfo.toShown = sendInfo.to.join(", "); toEl.value = sendInfo.toShown;
+  }
+  // From is the mailbox the thread or the last mail with them is in, fixed (Oct 31: "weird
+  // that i can switch mail sender"). Only with nothing to go on does he pick.
+  paintFrom(); paintHistory();
+  if (sendInfo.held && sendInfo.held.length) { sendForce = true; paintHeld(sendInfo.held); }
+  paintSendInfo(); sendCheck();
+}
+async function doSend() {
+  const r = sendRow, card = popCard;
+  document.querySelectorAll('#pop [data-send="send"]').forEach(b => b.disabled = true);
+  let res;
+  try { res = await api("api/act", {id: r.id, action: "sendmail", mail: sendEdits(), force: sendForce}); }
+  catch (e) { toast("Failed: " + e.message); sendCheck(); return; }
+  if (sendRow !== r) return;
+  if (res.held) { sendForce = true; paintHeld(res.held); sendCheck(); return; }
+  closePop(); sendRow = null; haptic(); toast(res.msg);
+  if (testMode || res.keep) return;
+  if (card) card.classList.add("gone");
+  setTimeout(load, 380);
+}
+document.addEventListener("input", e => { if (e.target.closest && e.target.closest(".sendform")) sendCheck(); });
+
+// The daily meditation in the app (Oct 30): same note in Obsidian, the questions read
+// from the journal template, so a question changed there shows up here.
+async function openJournal() {
+  let j;
+  try { j = await api("api/journal"); } catch (e) { toast("Failed: " + e.message); return; }
+  const pop = document.getElementById("pop");
+  const field = (q, i) => {
+    if (q.kind === "checks") return q.items.map(it => `<label class="jcheck"><input type="checkbox" data-q="${i}" data-item="${esc(it)}" ${q.value && q.value[it] ? "checked" : ""}> ${esc(it)}</label>`).join("");
+    if (q.kind === "line") return `<input data-q="${i}" value="${esc(q.value)}" autocomplete="off">`;
+    return `<textarea data-q="${i}" rows="${q.kind === "numbered" ? 3 : 4}" placeholder="One per line" autocomplete="off">${esc(q.value)}</textarea>`;
+  };
+  pop.innerHTML = `<div class="removebox editform journal">
+    <div class="whyhead">${esc(new Date(j.date + "T12:00").toLocaleDateString([], {weekday: "long", month: "long", day: "numeric"}))}${j.exists ? " · editing today's entry" : ""}</div>
+    ${j.questions.map((q, i) => `<label>${esc(q.label)}</label>${field(q, i)}`).join("")}
+    <div class="acts"><button data-journal="cancel">Cancel</button><button class="soft" data-journal="save">Save</button>
+      <button class="primary" data-journal="update">Save &amp; update ToDo</button></div>
+  </div>`;
+  pop._journal = j;
+  pop.hidden = false; popCard = document.body;
+  pop.classList.remove("sheet", "dialog", "full"); pop.style.cssText = "";
+  pop.classList.add(isPhone() ? "full" : "dialog");
+  if (isPhone()) pop.insertAdjacentHTML("afterbegin", `<div class="fullbar"><button data-journal="cancel">Cancel</button>
+      <b>Meditation</b><button class="strong" data-journal="update">Save</button></div>`);
+  document.getElementById("scrim").hidden = isPhone();
+  lockPage();
+}
+async function saveJournal(update) {
+  const pop = document.getElementById("pop"), j = pop._journal, values = {};
+  j.questions.forEach((q, i) => {
+    if (q.kind === "checks") {
+      values[q.heading] = {};
+      pop.querySelectorAll(`[data-q="${i}"]`).forEach(cb => { values[q.heading][cb.dataset.item] = cb.checked; });
+    } else values[q.heading] = pop.querySelector(`[data-q="${i}"]`).value;
+  });
+  closePop();
+  try {
+    const res = await api("api/act", {action: "journal_save", values, update});
+    haptic(); toast(res.msg);
+    // The meditation is read live, so ToDo shows it as soon as it is saved (Oct 31).
+    if (res.running) watchPrerun(stamp(view)); else load();
+  } catch (e) { toast("Failed: " + e.message); }
+}
+
+// --- Chat in the app (Oct 31) ---------------------------------------------------------------
+// One conversation per task (and per planned day), kept on vault-host and answered by the
+// Telegram bridge's own agent. Replies are polled while Claude works. In test mode Claude can
+// read, but anything that writes or sends is refused on the server.
+let chat = null;
+function md(s) {
+  let h = esc(String(s).replace(/```blocks[\s\S]*?(```|$)/g, "").trim());
+  h = h.replace(/```[\w-]*\n?([\s\S]*?)```/g, (_, c) => `<pre>${c.replace(/\n$/, "")}</pre>`);
+  h = h.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+  h = h.replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>");
+  h = h.replace(/(^|[^*\w])[*_]([^*_\n]+)[*_](?![\w*])/g, "$1<i>$2</i>");
+  h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  h = h.replace(/^#{1,4}\s*(.+)$/gm, "<b>$1</b>");
+  h = h.replace(/^(\s*)[-*] /gm, "$1• ");
+  return h;
+}
+function chatQuery(c) { return `kind=${c.kind}&id=${encodeURIComponent(c.id || "")}&day=${c.day || day}`; }
+function chatShell(c) {
+  const r = c.row;
+  const ctx = c.kind === "plan"
+    ? `<div class="cctx"><div class="title">${esc(c.title)}</div><div class="src">Claude proposes the blocks here and books them only after your OK.</div></div>`
+    : r ? `<div class="cctx"><div class="title">${esc(r.title)}</div>${r.next ? `<div>Next · ${esc(r.next)}</div>` : ""}
+        <div class="src">Claude gets this card with your first message.</div></div>` : "";
+  return `<div class="chat">
+    <div class="chead"><button data-chat="close">${isPhone() ? "Close" : "Done"}</button><b>${esc(c.title)}</b><span style="width:48px"></span></div>
+    ${c.kind === "plan" ? `<div class="cday" id="cday"><button class="cday-h" data-chat="dayfold"><span id="cday-t">${esc(dayName(c.day || day))}</span><span id="cday-n">Reading the calendar…</span></button><div class="cday-s" id="cday-s"></div></div>` : ""}
+    <div class="cmsgs" id="cmsgs">${ctx}${testMode ? '<div class="ctest">Test mode: Claude can read, but anything that changes or sends is refused.</div>' : ""}<div id="clog"></div></div>
+    <div class="ccomp" id="ccomp"><button class="cmic" data-chat="mic" aria-label="Record a voice message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <div class="crec"><i class="rdot"></i><span id="crec-t">0:00</span><button data-chat="reccancel">Cancel</button></div>
+      <textarea id="cin" rows="1" placeholder="Message Claude" autocomplete="off" autocorrect="on" enterkeyhint="send"></textarea>
+      <button id="csend" data-chat="send">Send</button></div>
+  </div>`;
+}
+// The Plan chat's day view (Oct 31, the owner: "plan should actually then rather show me a
+// visualisation of the calendar with the response / chat below in two separate components").
+// Left column: what is in the calendar (api/day). Right column: the blocks Claude proposes in his
+// latest message, from its blocks fence, or else its "HH:MM-HH:MM title" lines.
+// The Plan page's sections live across redraws (render rewrites the page every refresh), so
+// the chat keeps its text, scroll and state; mountPlan puts them back into their slots.
+const planUi = {};   // per day: {folded, started, sent, dayEl, chatEl, chat}
+function planDate(pd) { const d = new Date(); if (pd === "tomorrow") d.setDate(d.getDate() + 1); return d; }
+function planHas(pd) {
+  const key = "plan:" + planDate(pd).toLocaleDateString("en-CA");
+  return !!(planUi[pd] && planUi[pd].started) || !!(view.chats && Object.keys(view.chats).includes(key));
+}
+function planUpdateText(pd, ids) {
+  const rows = selection(pd), prev = (planUi[pd] || {}).sent, name = id => (rows.find(r => r.id === id) || findRow(id) || {title: id}).title;
+  const list = rows.map(r => r.title + (r.est ? ` (${r.est})` : "")).join("; ");
+  if (!prev) return `I may have changed the task list. It is now: ${list}. Please revise the proposal.`;
+  const add = ids.filter(i => !prev.includes(i)), rem = prev.filter(i => !ids.includes(i));
+  if (!add.length && !rem.length) return `Same tasks (${list}). Please look at the proposal again.`;
+  return `I changed the task list.${add.length ? " Added: " + add.map(name).join("; ") + "." : ""}${rem.length ? " Removed: " + rem.map(name).join("; ") + "." : ""} It is now: ${list}. Please revise the proposal.`;
+}
+function mountPlan(pd) {
+  const pu = planUi[pd], daySlot = document.getElementById("plan-day-slot"), chatSlot = document.getElementById("plan-chat-slot");
+  if (!pu || !document.getElementById("pop").hidden) return;   // a sheet has the ids while it is open
+  const mk = html => { const w = document.createElement("div"); w.innerHTML = html.trim(); return w.firstChild; };
+  if (!pu.dayEl) pu.dayEl = mk(`<section class="psec pday"><h2>${esc(dayName(pd))}</h2><div class="cday" id="cday"><div class="cday-h"><span id="cday-n">Reading the calendar…</span></div><div class="cday-s" id="cday-s"></div></div><div id="pdetail"></div><div id="pbook"></div></section>`);
+  if (daySlot) daySlot.replaceWith(pu.dayEl);
+  if (chatSlot) {
+    if (!pu.chatEl) pu.chatEl = mk(`<section class="psec pchat"><h2>Chat with Claude</h2><div class="chat inline">
+      <div class="cmsgs" id="cmsgs"><div id="clog"></div></div>
+      <div class="ccomp" id="ccomp"><button class="cmic" data-chat="mic" aria-label="Record a voice message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        <div class="crec"><i class="rdot"></i><span id="crec-t">0:00</span><button data-chat="reccancel">Cancel</button></div>
+        <textarea id="cin" rows="1" placeholder="Message Claude" autocomplete="off" autocorrect="on" enterkeyhint="send"></textarea>
+        <button id="csend" data-chat="send">Send</button></div></div></section>`);
+    chatSlot.replaceWith(pu.chatEl);
+  }
+  if (!pu.chat) pu.chat = {kind: "plan", id: "", day: pd, tab: "plan", from: "plan", inline: true, first: !planHas(pd),
+                           title: "Plan " + planDate(pd).toLocaleDateString([], {weekday: "long", month: "short", day: "numeric"})};
+  if (chat !== pu.chat) {
+    if (chat) clearTimeout(chat.timer);
+    chat = pu.chat; chat.dayScrolled = false; chat.painted = false;
+    if (chatSlot) pollChat();
+    loadDay(false);
+  } else if (chat.dayData) paintDay();
+}
+function planBlocks(text) {
+  const t = String(text || ""), fence = t.match(/```blocks\s*\n([\s\S]*?)(```|$)/);
+  const src = fence ? fence[1] : t, out = [];
+  // Without the fence, only a list line that starts with its time range is a block (Oct 31: prose
+  // like "the other option is 09:30-10:00, straight after waking up" was drawn as one).
+  const re = fence ? /^\s*(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})\s*(.*)/
+                   : /^\s*(?:[-*•]|\d+\.)\s*(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})\s*(.*)/;
+  for (const line of src.split("\n")) {
+    const m = line.replace(/\*\*|`/g, "").match(re);
+    if (!m) continue;
+    const s = +m[1] * 60 + +m[2], f = +m[3] * 60 + +m[4];
+    if (f <= s) continue;
+    let title = m[5].replace(/^[\s|:·•\-–,]+/, "").replace(/[\u2757\u203c\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F]/gu, "").trim();
+    const full = title;
+    title = title.split(/\s\(|\. /)[0].trim().slice(0, 60) || "Block";
+    if (!fence && /^nothing|^free/i.test(title)) continue;
+    // What a tap on the block shows: Claude's own line about it in the message (Oct 31).
+    let note = full;
+    if (fence) {
+      const hm = `${m[1].padStart(2, "0")}:${m[2]}`;
+      const said = t.replace(/```blocks[\s\S]*?(```|$)/g, "").split("\n").find(l => l.includes(hm) || l.includes(`${+m[1]}:${m[2]}`));
+      if (said) note = said.replace(/^\s*(?:[-*•]|\d+\.)\s*/, "").trim();
+    }
+    out.push({s, f, title, note});
+  }
+  return out;
+}
+async function loadDay(fresh) {
+  const c = chat;
+  try { const d = await api(`api/day?day=${c.day || day}${fresh ? "&fresh=1" : ""}`); if (chat === c) { c.dayData = d; paintDay(); } }
+  catch (e) { if (chat === c) { c.dayData = {events: [], ok: false}; paintDay(); } }
+}
+// A tap on a block opens what is in it under the day (Oct 31, the owner: "tap on one of the blocks
+// and see whats scheduled on that"): an event's calendar, place and description, or Claude's
+// line about a block it proposes.
+function blockDetail() {
+  const el = document.getElementById("pdetail");
+  if (!el || !chat) return;
+  const k = chat.sel, list = k && chat.blocks ? (k[0] === "e" ? chat.blocks.e : chat.blocks.p) : null, b = list && list[+k.slice(1)];
+  if (!b) { el.innerHTML = ""; return; }
+  const head = `<div class="bdh"><b>${esc(b.title)}</b><button data-blk-close aria-label="Close">✕</button></div>`;
+  const time = `${hhmm(b.s)}-${hhmm(b.f)}`;
+  el.innerHTML = k[0] === "e"
+    ? `<div class="bdet">${head}<div class="bdm">${time}${b.cal ? " · " + esc(b.cal) : ""}${b.tentative ? " · invite not accepted yet" : ""}</div>
+        ${b.loc ? `<div class="bdm">${esc(b.loc)}</div>` : ""}${b.desc ? `<div class="bdd">${md(b.desc)}</div>` : ""}</div>`
+    : `<div class="bdet prop">${head}<div class="bdm">${time} · Claude's proposal, not booked yet</div>
+        ${b.note && b.note !== b.title ? `<div class="bdd">${md(b.note)}</div>` : ""}</div>`;
+}
+function hhmm(m) { return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`; }
+function paintDay() {
+  const box = document.getElementById("cday-s"), n = document.getElementById("cday-n");
+  if (!chat || !box || !chat.dayData) return;
+  const d = chat.dayData;
+  const evs = (d.events || []).filter(e => !e.allday), allday = (d.events || []).filter(e => e.allday);
+  // A block already in the calendar (same times, or overlapping with a shared word: "Big rocks",
+  // "Lunch") is not a proposal: Claude restates the standing blocks around its new ones.
+  const words = t => new Set(String(t).toLowerCase().replace(/[^a-z0-9à-ÿ ]+/g, " ").split(/\s+/).filter(w => w.length >= 4));
+  const prop = (chat.proposal || []).filter(b => !evs.some(e => e.s < b.f && b.s < e.f
+    && ((e.s === b.s && e.f === b.f) || [...words(b.title)].some(w => words(e.title).has(w)))));
+  const mins = prop.reduce((a, b) => a + b.f - b.s, 0);
+  n.textContent = (prop.length ? `${prop.length} proposed · ${mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? " " + mins % 60 : "") : mins + "m"}` : "No proposal yet")
+    + (d.ok === false ? " · calendar unreadable" : "");
+  const all = evs.concat(prop);
+  let lo = Math.min(d.day_start || 540, ...all.map(x => x.s)), hi = Math.max(d.day_end || 1260, ...all.map(x => x.f));
+  lo = Math.max(0, Math.floor(lo / 60) * 60); hi = Math.min(1440, Math.ceil(hi / 60) * 60);
+  const PX = 1.1, y = m => (m - lo) * PX;
+  let h = allday.length ? `<div class="tl-all">${allday.map(e => `<span>${esc(e.title)}</span>`).join("")}</div>` : "";
+  h += `<div class="tl-lanes"><span>Your calendars</span><span>Claude's plan</span></div><div class="tl" style="height:${y(hi) + 8}px"><div class="tl-plan"></div>`;
+  for (let m = lo; m <= hi; m += 60) h += `<div class="hr" style="top:${y(m)}px"><span>${hhmm(m)}</span></div>`;
+  // Overlapping calendar events share their lane side by side.
+  const cols = []; evs.forEach(e => { let i = 0; while (cols[i] && cols[i] > e.s) i++; cols[i] = e.f; e.col = i; });
+  const ncol = Math.max(1, cols.length);
+  const short = (a, b) => y(b) - y(a) < 34 ? " short" : "";
+  chat.blocks = {e: evs, p: prop};
+  const on = k => chat.sel === k ? " on" : "";
+  h += evs.map((e, i) => `<div data-blk="e${i}" class="ev k-${e.kind || "main"}${e.tentative ? " tent" : ""}${short(e.s, e.f)}${on("e" + i)}" style="top:${y(e.s)}px;height:${Math.max(16, y(e.f) - y(e.s) - 2)}px;left:calc(${e.col} * (50% - 6px) / ${ncol});width:calc((50% - 6px) / ${ncol} - 2px)"><span class="t">${esc(e.title)}</span> <span class="tm">${hhmm(e.s)}-${hhmm(e.f)}</span></div>`).join("");
+  h += prop.map((b, i) => `<div data-blk="p${i}" class="pr${short(b.s, b.f)}${on("p" + i)}" style="top:${y(b.s)}px;height:${Math.max(16, y(b.f) - y(b.s) - 2)}px"><span class="t">${esc(b.title)}</span> <span class="tm">${hhmm(b.s)}-${hhmm(b.f)}</span></div>`).join("");
+  if (d.now != null && d.now >= lo && d.now <= hi) h += `<div class="nowl" style="top:${y(d.now)}px"></div>`;
+  box.innerHTML = h + "</div>";
+  blockDetail();
+  const book = document.getElementById("pbook");
+  if (book) book.innerHTML = prop.length && !chat.busy
+    ? `<button class="cta" data-chat="book" style="background:var(--accent);color:var(--onaccent)">Book these ${prop.length} block${prop.length > 1 ? "s" : ""}</button>` : "";
+  if (!chat.dayScrolled && all.length) {   // open on the first thing that day
+    box.scrollTop = Math.max(0, y(Math.min(...all.map(x => x.s))) - 24); chat.dayScrolled = !!prop.length;
+  }
+}
+function chatBody(st) {
+  const msgs = (st.messages || []).map((m, i) => {
+    const cls = m.role === "you" ? "you" : m.role === "claude" ? "claude" : "note";
+    return `<div class="msg ${cls}" data-i="${i}">${m.voice ? "🎤 " : ""}${cls === "claude" ? md(m.text) : esc(m.text)}</div>`;
+  }).join("");
+  const ap = st.approval;
+  const approve = ap ? `<div class="capprove"><div class="askq">Claude wants to ${esc(ap.verb)}:</div><pre>${esc(ap.shown)}</pre>
+      ${ap.why ? `<div class="why">${esc(ap.why)}</div>` : ""}
+      <div class="acts"><button data-chat="deny">Deny</button><button class="primary" data-chat="allow" data-req="${esc(ap.id)}">Allow once</button></div></div>` : "";
+  const think = st.busy && !ap ? `<div class="msg claude thinking"><span class="dots"><i></i><i></i><i></i></span><span>${esc(st.status || "Thinking…")}</span></div>` : "";
+  return msgs + approve + think;
+}
+function paintChat(st) {
+  if (!chat) return;
+  const log = document.getElementById("clog"), box = document.getElementById("cmsgs");
+  if (!log) return;
+  const nearEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  const seen = chat.seen || 0;
+  log.innerHTML = chatBody(st);
+  log.querySelectorAll(".msg[data-i]").forEach(el => { if (+el.dataset.i >= seen && chat.painted && !el.classList.contains("you")) el.classList.add("in"); });
+  chat.seen = (st.messages || []).length; chat.painted = true; chat.key = st.key;
+  if (chat.kind === "plan") {
+    const last = (st.messages || []).filter(m => m.role === "claude").pop();
+    chat.proposal = last ? planBlocks(last.text) : [];
+    if (chat.busy && !st.busy) loadDay(true);   // Claude may just have booked the blocks
+    paintDay();
+  }
+  chat.busy = st.busy;
+  const send = document.getElementById("csend");
+  if (rec) return;   // the recording bar owns the button until it is sent or cancelled
+  send.textContent = st.busy ? "Stop" : "Send"; send.dataset.chat = st.busy ? "stop" : "send"; send.classList.toggle("stop", st.busy);
+  if (nearEnd || !chat.scrolled) { box.scrollTop = box.scrollHeight; chat.scrolled = true; }
+  clearTimeout(chat.timer);
+  if (st.busy) chat.timer = setTimeout(pollChat, 1200);
+  else if (chat.wasBusy) { haptic(); chat.wasBusy = false; }
+  if (st.busy) chat.wasBusy = true;
+}
+async function pollChat() {
+  if (!chat) return;
+  const c = chat;
+  try { const st = await api("api/chat?" + chatQuery(c)); if (chat === c) paintChat(st); }
+  catch (e) { if (chat === c) chat.timer = setTimeout(pollChat, 3000); }
+}
+// On the phone the sheet is the visible part of the screen, so the box to type in rides on
+// top of the keyboard (iOS shrinks only the visual viewport).
+function fitChat(toEnd) {
+  const pop = document.getElementById("pop"), vv = window.visualViewport;
+  if (!chat || !vv || !pop.classList.contains("full")) return;
+  // Only while the keyboard is up. Without it iOS can keep a stale offset, which pushed the
+  // sheet down under the budget bar and cut off the box to type in (Oct 31).
+  if (window.innerHeight - vv.height > 80) {
+    pop.style.top = vv.offsetTop + "px"; pop.style.height = vv.height + "px"; pop.style.bottom = "auto";
+  } else {
+    pop.style.top = pop.style.height = pop.style.bottom = "";
+    if (window.scrollY) window.scrollTo(0, 0);
+  }
+  const box = document.getElementById("cmsgs"); if (box && toEnd === true) box.scrollTop = box.scrollHeight;
+}
+if (window.visualViewport) {
+  visualViewport.addEventListener("resize", () => fitChat(true));   // the keyboard came or went
+  visualViewport.addEventListener("scroll", () => fitChat(false));
+}
+async function openChat(c) {
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  Object.values(planUi).forEach(u => { if (u.dayEl) u.dayEl.remove(); if (u.chatEl) u.chatEl.remove(); });
+  if (chat) clearTimeout(chat.timer);
+  const pop = document.getElementById("pop");
+  pop.classList.remove("sheet", "dialog", "full"); pop.style.cssText = "";
+  chat = {...c, day: c.day || day, tab: c.tab || tab, first: true};
+  pop.innerHTML = chatShell(chat); pop.hidden = false; popCard = document.body;
+  pop.classList.add("chatpop", isPhone() ? "full" : "dialog");
+  document.getElementById("scrim").hidden = isPhone();
+  lockPage(); fitChat();
+  const mine = chat;
+  if (chat.kind === "plan") loadDay(false);
+  if (c.send) { sendChat(c.send === true ? "" : c.send); }
+  else {
+    try { const st = await api("api/chat?" + chatQuery(c)); if (chat === mine) paintChat(st); }
+    catch (e) { toast("Failed: " + e.message); }
+    if (!isPhone() && chat === mine) document.getElementById("cin").focus();
+  }
+}
+async function sendChat(text) {
+  if (!chat) return;
+  const c = chat, inp = document.getElementById("cin");
+  if (text === undefined) { text = inp.value.trim(); if (!text) return; }
+  inp.value = ""; inp.style.height = "";
+  // Shown at once; the server's copy replaces it on the next paint.
+  const log = document.getElementById("clog");
+  if (text) log.insertAdjacentHTML("beforeend", `<div class="msg you in">${esc(text)}</div>`);
+  log.insertAdjacentHTML("beforeend", `<div class="msg claude thinking in"><span class="dots"><i></i><i></i><i></i></span><span>Thinking…</span></div>`);
+  document.getElementById("cmsgs").scrollTop = 1e9;
+  const body = {op: "send", kind: c.kind, id: c.id, day: c.day, text, first: c.first, tab: c.tab, from: c.from || ""};
+  if (c.kind === "plan" && !text) body.ids = c.ids;
+  try {
+    const st = await api("api/chat", body);
+    c.first = false;
+    if (chat === c) paintChat(st);
+  } catch (e) {
+    toast("Failed: " + e.message);
+    if (chat === c) pollChat();
+  }
+}
+// iPhone (Oct 31, the owner: "when i try to scroll chat down, instead the window scrolls down"):
+// a drag that the message list cannot take any further, or one outside it, would move the whole
+// screen. Only the list (and a long field or command) scrolls; nothing else moves.
+let chatTouchY = 0;
+document.addEventListener("touchstart", (e) => { if (chat && e.touches[0]) chatTouchY = e.touches[0].clientY; }, {passive: true});
+document.addEventListener("touchmove", (e) => {
+  if (!chat || !e.touches[0] || !e.target.closest || !e.target.closest("#pop")) return;
+  const el = e.target.closest(".cmsgs, .cday-s, textarea, .capprove pre");
+  const dy = e.touches[0].clientY - chatTouchY;
+  if (!el || el.scrollHeight <= el.clientHeight + 1) { e.preventDefault(); return; }
+  const atTop = el.scrollTop <= 0, atEnd = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+  if ((dy > 0 && atTop) || (dy < 0 && atEnd)) e.preventDefault();
+}, {passive: false});
+
+// Voice messages (Oct 31): MediaRecorder in the page (m4a on the iPhone, webm in Chrome), sent
+// whole when he taps Send; vault-host transcribes it with the bridge's Transcriber, keeps no
+// audio, and the transcript continues the chat as his message.
+let rec = null;
+const REC_MAX_S = 300;
+async function startRec() {
+  if (!chat || chat.busy || rec) return;
+  if (!navigator.mediaDevices || !window.MediaRecorder) { toast("Voice could not start here; the keyboard's dictation works"); return; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); }
+  catch (e) { toast("Could not use the microphone: " + (e.message || e.name)); return; }
+  if (!chat) { stream.getTracks().forEach(t => t.stop()); return; }
+  const type = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus"]
+    .find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || "";
+  const mr = new MediaRecorder(stream, type ? {mimeType: type} : undefined);
+  rec = {mr, stream, chunks: [], t0: Date.now(), send: false, chat};
+  mr.ondataavailable = e => { if (e.data && e.data.size && rec) rec.chunks.push(e.data); };
+  mr.onstop = finishRec;
+  mr.start(1000);
+  document.getElementById("ccomp").classList.add("recording");
+  const send = document.getElementById("csend");
+  send.textContent = "Send"; send.dataset.chat = "recsend"; send.classList.remove("stop");
+  const tick = () => {
+    const s = Math.floor((Date.now() - rec.t0) / 1000), el = document.getElementById("crec-t");
+    if (el) el.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    if (s >= REC_MAX_S) stopRec(true);
+  };
+  rec.timer = setInterval(tick, 250); tick(); haptic();
+}
+function stopRec(send) {
+  if (!rec || rec.mr.state === "inactive") return;
+  rec.send = send; clearInterval(rec.timer); rec.mr.stop();
+}
+async function finishRec() {
+  const r = rec; rec = null;
+  if (!r) return;
+  r.stream.getTracks().forEach(t => t.stop());
+  const comp = document.getElementById("ccomp");
+  if (comp) comp.classList.remove("recording");
+  const send = document.getElementById("csend");
+  if (send) { send.textContent = "Send"; send.dataset.chat = "send"; }
+  if (!r.send || chat !== r.chat) return;
+  if (Date.now() - r.t0 < 800) { toast("Too short, nothing sent"); return; }
+  const c = chat, blob = new Blob(r.chunks, {type: (r.mr.mimeType || "audio/mp4").split(";")[0]});
+  const log = document.getElementById("clog");
+  log.insertAdjacentHTML("beforeend", `<div class="msg claude thinking in"><span class="dots"><i></i><i></i><i></i></span><span>Transcribing…</span></div>`);
+  document.getElementById("cmsgs").scrollTop = 1e9;
+  const qs = chatQuery(c) + `&first=${c.first ? 1 : 0}&test=${testMode ? 1 : 0}&tab=${encodeURIComponent(c.tab || "")}&from=${encodeURIComponent(c.from || "")}`;
+  try {
+    const res = await fetch(base + "api/chat/voice?" + qs, {method: "POST", body: blob,
+      headers: {"x-init-data": initData, "content-type": blob.type || "audio/mp4"}});
+    const j = await res.json().catch(() => ({}));
+    if (res.status === 403 && !inTg) { location.href = base + "login"; return; }
+    if (!res.ok) throw new Error(j.error || res.status);
+    c.first = false;
+    if (chat === c) paintChat(j);
+  } catch (e) {
+    toast("Voice failed: " + e.message);
+    if (chat === c) pollChat();
+  }
+}
+
+document.addEventListener("keydown", (e) => {
+  // On the Mac, Return sends and Shift+Return makes a new line; on the phone Return is a new line.
+  if (e.target.id === "cin" && e.key === "Enter" && !e.shiftKey && !e.isComposing && !isPhone()) { e.preventDefault(); if (chat && !chat.busy) sendChat(); }
+});
+document.addEventListener("input", (e) => {
+  if (e.target.id !== "cin") return;
+  e.target.style.height = ""; e.target.style.height = Math.min(140, e.target.scrollHeight) + "px";
+});
+
+function editBox(r) { return ""; }
+function oldEditBox(r) {
+  return `<div class="edit">
+    ${r.task ? `<label>Next step</label><input class="in-next" value="${esc(r.next)}">
+    <div class="acts"><button data-a="next">Save Next</button></div>` : ""}
+    <label>Note, in your words</label>
+    <textarea class="in-note" placeholder="e.g. already called, waiting on her reply until Tuesday"></textarea>
+    <div class="acts">${r.task ? '<button data-a="note">Save note</button>' : ""}
+      <button class="primary" data-a="talknote">Send to Claude</button></div>
+  </div>`;
+}
+
+// What Claude can take off his hands, named, with one tap to start it (Oct 31).
+function canDo(r) {
+  if (!r.prep || !r.prep.length || r.tab === "claude") return "";
+  const more = r.prep.length > 1 ? ` <span class="more-n">+${r.prep.length - 1} more</span>` : "";
+  return `<div class="cando"><span><b>Claude can</b> ${esc(r.prep[0].charAt(0).toLowerCase() + r.prep[0].slice(1))}${more}</span><button class="start" data-a="letclaude">Start</button></div>`;
+}
+// What his meditations said about the task (Oct 31), with the Raise priority offer after 3.
+function mindLine(r) {
+  if (!r.mind || r.mind < 2) return "";
+  return `<div class="mind">In your meditation on ${r.mind} days this month${r.raise
+    ? ' · <button class="link" data-a="raise">Raise priority</button> · <button class="link" data-a="noraise">Not now</button>' : ""}</div>`;
+}
+function hero(r) {
+  return `<div class="card hero" data-id="${esc(r.id)}">
+    <div class="tagline"><span class="tag">The one thing</span>${r.meta && r.meta.length <= 60 ? esc(r.meta) : ""}</div>
+    <div class="title">${esc(r.title)}</div>
+    ${r.next ? `<div class="next"><b>Next</b> · ${esc(r.next)}</div>` : ""}
+    ${mindLine(r)}
+    ${canDo(r)}
+    ${r.waiting ? `<div class="waitbox"><b>Waiting</b> · ${esc(r.waiting)}</div>` : ""}
+    <div class="acts">
+      ${isSel(r) ? '<button class="primary on" data-a="unselect">Added ✓</button>' : '<button class="primary" data-a="select">Add</button>'}
+      <button class="primary ghost" data-a="removeopen">Remove</button>
+    </div>
+    <div class="acts small">${talkBtn(r)}<button data-a="edit">Edit</button>
+      <button data-a="details" aria-expanded="false">Details</button></div>
+    ${detailBlock(r)}${removeBox()}${editBox(r)}</div>`;
+}
+
+function item(r, kind) {
+  // Probably done: Done and Not done sit on the row itself, no expanding (Oct 30).
+  const acts = kind === "maybe-done" || kind === "closed"
+    ? `<div class="acts small">${talkBtn(r)}<button data-a="edit">Edit</button></div>`
+    : `${canDo(r)}<div class="acts small">${talkBtn(r)}<button data-a="edit">Edit</button>
+        ${kind === "plan" ? "" : '<button data-a="swap" aria-label="Make this the one thing">★ One thing</button>'}</div>`;
+  return `<div class="item" data-id="${esc(r.id)}">
+    <div class="top">
+      <div class="body"><div class="title">${esc(r.title)}${kind === "pulled" ? ' <span class="by">added by you</span>' : ""}</div>
+        <div class="nx">${r.suggest ? esc(r.suggest) + " · " : ""}${r.est ? esc(r.est) + (r.next ? " · " : "") : ""}${esc(r.next)}</div>${mindLine(r)}</div>
+      ${kind === "plan" ? "" : kind === "closed"
+        ? `<div class="pair">${r.task ? '<button class="addpill txt ghost" data-a="reopen">Reopen</button>' : ""}</div>`
+        : kind === "maybe-done"
+        ? `<div class="pair"><button class="addpill txt on" data-a="done">Done</button><button class="addpill txt ghost" data-a="notdone">Not done</button></div>`
+        : `<div class="pair">${addBtn(r)}${removeBtn()}</div>`}
+    </div>
+    ${kind === "plan" || kind === "maybe-done" || kind === "closed" ? "" : removeBox()}
+    <div class="more">
+      ${acts}
+      ${detailBlock(r)}
+      ${editBox(r)}
+    </div></div>`;
+}
+
+// Tomorrow's suggestions are the same cards as Today's (Oct 30: "Tomorrow should be
+// similar to today"): details, Talk, Edit task, One thing, Add and Remove, swipe.
+function suggestItem(r) { return item(r, "suggest"); }
+
+// A phone number in a WhatsApp draft's `to` (+ and the full number, or a WhatsApp chat id: those digits, then the s.whatsapp.net suffix) opens the chat.
+function waNumber(to) {
+  const s = String(to || "").trim(), m = /^(\d{8,15})@s\.whatsapp\.net$/.exec(s);
+  if (m) return m[1];
+  return /^\+?[\d\s().-]{8,}$/.test(s) ? s.replace(/\D/g, "") : "";
+}
+// The clipboard API, with a selected textarea and execCommand where it is refused (iOS home-screen app, Telegram).
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px";
+  document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+  let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+  ta.remove(); return ok;
+}
+
+function replyCard(r) {
+  const d = r.draft || {};
+  const via = d.via === "mail" ? "Email" : (d.via || "").replace(/^./, c => c.toUpperCase());
+  return `<div class="card" data-id="${esc(r.id)}">
+    <div class="who"><div class="avatar">${esc(initials(d.to))}</div>
+      <div style="flex:1;min-width:0"><div class="name">${esc(d.to)}</div><div class="via">${esc(via)}${d.subj ? " · " + esc(d.subj) : ""}</div></div></div>
+    <div class="title" style="margin-top:10px;font-size:13.5px;color:var(--muted);font-weight:500">${esc(r.title)}</div>
+    ${d.via === "mail" ? `<div class="draft">${esc(d.body)}</div>`
+      : `<textarea class="draft in-draft" rows="${Math.min(10, (d.body || "").split("\n").length + 1)}" autocomplete="off">${esc(d.body)}</textarea>`}
+    <div class="acts">${d.via === "mail" ? '<button class="primary" data-a="sendopen">Send</button>'
+      : '<button class="primary" data-a="copy">Copy</button>' + (waNumber(d.to) ? '<button data-a="wa">WhatsApp</button>' : "")}
+      ${talkBtn(r)}<button data-a="done">Replied</button>
+      <button data-a="skipreply">Skip</button></div>
+  </div>`;
+}
+
+// The Claude tab card (owner decision, Oct 30): what Claude did, and the one decision it needs.
+// Oct 31: "i just need a short summary of what was done and what decision i need to take".
+// Steps, sources and what each answer unlocks stay in the task note's Prepared by Claude
+// section. Older results have no "did": the summary's first sentence stands in.
+const firstSentence = s => ((s || "").match(/^.*?[.!?](?=\s|$)/) || [s || ""])[0];
+function claudeCard(r) {
+  const pr = r.prepared, res = pr && pr.result;
+  const steps = list => list.map((s, i) => `<div class="step"><i>${i + 1}</i><span>${s}</span></div>`).join("");
+  let body;
+  if (pr && pr.pending) {
+    const since = (pr.asked || "").slice(11, 16);
+    body = `<div class="next">Claude is working on it${pr.answers && pr.answers.length ? " with your answer" : ""}${since ? ` since ${esc(since)}` : ""}.</div>
+      <div class="why">It researches and drafts everything it can on its own, usually 5 to 15 minutes. Then this card shows what it did and the one decision it needs from you. The full notes go into the task note. Nothing is sent, booked or bought without you.</div>`;
+  } else if (res) {
+    const did = res.did || firstSentence(res.summary), a = res.asks[0], more = res.asks.length - 1;
+    body = `${did ? `<div class="next">${esc(did)}</div>` : ""}
+      ${a ? `<div class="ask" data-q="${esc(a.q)}"><div class="askq">${esc(a.q)}</div>
+          <div class="askopts">${(a.options || []).map(o => `<button class="addpill" data-answer="${esc(o)}">${esc(o)}</button>`).join("")}</div>
+          <div class="askfree"><input class="in-answer" placeholder="Or answer in your words" autocomplete="off"><button class="addpill on" data-answer="">Send</button></div>
+        </div>` : `<div class="why">${esc(res.decide || "Nothing needed from you right now.")}</div>`}
+      <details class="seemore"${openMore.has(r.id) ? " open" : ""}><summary>See more</summary>
+        ${a && a.unlocks && Object.keys(a.unlocks).length ? `<div class="steps"><div class="lbl">Your answer unlocks</div>${Object.entries(a.unlocks).map(([k, v]) => `<div class="why"><b>${esc(k)}</b> → ${esc(v)}</div>`).join("")}</div>` : ""}
+        ${res.done.length ? `<div class="steps"><div class="lbl">Done so far</div>${steps(res.done.map(d =>
+          `${esc(d.step)}: ${esc(d.result || "")}${d.source ? ` <span class="src">${esc(d.source)}</span>` : ""}`))}</div>` : ""}
+        ${res.then.length ? `<div class="steps"><div class="lbl">After your answer</div>${steps(res.then.map(esc))}</div>` : ""}
+      </details>
+      <div class="foot" style="text-align:left">Prepared ${esc((pr.at || "").slice(11, 16))}${more > 0 ? ` · ${more} more question${more > 1 ? "s" : ""} after this` : ""}${pr.error ? " · last try failed" : ""}</div>`;
+  } else {
+    body = `<div class="steps"><div class="lbl">What I'd do</div>${steps(r.claude.map(esc))}</div>
+      <div class="why">${pr && pr.error ? "The last preparation failed. " : ""}Claude prepares this on its own after the next pre-run, or now.</div>`;
+  }
+  return `<div class="card" data-id="${esc(r.id)}">
+    <div class="title" style="font-size:15.5px">${esc(r.title)}</div>
+    ${body}
+    <div class="acts">${res || (pr && pr.pending) ? "" : '<button class="primary" data-a="prepare">Prepare now</button>'}
+      ${talkBtn(r)}
+      <button data-a="edit">Adjust</button><button data-a="tomorrow" ${r.task ? "" : "disabled"}>Not now</button></div>
+  </div>`;
+}
+
+function banner() {
+  return testMode
+    ? `<div class="banner test">Test mode: taps change nothing. <a href="#" id="go-live">Go live</a></div>`
+    : `<div class="banner">Live: taps change your tasks. <a href="#" id="go-test">Test mode</a></div>`;
+}
+
+function head(sub, title, extra) {
+  return `<div class="head"><div class="sub">${sub}</div><div class="row"><h1>${title}</h1>${extra || ""}</div></div>`;
+}
+
+function dayLine() {
+  const d = new Date().toLocaleDateString([], {weekday: "long", month: "short", day: "numeric"});
+  const g = view && view.generated ? new Date(view.generated).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}) : "";
+  return `${esc(d)}${g ? " · pre-run " + esc(g) : ""}`;
+}
+
+function snapshot() {
+  const m = {};
+  document.querySelectorAll("#app [data-id]").forEach(el => { if (!(el.dataset.id in m)) m[el.dataset.id] = el.getBoundingClientRect().top; });
+  return m;
+}
+function flip(before, animate) {
+  if (!animate || !Element.prototype.animate) return;
+  const seen = new Set(), had = Object.keys(before).length;
+  document.querySelectorAll("#app [data-id]").forEach(el => {
+    const id = el.dataset.id; if (seen.has(id)) return; seen.add(id);
+    const top = el.getBoundingClientRect().top;
+    if (id in before) {
+      const dy = before[id] - top;
+      if (Math.abs(dy) > 1) el.animate([{transform: `translateY(${dy}px)`}, {transform: "none"}],
+                                       {duration: 480, easing: "cubic-bezier(.22,.8,.25,1)"});
+    } else if (had) {
+      el.animate([{opacity: 0, transform: "translateY(8px) scale(.98)"}, {opacity: 1, transform: "none"}],
+                 {duration: 360, easing: "cubic-bezier(.22,.8,.3,1)"});
+    }
+  });
+}
+function render() {
+  const app = document.getElementById("app");
+  const frame = tab + "|" + day, before = snapshot(), animate = frame === lastFrame;
+  lastFrame = frame;
+  const c = (view && view.counts) || {};
+  document.getElementById("tabs").innerHTML = TABS.map(([k, label]) =>
+    `<button data-tab="${k}" class="${k === tab ? "on" : ""}" aria-label="${label}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg>
+      ${label}${c[k] ? `<span class="badge">${c[k]}</span>` : ""}</button>`).join("");
+  if (!view) return;
+  let h = banner();
+  if (tab === "today") {
+    const t = view[day];
+    const running = view.prerun && view.prerun.running;
+    const asOf = view.updated || view.generated, hm = t => new Date(t).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+    h += head(esc(dayName(day)) + (day === "today" && asOf ? (view.updated ? " · updated " : " · pre-run ") + esc(hm(asOf)) : "")
+              + ` · <a class="refresh${running ? " on" : ""}" id="refresh">${running ? "Updating…" : "Refresh"}</a>`,
+              "ToDo", `<div style="display:flex;gap:6px">
+</div>`);
+    // What the last refreshes changed, folded (Oct 31: "a summary of updates on top ... when expanded").
+    const us = day === "today" ? (view.update_summary || []) : [];
+    if (us.length) h += `<details class="upsum"${openSummary ? " open" : ""}><summary>Updated ${esc(hm(view.updated))} · ${us.length} change${us.length > 1 ? "s" : ""} today</summary>
+      <ul>${us.map(u => `<li><b>${esc(u.title)}</b> ${esc(u.note.replace(/^Update \d{1,2}:\d{2}:\s*/, ""))}</li>`).join("")}</ul></details>`;
+    h += `<div class="seg" role="tablist"><button data-day="today" class="${day === "today" ? "on" : ""}">Today</button>
+      <button data-day="tomorrow" class="${day === "tomorrow" ? "on" : ""}">Tomorrow</button></div>`;
+    h += budgetBar();
+    h += t.one ? hero(t.one) : t.needs.length
+      ? `<div class="empty">No one thing picked. ★ One thing on a task below makes it the one.</div>`
+      : `<div class="empty">Nothing ${day === "today" ? "needs you today" : "planned for tomorrow yet"}.</div>`;
+    // Anything he adds from the boxes below moves up into the top group and out of its
+    // box (owner decision, Oct 30); the top group is Claude's pre-selection plus his pulls.
+    const topIds = new Set([t.one && t.one.id, ...t.needs.map(r => r.id)]);
+    const pulled = selection(day).filter(r => !topIds.has(r.id));
+    const notPulled = rows => rows.filter(r => !sel[day].includes(r.id));
+    const top = t.needs.concat(pulled);
+    // + Task lives with the pre-selection (Oct 30): a task added here is his pick for the day.
+    h += `<h2>Pre-selected <span>${t.needs.length} from Claude${pulled.length ? ` + ${pulled.length} by you` : ""}</span>
+      <button class="pill" id="add-open" aria-label="Add a task for ${day}">+ Task</button></h2>
+      <div class="addbar" id="addbar"><input id="new-task" placeholder="New task for ${day}…"><button id="add-btn">Add</button></div>`;
+    if (top.length) h += `<div class="list" data-sec="needs">${top.map(r => item(r, pulled.includes(r) ? "pulled" : "")).join("")}</div>`;
+    const folds = [["waiting", "Waiting"], ["done", "Probably done"], ["more", "Everything else"], ["closed", "Done"]].filter(([k]) => notPulled(t[k] || []).length);
+    if (folds.length) h += `<div class="chips">${folds.map(([k, l]) => `<button data-fold="${k}" class="${fold === k ? "on" : ""}">${l} ${notPulled(t[k]).length}</button>`).join("")}</div>`;
+    if (fold && t[fold] && notPulled(t[fold]).length) h += `<div class="list" data-sec="${fold}" style="margin-top:10px">${notPulled(t[fold]).map(r => item(r, fold === "done" ? "maybe-done" : fold === "closed" ? "closed" : "")).join("")}</div>`;
+    if (day === "tomorrow" && t.suggest && notPulled(t.suggest).length) {
+      h += `<h2>Suggested <span>Add moves it up into tomorrow</span></h2><div class="list" data-sec="suggest">${notPulled(t.suggest).map(suggestItem).join("")}</div>`;
+    }
+    const n = sel[day].length;
+    h += `<button class="cta" id="to-plan" ${n ? "" : "disabled"}>${n ? `Confirm ${n} &amp; plan ${day}` : "Add tasks to plan " + day} <span aria-hidden="true">→</span></button>`;
+  } else if (tab === "replies") {
+    h += head(`${view.replies.length} people waiting on you`, "Replies");
+    h += view.replies.length ? view.replies.map(replyCard).join("") : `<div class="empty">No replies owed.</div>`;
+  } else if (tab === "claude") {
+    h += head("Claude can take these further · you approve each", "Claude");
+    const t = view.today, todayIds = new Set([t.one && t.one.id, ...t.needs.map(r => r.id), ...sel.today]);
+    const mineToday = view.claude.filter(r => todayIds.has(r.id)), others = view.claude.filter(r => !todayIds.has(r.id));
+    if (mineToday.length) h += `<h2>In today's selection <span>${mineToday.length}</span></h2>` + mineToday.map(claudeCard).join("");
+    if (others.length) h += (mineToday.length ? `<h2>More Claude can push <span>${others.length}</span></h2>` : "") + others.map(claudeCard).join("");
+    if (!view.claude.length) h += `<div class="empty">Nothing for Claude right now.</div>`;
+  } else if (tab === "plan") {
+    const pd = planDay || day, chosen = selection(pd);
+    h += head(esc(dayName(pd)), "Plan");
+    h += `<div class="seg" role="tablist"><button data-plan="today" class="${pd === "today" ? "on" : ""}">Today</button>
+      <button data-plan="tomorrow" class="${pd === "tomorrow" ? "on" : ""}">Tomorrow</button></div>`;
+    // Oct 31, the owner: the tasks open until there is a plan, then folded (unfold to edit and
+    // update); under them the day as Claude plans it; under that the chat, each a section.
+    const started = planHas(pd), pu = planUi[pd] || (planUi[pd] = {});
+    if (pu.folded === undefined) pu.folded = started;
+    if (chosen.length) { const keep = day; day = pd; h += budgetBar(); day = keep; }
+    h += `<details class="psec ptasks" data-pday="${pd}"${pu.folded ? "" : " open"}><summary><b>Tasks</b><span>${chosen.length} from ToDo${started ? " · Edit" : ""}</span></summary>`;
+    h += chosen.length
+      ? `<div class="list plist">${chosen.map(r => item(r, "plan")).join("")}</div>
+         <button class="cta" id="plan-go" style="background:var(--accent);color:var(--onaccent)">${started ? "Update plan" : "Create plan"}</button>`
+      : `<div class="empty">Nothing selected for ${pd}. Pick it in ToDo first.</div>`;
+    h += `</details><div id="plan-day-slot"></div>${started ? '<div id="plan-chat-slot"></div>' : ""}`;
+  } else {
+    h += head("Ask anything, or about any task", "Chat");
+    h += `<div class="card soon"><div class="title">Chat in the app</div>Talk on any card opens a chat with Claude about that task.</div>`;
+  }
+  h += `<div class="foot">${testMode ? "Test mode" : "Live"} · ${inTg ? "Telegram" : "app"}</div>`;
+  app.innerHTML = h;
+  if (tab === "plan") mountPlan(planDay || day);
+  // Open cards stay open across the auto-refresh redraws (they closed every 20 s on the phone).
+  app.querySelectorAll("[data-id]").forEach(c => { if (openIds.has(c.dataset.id)) c.classList.add("open"); });
+  flip(before, animate);
+}
+
+async function load(first) {
+  try {
+    const next = await api("api/view" + (first ? "?open=1" : ""));
+    const same = !first && lastJson === JSON.stringify(next);
+    view = next; lastJson = JSON.stringify(next);
+    syncSel();
+    if (!same) render();
+    if (first && view.prerun && view.prerun.running && !polling) watchPrerun(stamp(view));
+  } catch (e) {
+    if (!view) document.getElementById("app").innerHTML = `<div class="empty">Could not load: ${esc(e.message)}</div>`;
+  }
+}
+
+// While an update runs: reload every 10 s, stop when it ends, say whether it worked.
+const stamp = v => (v && v.generated || "") + "|" + (v && v.updated || "");
+function watchPrerun(before) {
+  clearInterval(polling);
+  load().then(() => render());
+  polling = setInterval(async () => {
+    await load();
+    if (view && view.prerun && !view.prerun.running) {
+      clearInterval(polling); polling = null;
+      toast(view.prerun.last_ok && stamp(view) !== before ? "Updated"
+                                                           : "Update failed, the data is unchanged");
+    }
+  }, 10000);
+}
+
+// Refresh reruns the pre-run: new mail, WhatsApp, calendar and the latest meditation.
+async function refresh() {
+  if (view && view.prerun && view.prerun.running) return;
+  try {
+    const res = await api("api/act", {action: "meditation"});
+    haptic(); toast(res.msg);
+    if (res.running) { view.prerun = {running: true}; render(); watchPrerun(stamp(view)); }
+  } catch (e) { toast("Refresh failed: " + e.message); }
+}
+
+// Pull down hard at the top to refresh, as on any iPhone list (owner decision, Oct 31).
+const ptr = document.createElement("div");
+ptr.id = "ptr"; ptr.innerHTML = "<span>Pull to refresh</span>"; document.body.appendChild(ptr);
+const PULL = 90;
+let pull = null;
+document.addEventListener("touchstart", (e) => {
+  pull = null;
+  if (window.scrollY > 0 || busy() || document.body.style.position === "fixed" || !e.touches[0]) return;
+  pull = {x: e.touches[0].clientX, y: e.touches[0].clientY, d: 0};
+}, {passive: true});
+document.addEventListener("touchmove", (e) => {
+  if (!pull) return;
+  const dx = e.touches[0].clientX - pull.x, dy = e.touches[0].clientY - pull.y;
+  if (dy <= 0 || Math.abs(dx) > dy) { pull.d = 0; ptr.style.opacity = 0; return; }
+  pull.d = dy * 0.5;
+  const running = view && view.prerun && view.prerun.running;
+  ptr.style.opacity = Math.min(1, pull.d / PULL);
+  ptr.style.transform = `translateY(${Math.min(pull.d, PULL) - 20}px)`;
+  ptr.classList.toggle("ready", pull.d >= PULL);
+  ptr.firstChild.textContent = running ? "Already updating…" : pull.d >= PULL ? "Release to refresh" : "Pull to refresh";
+}, {passive: true});
+document.addEventListener("touchend", () => {
+  if (!pull) return;
+  const go = pull.d >= PULL; pull = null;
+  ptr.style.transition = "opacity .25s, transform .25s"; ptr.style.opacity = 0; ptr.style.transform = "";
+  setTimeout(() => { ptr.style.transition = ""; }, 260);
+  if (go) refresh();
+});
+
+function busy() {
+  const a = document.activeElement;
+  return (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) || popCard || document.querySelector(".editing");
+}
+// Swipe on the phone (owner decision, Oct 30): right = Add (or take out again), left = Remove.
+// Only a clearly horizontal drag counts, so scrolling never triggers anything.
+let sw = null;
+document.addEventListener("touchstart", (e) => {
+  const row = e.target.closest(".item");
+  if (!row || e.target.closest("button, input, textarea") || !row.querySelector('[data-a="select"], [data-a="unselect"]')) return;
+  const t = e.touches[0];
+  sw = {row, x: t.clientX, y: t.clientY, dx: 0, on: false};
+}, {passive: true});
+document.addEventListener("touchmove", (e) => {
+  if (!sw) return;
+  const t = e.touches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y;
+  if (!sw.on) {
+    if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.5) sw.on = true;
+    else { if (Math.abs(dy) > 12) sw = null; return; }
+  }
+  e.preventDefault();
+  sw.row.style.transition = "none";   // the row follows the finger 1:1, no easing lag
+  sw.dx = dx;
+  sw.row.style.transform = `translateX(${dx}px)`;
+  sw.row.classList.toggle("sw-add", dx > 0);
+  sw.row.classList.toggle("sw-rem", dx < 0);
+  sw.row.classList.toggle("sw-go", Math.abs(dx) > 80);
+}, {passive: false});
+document.addEventListener("touchend", () => {
+  if (!sw) return;
+  const {row, dx, on} = sw; sw = null;
+  row.style.transition = "transform .2s"; row.style.transform = "";
+  setTimeout(() => {
+    row.style.transition = ""; row.classList.remove("sw-add", "sw-rem", "sw-go");
+    if (!on) return;
+    const b = dx > 80 ? row.querySelector('[data-a="select"], [data-a="unselect"]')
+            : dx < -80 ? row.querySelector('[data-a="removeopen"]') : null;
+    if (b) b.click();
+  }, 200);
+});
+
+document.addEventListener("visibilitychange", () => { if (!document.hidden && !busy()) load(); });
+setInterval(() => { if (!document.hidden && !busy()) load(); }, 60000);
+// Free time counts down with the clock between refreshes.
+setInterval(() => {
+  const b = document.querySelector(".bwrap");
+  if (b && view && tab === "today") b.outerHTML = budgetBar();   // only the budget, not the list
+}, 20000);
+
+async function chatOp(cBtn, t) {
+  const op = cBtn.dataset.chat, c = chat;
+  if (op === "close") { closePop(); if (!testMode) load(); return; }
+  if (op === "dayfold") { document.getElementById("cday").classList.toggle("min"); return; }
+  if (op === "send") { if (!c.busy) sendChat(); return; }
+  if (op === "book") { if (!c.busy) sendChat("OK, book these blocks."); return; }
+  if (op === "mic") { startRec(); return; }
+  if (op === "recsend") { stopRec(true); return; }
+  if (op === "reccancel") { stopRec(false); return; }
+  if (op === "stop") { try { paintChat(await api("api/chat", {op: "stop", kind: c.kind, id: c.id, day: c.day})); } catch (e) { toast("Failed: " + e.message); } return; }
+  if (op === "allow" || op === "deny") {
+    const req = (t.closest(".capprove").querySelector("[data-req]") || {}).dataset.req;
+    cBtn.closest(".capprove").querySelectorAll("button").forEach(b => b.disabled = true);
+    try { paintChat(await api("api/chat", {op: "approve", kind: c.kind, id: c.id, day: c.day, req, allow: op === "allow"})); haptic(); }
+    catch (e) { toast("Failed: " + e.message); pollChat(); }
+  }
+}
+
+document.addEventListener("click", async (ev) => {
+  const t = ev.target;
+  // The Remove popover: a reason removes at once; a tap outside only closes it.
+  if (popCard) {
+    const doRemove = async (reason, why) => {
+      const card = popCard;
+      closePop();
+      try {
+        const notOne = reason === "notone";
+        const res = await api("api/act", notOne ? {id: card.dataset.id, action: "notone", why}
+                                                : {id: card.dataset.id, action: "remove", reason, why});
+        haptic(); toast(res.msg);
+        if (!testMode && !res.keep) { if (notOne) load(); else { card.classList.add("gone"); setTimeout(load, 380); } }
+      } catch (e) { toast("Failed: " + e.message); }
+    };
+    const whyBtn = t.closest("#pop [data-why]");
+    if (whyBtn) {
+      const box = document.querySelector("#pop .whystep");
+      await doRemove(box.dataset.reason, whyBtn.dataset.why === "save" ? box.querySelector(".in-why").value : "");
+      return;
+    }
+    const reasonBtn = t.closest("#pop button[data-reason]");
+    if (reasonBtn) {
+      // Already done needs no why (Oct 30): it removes at once.
+      if (isPhone() && reasonBtn.dataset.reason !== "done") {
+        // Step 2 replaces the reasons; focusing inside the tap lets iOS open the keyboard.
+        const pop = document.getElementById("pop");
+        pop.innerHTML = whyStep(reasonBtn.dataset.reason);
+        pop.querySelector(".in-why").focus();
+        placeSheet();
+        [150, 350, 600].forEach(ms => setTimeout(placeSheet, ms));   // after the keyboard has settled
+        return;
+      }
+      const inp = document.querySelector("#pop .in-why");
+      await doRemove(reasonBtn.dataset.reason, inp ? inp.value : "");
+      return;
+    }
+    const stBtn = t.closest("#pop [data-status]");
+    if (stBtn) { if (!stBtn.disabled) stBtn.parentNode.querySelectorAll("button").forEach(b => b.classList.toggle("on", b === stBtn)); return; }
+    const prioBtn = t.closest("#pop [data-prio]");
+    if (prioBtn) { if (!prioBtn.closest(".editform").querySelector(".f-next").disabled) {
+      prioBtn.parentNode.querySelectorAll("button").forEach(b => b.classList.toggle("on", b === prioBtn)); } return; }
+    const cBtn = t.closest("#pop [data-chat]");
+    if (cBtn && chat) { await chatOp(cBtn, t); return; }
+    const jBtn = t.closest("#pop [data-journal]");
+    if (jBtn) { if (jBtn.dataset.journal === "cancel") closePop(); else await saveJournal(jBtn.dataset.journal === "update"); return; }
+    const editBtn = t.closest("#pop [data-edit]");
+    if (editBtn) { if (editBtn.dataset.edit === "cancel") { closePop(); editRow = null; } else await saveEdit(editBtn.dataset.edit === "send"); return; }
+    const sendBtn = t.closest("#pop [data-send]");
+    if (sendBtn) {
+      const k = sendBtn.dataset.send;
+      if (k === "cancel") { closePop(); sendRow = null; }
+      else if (k === "newthread") { sendInfo.newThread = !sendInfo.newThread; paintSendInfo(); }
+      else if (!sendBtn.disabled) await doSend();
+      return;
+    }
+    const fromBtn = t.closest("#pop [data-from]");
+    if (fromBtn) { sendUserFrom = true; const fw = document.querySelector("#pop .s-fromwhy"); if (fw) fw.hidden = true; fromBtn.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b === fromBtn)); sendCheck(); return; }
+    if (t.closest("#pop")) return;
+    closePop(); editRow = null;
+    if (!t.closest('[data-a="removeopen"]')) return;
+  }
+  const blk = t.closest(".pday [data-blk]");
+  if (blk && chat && chat.inline) { chat.sel = chat.sel === blk.dataset.blk ? null : blk.dataset.blk; paintDay(); haptic(); return; }
+  if (t.closest(".pday [data-blk-close]") && chat) { chat.sel = null; paintDay(); return; }
+  const icBtn = t.closest(".pchat [data-chat], .pday [data-chat]");   // the Plan page's own chat
+  if (icBtn && chat && chat.inline) { await chatOp(icBtn, t); return; }
+  const tb = t.closest("[data-tab]");
+  if (tb && tb.dataset.tab === "meditate") { openJournal(); return; }
+  if (tb) { tab = tb.dataset.tab; store("checkin-tab", tab); fold = null; render(); window.scrollTo(0, 0); return; }
+  const db = t.closest("[data-day]");
+  if (db) { day = db.dataset.day; fold = null; render(); return; }
+  const pb = t.closest("[data-plan]");
+  if (pb) { planDay = pb.dataset.plan; render(); return; }
+  if (t.closest("#meditate")) { openJournal(); return; }
+  if (t.closest("#refresh")) { refresh(); return; }
+  if (t.closest("#to-plan")) {
+    // Confirming Claude's pre-selection is itself a signal (adopted Oct 30).
+    api("api/act", {action: "confirm", ids: selection(day).map(r => r.id)}).catch(() => {});
+    planDay = day; tab = "plan"; store("checkin-tab", tab); render(); window.scrollTo(0, 0); return;
+  }
+  if (t.closest("#plan-go")) {
+    // Create plan sends the list as the chat's first message; Update plan sends what changed
+    // into the same chat (Oct 31). The tasks fold, the day and the chat show below.
+    const pd = planDay || day, ids = selection(pd).map(r => r.id), pu = planUi[pd] || (planUi[pd] = {});
+    const was = planHas(pd), text = was ? planUpdateText(pd, ids) : "";
+    pu.folded = true; pu.started = true;
+    render();
+    if (!chat || !chat.inline) return;
+    if (!was) { chat.ids = ids; chat.first = true; }
+    sendChat(text); pu.sent = ids.slice();
+    if (pu.dayEl) pu.dayEl.scrollIntoView({behavior: "smooth", block: "start"});
+    return;
+  }
+  const fb = t.closest("[data-fold]");
+  if (fb) { fold = fold === fb.dataset.fold ? null : fb.dataset.fold; render(); return; }
+  if (t.id === "go-live") {
+    ev.preventDefault();
+    const go = () => { testMode = false; store("checkin-live", "1"); render(); };
+    if (inTg) tg.showConfirm("Go live? Taps will change your real tasks.", ok => ok && go());
+    else if (confirm("Go live? Taps will change your real tasks.")) go();
+    return;
+  }
+  if (t.id === "go-test") { ev.preventDefault(); testMode = true; store("checkin-live", null); render(); return; }
+  if (t.id === "go-live" || t.id === "go-test") sel._init = false;
+  if (t.id === "add-open") { document.getElementById("addbar").classList.toggle("on"); document.getElementById("new-task").focus(); return; }
+  if (t.id === "add-btn") {
+    const inp = document.getElementById("new-task");
+    if (!inp.value.trim()) return;
+    try {
+      const res = await api("api/act", {action: "add", text: inp.value}); haptic(); inp.value = ""; toast(res.msg);
+      if (!testMode) load();
+    }
+    catch (e) { toast("Failed: " + e.message); }
+    return;
+  }
+  const ansBtn = t.closest("button[data-answer]");
+  if (ansBtn) {
+    const card = ansBtn.closest("[data-id]"), box = ansBtn.closest(".ask");
+    const answer = ansBtn.dataset.answer || box.querySelector(".in-answer").value.trim();
+    if (!answer) return;
+    ansBtn.disabled = true;
+    try { const res = await api("api/act", {id: card.dataset.id, action: "answer", q: box.dataset.q, text: answer}); haptic(); toast(res.msg); load(); }
+    catch (e) { ansBtn.disabled = false; toast("Failed: " + e.message); }
+    return;
+  }
+  const btn = t.closest("button[data-a]");
+  const card = t.closest("[data-id]");
+  if (!card) return;
+  if (!btn) {
+    if (card.classList.contains("item") && !t.closest(".edit") && !t.closest(".removebox")) setOpen(card, !card.classList.contains("open"));
+    return;
+  }
+  let action = btn.dataset.a, text = "", extra = {};
+  if (action === "edit") {
+    openEdit(card);
+    api("api/act", {id: card.dataset.id, action: "mark", signal: tab === "claude" ? "claude_adjust" : "edit_opened"}).catch(() => {});
+    return;
+  }
+  if (action === "talk" || action === "letclaude") {
+    // Chat in the app instead of Telegram (Oct 31). Let Claude sends its request at once, as before.
+    const r = findRow(card.dataset.id);
+    openChat({kind: "task", id: card.dataset.id, title: r ? r.title : (card.querySelector(".title") || {}).textContent, row: r,
+              tab: action === "letclaude" ? "claude" : tab, from: action,
+              send: action === "letclaude" ? "Please do these now, as far as you can, and update the task: " + (r && r.prep ? r.prep.join("; ") : "") : undefined});
+    return;
+  }
+  if (action === "sendopen") { openSend(card); return; }
+  if (action === "copy" || action === "wa") {
+    // WhatsApp and the other chats stay copy-only: he sends them himself (Oct 31). The text is
+    // the card's, edited or not; WhatsApp opens the chat with it filled in.
+    const r = findRow(card.dataset.id), ta = card.querySelector(".in-draft");
+    const text = ta ? ta.value : ((r && r.draft && r.draft.body) || "");
+    if (action === "wa") {
+      const url = "https://wa.me/" + waNumber(r.draft.to) + "?text=" + encodeURIComponent(text);
+      if (inTg && tg.openLink) tg.openLink(url); else window.open(url, "_blank");
+    } else if (await copyText(text)) {
+      haptic(); const was = btn.textContent; btn.textContent = "Copied";
+      setTimeout(() => { btn.textContent = was; }, 1500);
+    } else { toast("Failed: could not copy"); return; }
+    api("api/act", {id: card.dataset.id, action: "mark", signal: "reply_copied", text, wa: action === "wa"}).catch(() => {});
+    return;
+  }
+  if (action === "details") { setOpen(card, !card.classList.contains("open")); btn.setAttribute("aria-expanded", card.classList.contains("open")); return; }
+  if (action === "removeopen") { card.classList.remove("editing"); openPop(btn, card); return; }
+  if (action === "remove") extra = {reason: btn.dataset.reason, why: card.querySelector(".in-why").value};
+  if (action === "swap") extra = {previous: view[day].one ? view[day].one.id : ""};
+  if (action === "select" || action === "unselect") {
+    // Live: the selection and the budget change at once; the server follows.
+    const id = card.dataset.id, before = sel[day].slice();
+    sel[day] = action === "select" ? (sel[day].includes(id) ? sel[day] : sel[day].concat(id)) : sel[day].filter(i => i !== id);
+    render(); haptic();
+    const secEl = card.closest("[data-sec]"), from = card.classList.contains("hero") ? "one" : (secEl ? secEl.dataset.sec : "");
+    try { const res = await api("api/act", {id, action, from}); if (!testMode) load(); else if (res.msg) toast(res.msg); }
+    catch (e) { sel[day] = before; render(); toast("Failed: " + e.message); }
+    return;
+  }
+  if (action === "next") text = card.querySelector(".in-next").value;
+  if (action === "note" || action === "talknote") text = card.querySelector(".in-note").value;
+  if (["next", "note", "talknote"].includes(action) && !text.trim()) return;
+  if (action === "talknote") action = "talk";
+  const buttons = card.querySelectorAll("button");
+  buttons.forEach(b => b.disabled = true);
+  try {
+    const res = await api("api/act", {id: card.dataset.id, action, text, ...extra});
+    haptic(); toast(res.msg);
+    if (res.close && inTg) { tg.close(); return; }
+    if (testMode || res.keep || res.close) {
+      buttons.forEach(b => b.disabled = false);
+      card.classList.remove("editing");
+      if (!testMode) load();
+      return;
+    }
+    card.classList.add("gone");
+    setTimeout(load, 380);
+  } catch (e) {
+    buttons.forEach(b => b.disabled = false);
+    toast("Failed: " + e.message);
+  }
+});
+
+render();
+load(true);
+</script>
+</body>
+</html>

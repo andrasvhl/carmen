@@ -41,6 +41,9 @@ class Stub:
         if path == "courses/900104/discussion_topics/9/view":
             return {"participants": [{"id": 5, "display_name": "Classmate A"}],
                     "view": [{"user_id": 5, "created_at": "2026-04-05", "message": "<p>My take.</p>"}]}
+        if path == "courses/900104/front_page":
+            from tools.canvas.api import Unavailable
+            raise Unavailable(path, 404)  # most courses have no wiki Home page
         raise AssertionError("unexpected get: " + path)
     def paginate(self, path, **kw): return iter(self.try_paginate(path, **kw)[0])
     def try_paginate(self, path, **kw):

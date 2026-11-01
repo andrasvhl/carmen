@@ -165,6 +165,12 @@ def providers_from_env() -> list[Provider]:
     return out
 
 
+# What a recording may go up as. Telegram voice notes are Ogg; the check-in app's chat records
+# m4a on an iPhone and webm in Chrome (Oct 31). Anything else goes up named as Ogg, as before.
+AUDIO_TYPES = {"ogg": "audio/ogg", "m4a": "audio/mp4", "mp4": "audio/mp4", "webm": "audio/webm",
+               "mp3": "audio/mpeg", "wav": "audio/wav"}
+
+
 class Transcriber:
     def __init__(self, providers: list[Provider], post: Post = httpx_post,
                  *, timeout: float = TRANSCRIBE_TIMEOUT_S, hints: str = ""):
@@ -186,8 +192,9 @@ class Transcriber:
         if not self.providers:
             raise MediaError("No transcription key is configured (GROQ_API_KEY, OPENAI_API_KEY).")
         name = re.sub(r"\.oga$", ".ogg", filename or "voice.ogg", flags=re.I)
-        if not name.lower().endswith(".ogg"):
-            name = "voice.ogg"
+        ext = name.rsplit(".", 1)[-1].lower() if "." in name else ""
+        if ext not in AUDIO_TYPES:
+            name, ext = "voice.ogg", "ogg"
         errors = []
         for p in self.providers:
             data = {"model": p.model, "response_format": "json", "temperature": "0"}
@@ -195,7 +202,7 @@ class Transcriber:
                 data["prompt"] = self.hints
             try:
                 status, body = await self.post(p.url, {"Authorization": f"Bearer {p.key}"}, data,
-                                               {"file": (name, audio, "audio/ogg")}, self.timeout)
+                                               {"file": (name, audio, AUDIO_TYPES[ext])}, self.timeout)
             except Exception as exc:
                 errors.append(f"{p.name}: {type(exc).__name__}")
                 log(f"tg_bridge: transcription via {p.name} failed ({type(exc).__name__})")

@@ -31,6 +31,8 @@ from .job import log
 # Read, search, navigate. Nothing that mutates, and no Bash - a shell is a
 # write tool wearing a disguise.
 READ_ONLY_TOOLS = ["Read", "Glob", "Grep"]
+# Research adds the web, still nothing that writes (checkin_app prep, Oct 30).
+RESEARCH_TOOLS = READ_ONLY_TOOLS + ["WebSearch", "WebFetch"]
 
 DEFAULT_TIMEOUT = 600
 
@@ -49,7 +51,8 @@ class AskFailed(Exception):
 
 
 def ask(prompt: str, *, timeout: int = DEFAULT_TIMEOUT, cwd=None,
-        model: str = DEFAULT_MODEL, data: str | None = None) -> str:
+        model: str = DEFAULT_MODEL, data: str | None = None,
+        tools: list[str] | None = None) -> str:
     """Run one headless, read-only Claude turn. Returns its text.
 
     `data` goes in on stdin, next to the prompt, for material too big for argv
@@ -61,7 +64,7 @@ def ask(prompt: str, *, timeout: int = DEFAULT_TIMEOUT, cwd=None,
     decides whether that is worth reporting; it is never fatal to the vault,
     because nothing has been written at this point.
     """
-    return _run(prompt, timeout=timeout, cwd=cwd, model=model, data=data)[0]
+    return _run(prompt, timeout=timeout, cwd=cwd, model=model, data=data, tools=tools)[0]
 
 
 def probe(model: str = DEFAULT_MODEL, *, timeout: int = 120) -> str:
@@ -76,7 +79,7 @@ def probe(model: str = DEFAULT_MODEL, *, timeout: int = 120) -> str:
 
 
 def _run(prompt: str, *, timeout: int, cwd, model: str,
-         data: str | None = None) -> tuple[str, str]:
+         data: str | None = None, tools: list[str] | None = None) -> tuple[str, str]:
     claude = config.HOME / ".local" / "bin" / "claude"
     if not claude.exists():
         raise AskFailed(f"{claude} not found")
@@ -84,7 +87,7 @@ def _run(prompt: str, *, timeout: int, cwd, model: str,
     cmd = [str(claude), "-p", prompt,
            "--model", model,
            "--output-format", "json",
-           "--allowedTools", *READ_ONLY_TOOLS,
+           "--allowedTools", *(tools or READ_ONLY_TOOLS),
            "--permission-mode", "dontAsk"]
     try:
         # stdin closed explicitly: since 2.1.2xx, -p waits 3 s for piped input

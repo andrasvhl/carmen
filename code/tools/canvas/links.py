@@ -817,7 +817,7 @@ def _existing(note: str | None) -> str | None:
     return note if path.is_file() else None
 
 
-CANVAS_FILE_URL = re.compile(r"https?://[^/\s]+/courses/(\d+)/files/(\d+)")
+CANVAS_FILE_URL = re.compile(r"https?://[^/\s]*canvas[^/\s]*(?:/courses/(\d+))?/files/(\d+)")
 
 
 def canvas_file_target(data: dict, url: str) -> str | None:
@@ -833,7 +833,10 @@ def canvas_file_target(data: dict, url: str) -> str | None:
     if not m:
         return None
     cid, fid = m.group(1), m.group(2)
-    rec = (((data.get("courses") or {}).get(cid) or {}).get("files") or {}).get(fid)
+    courses = data.get("courses") or {}
+    # A bare `/files/<id>` link names no course; Canvas file ids are global.
+    pool = [courses.get(cid) or {}] if cid else courses.values()
+    rec = next((r for c in pool if (r := (c.get("files") or {}).get(fid))), None)
     return _existing((rec or {}).get("note"))
 
 

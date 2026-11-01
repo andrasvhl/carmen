@@ -34,6 +34,8 @@ SERVICES = {
                     "alerts stop firing", "whatsapp-bridge-daemons"),
     "tg-bridge": ("Telegram messages stop reaching the vault and approvals stop arriving",
                   "telegram-bridge-alive"),
+    "checkin-app": ("the Check-in app stops loading on the phone and the Mac",
+                    "checkin-app-alive"),
 }
 
 # Every 2h cron plus slack for a slow API. Tighter than this false-alarms.

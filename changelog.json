@@ -1,5 +1,5 @@
 {
- "version": "1.1",
+ "version": "1.1.1",
  "released": "2026-10-30",
  "phases": [
   {
@@ -29,6 +29,14 @@
   }
  ],
  "entries": [
+  {
+   "date": "2026-10-31",
+   "display_date": "Oct 31, 2026",
+   "title": "Maintenance",
+   "summary": "The check-in app is now called Carmen, with a new icon, and its Plan page shows your calendars and Claude's proposed blocks side by side. Chatting with Claude, voice included, now happens in the app instead of Telegram, to-dos rank by what your meditation keeps naming, closed tasks can be reopened, plus smaller fixes.",
+   "changes": 37,
+   "source": "git"
+  },
   {
    "date": "2026-10-30",
    "display_date": "Oct 30, 2026",
