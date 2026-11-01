@@ -32,10 +32,9 @@
   {
    "date": "2026-11-01",
    "display_date": "Nov 1, 2026",
-   "title": "Kit",
-   "summary": "The morning planning routine got new pieces behind its check-in panel, plus an update to how it sends its email.",
-   "changes": 4,
-   "source": "git"
+   "title": "The mobile app",
+   "summary": "Carmen now ships as an app for your phone and laptop, in alpha: add it to your home screen or open it inside Telegram. ToDo ranks your day by what matters, with one thing on top. Plan shows your calendars next to the blocks Claude proposes. Replies lists every message you owe, with a draft you can edit and send. The Claude tab shows what Claude can do for you, and Meditate writes your daily journal, which reranks the list. Chat with Claude about any task, by text or voice. It starts in test mode, so nothing is sent until you go live. Setup in modules/checkin-app. (Carmen)",
+   "source": "manual"
   },
   {
    "date": "2026-10-31",
