@@ -1,5 +1,5 @@
 {
- "version": "1.1.1",
+ "version": "1.1.2",
  "released": "2026-10-30",
  "phases": [
   {
@@ -29,6 +29,14 @@
   }
  ],
  "entries": [
+  {
+   "date": "2026-11-01",
+   "display_date": "Nov 1, 2026",
+   "title": "Kit",
+   "summary": "The morning planning routine got new pieces behind its check-in panel, plus an update to how it sends its email.",
+   "changes": 4,
+   "source": "git"
+  },
   {
    "date": "2026-10-31",
    "display_date": "Oct 31, 2026",
