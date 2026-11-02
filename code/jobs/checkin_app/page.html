@@ -83,7 +83,7 @@
   .check:active { background: var(--accent-soft); }
   .item .body { flex: 1; min-width: 0; }
   .item .title { font-size: 15px; font-weight: 550; }
-  .item .nx { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .item .nx { font-size: 13px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
   .item .est { font-size: 12px; color: var(--muted); flex: none; margin-top: 2px; }
   .item .more { display: none; }
   .item.open .more { display: block; }
@@ -1569,7 +1569,7 @@ function item(r, kind) {
   return `<div class="item" data-id="${esc(r.id)}">
     <div class="top">
       <div class="body"><div class="title">${esc(r.title)}${kind === "pulled" ? ' <span class="by">added by you</span>' : ""}</div>
-        <div class="nx">${r.suggest ? esc(r.suggest) + " · " : ""}${r.est ? esc(r.est) + (r.next ? " · " : "") : ""}${esc(r.next)}</div>${mindLine(r)}</div>
+        <div class="nx">${r.suggest ? esc(r.suggest) + " · " : ""}${r.est ? esc(r.est) + (r.next ? " · " : "") : ""}${md(r.next || "")}</div>${mindLine(r)}</div>
       ${kind === "plan" ? "" : kind === "closed"
         ? `<div class="pair">${r.task ? '<button class="addpill txt ghost" data-a="reopen">Reopen</button>' : ""}</div>`
         : kind === "maybe-done"
@@ -1593,7 +1593,7 @@ function doItem(r) {
   return `<div class="item doitem${r.do_now ? " isnow" : ""}" data-id="${esc(r.id)}">
     <div class="top">
       <div class="body">${tag ? `<div class="dtag">${tag}</div>` : ""}<div class="title">${esc(r.title)}</div>
-        <div class="nx">${r.est ? esc(r.est) + (r.next ? " · " : "") : ""}${esc(clean(r.next))}</div>
+        <div class="nx">${r.est ? esc(r.est) + (r.next ? " · " : "") : ""}${md(clean(r.next))}</div>
         ${propLines(r)}
         ${r.guess === "done" ? `<div class="dlooks">Looks done${r.why ? ": " + esc(r.why.slice(0, 120)) : ""} · <button class="link" data-a="notdone">Not done</button></div>` : ""}
         ${r.carry_ask ? `<div class="dask">On your list since ${esc(r.carried_from)}. <button class="link" data-do="keep">Keep</button> · <button class="link" data-do="move">Move</button> · <button class="link" data-do="drop">Drop</button></div>` : ""}</div>

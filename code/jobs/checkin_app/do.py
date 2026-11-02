@@ -21,6 +21,7 @@ import datetime as dt
 import json
 import os
 import re
+import urllib.parse
 
 from runner import config
 
@@ -152,7 +153,9 @@ def dismiss(day: dt.date, task_id: str) -> None:
 
 _WORD = re.compile(r"[a-zà-ÿ0-9]{4,}")
 _STOP = {"with", "from", "that", "this", "your", "into", "about", "book", "send", "reply", "check",
-         "make", "call", "plan", "batch", "block", "time", "today", "tomorrow"}
+         "make", "call", "plan", "batch", "block", "time", "today", "tomorrow", "before", "after",
+         "prep", "class", "readings", "reading", "notes", "paper", "final", "work", "project", "leaving"}
+_TASK = re.compile(r"Task:\s*obsidian://open\?[^\s]*?file=([^&\s]+)")
 
 
 def _words(t: str) -> set:
@@ -160,18 +163,24 @@ def _words(t: str) -> set:
 
 
 def block_for(title: str, events: list[dict]) -> dict | None:
-    """The calendar block booked for a task: the event that names it, in its title or its
-    description (Claude lists a batch's tasks there), else one sharing two of its words."""
+    """The calendar block booked for a task, best evidence first: the block's Task: link names
+    the task's note; else the block names the task in its title or description (Claude lists a
+    batch's tasks there); else the block's title shares two of its words (one for a one-word
+    task). Earliest wins within a level. Nov 2: word overlap with descriptions put a readings
+    task and a planning task into another course's readings block, so overlap is title only."""
     t, tw = title.lower(), _words(title)
-    best = None
+    best, rank = None, 9
     for e in events:
         if e.get("allday"):
             continue
-        hay = f"{e.get('title', '')}\n{e.get('desc', '')}".lower()
-        shared = tw & _words(hay)
-        if (len(t) >= 6 and t in hay) or len(shared) >= 2 or (len(tw) == 1 and shared):
-            if best is None or e["s"] < best["s"]:
-                best = e
+        desc = e.get("desc", "") or ""
+        files = {urllib.parse.unquote(m).rsplit("/", 1)[-1].lower() for m in _TASK.findall(desc)}
+        hay = f"{e.get('title', '')}\n{desc}".lower()
+        shared = tw & _words(e.get("title", ""))
+        r = (0 if t in files else 1 if (len(t) >= 6 and t in hay)
+             else 2 if (len(shared) >= 2 or (len(tw) == 1 and shared)) else 9)
+        if r < rank or (r == rank and r < 9 and e["s"] < best["s"]):
+            best, rank = e, r
     return {"s": best["s"], "f": best["f"], "title": best.get("title", "")} if best else None
 
 
