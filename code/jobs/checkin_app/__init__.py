@@ -90,6 +90,75 @@ def verify_cookie(value: str, secret: str, now: float | None = None) -> bool:
     return hmac.compare_digest(want, sig) and int(exp) > (now or time.time())
 
 
+# Vault files in the app (Nov 2): obsidian:// links are dead in the chat sheet and in Telegram's
+# webview, so every one is rewritten on the way out into a signed https link to /file. Signed,
+# not cookie-authed, because Telegram opens links in the phone's browser, where neither initData
+# nor the cookie exists. The signature binds the path and an expiry; the stored text keeps the
+# obsidian:// link, so it is re-signed fresh on every read.
+FILE_LINK_AGE = 7 * 86400
+OBSIDIAN_LINK = re.compile(r"obsidian://open\?vault=<VAULT_NAME>&(?:amp;)?file=([^)\s\"'<>\]]+)")
+
+
+def _file_sig(secret: str, rel: str, exp: str) -> str:
+    return hmac.new(secret.encode(), f"file|{rel}|{exp}".encode(), hashlib.sha256).hexdigest()[:32]
+
+
+def sign_file(secret: str, rel: str, now: float | None = None) -> str:
+    from urllib.parse import quote
+    exp = str(int((now or time.time()) + FILE_LINK_AGE))
+    return f"file?p={quote(rel, safe='')}&e={exp}&s={_file_sig(secret, rel, exp)}"
+
+
+def verify_file(secret: str, rel: str, exp: str, sig: str, now: float | None = None) -> bool:
+    if not secret or not rel or not exp.isdigit() or not sig:
+        return False
+    return hmac.compare_digest(_file_sig(secret, rel, exp), sig) and int(exp) > (now or time.time())
+
+
+def resolve_vault_file(rel: str, vault: Path) -> Path | None:
+    """The vault file a link names, or None. Obsidian links may omit .md; nothing outside the
+    vault, nothing hidden (.git, .obsidian, .trash)."""
+    root = vault.resolve()
+    if any(part.startswith(".") for part in Path(rel).parts):
+        return None
+    for cand in (root / rel, root / f"{rel}.md"):
+        try:
+            p = cand.resolve()
+        except OSError:
+            continue
+        if p.is_file() and p.is_relative_to(root):
+            return p
+    return None
+
+
+SIGNED_LINK = re.compile(r"file\?p=([^&\s)\"'<>]+)&e=\d+&s=[0-9a-f]+")
+
+
+def unlink_vault_files(obj):
+    """The reverse, for anything coming back to be written into a note: the note keeps obsidian://."""
+    if isinstance(obj, str):
+        return SIGNED_LINK.sub(lambda m: "obsidian://open?vault=<VAULT_NAME>&file=" + m.group(1), obj)
+    if isinstance(obj, list):
+        return [unlink_vault_files(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: unlink_vault_files(v) for k, v in obj.items()}
+    return obj
+
+
+def link_vault_files(obj, secret: str, now: float | None = None):
+    """Every obsidian:// link in a JSON-able value, rewritten to a signed /file link."""
+    from urllib.parse import unquote
+    if isinstance(obj, str):
+        if "obsidian://" not in obj:
+            return obj
+        return OBSIDIAN_LINK.sub(lambda m: sign_file(secret, unquote(m.group(1)), now), obj)
+    if isinstance(obj, list):
+        return [link_vault_files(x, secret, now) for x in obj]
+    if isinstance(obj, dict):
+        return {k: link_vault_files(v, secret, now) for k, v in obj.items()}
+    return obj
+
+
 class Lockout:
     """In-memory: a restart clears it, which is fine for one owner."""
     def __init__(self):
@@ -1888,7 +1957,7 @@ def make_app():
                      for side in ("today", "tomorrow")}
             log_event("open", src=source(req), counts=v["counts"], shown=shown,
                       replies=[r["id"] for r in v["replies"]], claude=[r["id"] for r in v["claude"]])
-        return JSONResponse(v)
+        return JSONResponse(link_vault_files(v, secret))
 
     async def act(req: Request):
         if not authed(req):
@@ -1899,6 +1968,7 @@ def make_app():
             body = None
         if not isinstance(body, dict):
             return JSONResponse({"error": "bad request"}, status_code=400)
+        body = unlink_vault_files(body)   # an edited Next step comes back with signed links in it
         try:
             # Off the event loop (Nov 1: a slow calendar read inside a tap froze the chat's polling
             # too), and one tap at a time, as before, since taps read, change and write notes.
@@ -2369,7 +2439,28 @@ def make_app():
         except Exception as exc:
             return JSONResponse({"error": f"chat unavailable: {exc}"}, status_code=503)
         key = chat_key(q.get("kind", "task"), q.get("id", ""), q.get("day", "today"))
-        return JSONResponse(h.state(key))
+        return JSONResponse(link_vault_files(h.state(key), secret))
+
+    FILE_TYPES = {".pdf": "application/pdf", ".md": "text/plain; charset=utf-8",
+                  ".txt": "text/plain; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg",
+                  ".jpeg": "image/jpeg", ".csv": "text/plain; charset=utf-8"}
+
+    async def vault_file(req: Request):
+        q = req.query_params
+        rel = q.get("p", "")
+        if not verify_file(secret, rel, q.get("e", ""), q.get("s", "")):
+            return Response("This link has expired. Open it again from the app.", status_code=403,
+                            media_type="text/plain; charset=utf-8")
+        p = resolve_vault_file(rel, config.VAULT)
+        if p is None:
+            return Response("That file is no longer in the vault.", status_code=404,
+                            media_type="text/plain; charset=utf-8")
+        from urllib.parse import quote
+        log_event("file_open", path=rel[:200])
+        return Response(p.read_bytes(),
+                        media_type=FILE_TYPES.get(p.suffix.lower(), "application/octet-stream"),
+                        headers={"Content-Disposition": f"inline; filename*=UTF-8''{quote(p.name)}",
+                                 "Cache-Control": "private, no-store"})
 
     async def chat_post(req: Request):
         if not authed(req):
@@ -2394,10 +2485,10 @@ def make_app():
             log_event("chat_approval", key=key, allow=allow, test=dry, src=source(req))
             if not h.answer(str(body.get("req", "")), allow):
                 return JSONResponse({"error": "that request has expired"}, status_code=410)
-            return JSONResponse(h.state(key))
+            return JSONResponse(link_vault_files(h.state(key), secret))
         if op == "stop":
             await h.stop(key)
-            return JSONResponse(h.state(key))
+            return JSONResponse(link_vault_files(h.state(key), secret))
         return await send_message(req, h, body, key, kind, row_id, day_name, dry, tab_name, first)
 
     async def send_message(req, h, body, key, kind, row_id, day_name, dry, tab_name, first, voice=False):
@@ -2446,11 +2537,11 @@ def make_app():
         try:
             if voice:
                 from jobs.tg_bridge.media import frame_transcript
-                return JSONResponse(h.send(key, title, text, context=context, test=dry, kind=kind,
-                                           prompt_text=frame_transcript(text), voice=True))
+                return JSONResponse(link_vault_files(h.send(key, title, text, context=context, test=dry, kind=kind,
+                                           prompt_text=frame_transcript(text), voice=True), secret))
             # Start on Do (Nov 1): the request to begin goes to Claude but not on his screen.
-            return JSONResponse(h.send(key, title, text, context=context, test=dry, kind=kind,
-                                       hidden=bool(body.get("hidden"))))
+            return JSONResponse(link_vault_files(h.send(key, title, text, context=context, test=dry, kind=kind,
+                                       hidden=bool(body.get("hidden"))), secret))
         except Busy as exc:
             return JSONResponse({"error": str(exc)}, status_code=409)
 
@@ -2507,7 +2598,7 @@ def make_app():
     routes = []
     for base in ("", "/checkin"):   # with or without the Funnel stripping its path
         routes += [Route(f"{base}/", page), Route(f"{base}/api/view", view),
-                   Route(f"{base}/api/journal", journal),
+                   Route(f"{base}/api/journal", journal), Route(f"{base}/file", vault_file),
                    Route(f"{base}/login", login, methods=["GET", "POST"]),
                    *[Route(f"{base}/{name}", static) for name in STATIC],
                    Route(f"{base}/api/act", act, methods=["POST"]),

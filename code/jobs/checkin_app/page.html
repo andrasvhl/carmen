@@ -834,7 +834,7 @@ function detailBlock(r, inPanel) {
     </div>` : ""}
     ${d.dod && !inPanel ? `<div class="dsec tp-dodsec"><label>Definition of Done${d.dod_guess ? ' <span class="dguess">Claude\'s guess</span>' : ""}</label>${esc(d.dod)}
       <div class="tp-acts">${d.dod_guess ? '<button class="link" data-tp="dodok">Confirm</button> · ' : ""}<button class="link" data-tp="dodedit">Edit</button></div></div>` : ""}
-    ${r.next && !inPanel ? `<div class="dsec dnext"><label>Next step</label>${esc(r.next)}</div>` : ""}
+    ${r.next && !inPanel ? `<div class="dsec dnext"><label>Next step</label>${md(r.next)}</div>` : ""}
     ${r.waiting ? `<div class="dsec"><label>Waiting for</label>${esc(r.waiting)}</div>` : ""}
     ${d.description ? `<div class="dsec"><label>Description</label><div class="desc">${esc(d.description)}</div></div>` : ""}
     ${r.update ? `<div class="dsec"><label>Latest update</label>${esc(r.update)}</div>` : ""}
@@ -1106,6 +1106,8 @@ function md(s) {
   h = h.replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>");
   h = h.replace(/(^|[^*\w])[*_]([^*_\n]+)[*_](?![\w*])/g, "$1<i>$2</i>");
   h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // Vault files (Nov 2): the server rewrites obsidian:// links into signed relative file?… links.
+  h = h.replace(/\[([^\]]+)\]\((file\?[^)\s]+)\)/g, '<a class="vfile" href="$2" target="_blank" rel="noopener">📄 $1</a>');
   h = h.replace(/^#{1,4}\s*(.+)$/gm, "<b>$1</b>");
   h = h.replace(/^(\s*)[-*] /gm, "$1• ");
   return h;
@@ -1115,7 +1117,7 @@ function chatShell(c) {
   const r = c.row;
   const ctx = c.panel && r ? panelHead(r) : c.kind === "plan"
     ? `<div class="cctx"><div class="title">${esc(c.title)}</div><div class="src">Claude proposes the blocks here and books them only after your OK.</div></div>`
-    : r ? `<div class="cctx"><div class="title">${esc(r.title)}</div>${r.next ? `<div>Next · ${esc(r.next)}</div>` : ""}
+    : r ? `<div class="cctx"><div class="title">${esc(r.title)}</div>${r.next ? `<div>Next · ${md(r.next)}</div>` : ""}
         <div class="src">Claude gets this card with your first message.</div></div>` : "";
   return `<div class="chat">
     <div class="chead"><button data-chat="close">${isPhone() ? "Close" : "Done"}</button><b>${esc(c.title)}</b><span style="width:48px"></span></div>
@@ -1544,7 +1546,7 @@ function hero(r) {
   return `<div class="card hero" data-id="${esc(r.id)}">
     <div class="tagline"><span class="tag">The one thing</span>${r.meta && r.meta.length <= 60 ? esc(r.meta) : ""}</div>
     <div class="title">${esc(r.title)}</div>
-    ${r.next ? `<div class="next"><b>Next</b> · ${esc(r.next)}</div>` : ""}
+    ${r.next ? `<div class="next"><b>Next</b> · ${md(r.next)}</div>` : ""}
     ${mindLine(r)}
     ${canDo(r)}
     ${r.waiting ? `<div class="waitbox"><b>Waiting</b> · ${esc(r.waiting)}</div>` : ""}
@@ -1662,7 +1664,7 @@ function claudeCard(r) {
       <details class="seemore"${openMore.has(r.id) ? " open" : ""}><summary>See more</summary>
         ${a && a.unlocks && Object.keys(a.unlocks).length ? `<div class="steps"><div class="lbl">Your answer unlocks</div>${Object.entries(a.unlocks).map(([k, v]) => `<div class="why"><b>${esc(k)}</b> → ${esc(v)}</div>`).join("")}</div>` : ""}
         ${res.done.length ? `<div class="steps"><div class="lbl">Done so far</div>${steps(res.done.map(d =>
-          `${esc(d.step)}: ${esc(d.result || "")}${d.source ? ` <span class="src">${esc(d.source)}</span>` : ""}`))}</div>` : ""}
+          `${esc(d.step)}: ${md(d.result || "")}${d.source ? ` <span class="src">${esc(d.source)}</span>` : ""}`))}</div>` : ""}
         ${res.then.length ? `<div class="steps"><div class="lbl">After your answer</div>${steps(res.then.map(esc))}</div>` : ""}
       </details>
       <div class="foot" style="text-align:left">Prepared ${esc((pr.at || "").slice(11, 16))}${more > 0 ? ` · ${more} more question${more > 1 ? "s" : ""} after this` : ""}${pr.error ? " · last try failed" : ""}</div>`;
@@ -2004,6 +2006,15 @@ function refreshTask() {
 
 document.addEventListener("click", async (ev) => {
   const t = ev.target;
+  // Links out of the app (Nov 2): inside Telegram a plain target=_blank tap is unreliable, so
+  // every link goes through openLink with an absolute URL (file?… links are relative to the app).
+  const a = t.closest("a[target=_blank]");
+  if (a && a.getAttribute("href")) {
+    ev.preventDefault();
+    const url = new URL(a.getAttribute("href"), location.href).href;
+    if (inTg && tg.openLink) tg.openLink(url); else window.open(url, "_blank");
+    return;
+  }
   const tp = t.closest("[data-tp]");   // before the sheet's own handling: the panel lives in it
   if (tp) { await taskOp(tp); return; }
   // The Remove popover: a reason removes at once; a tap outside only closes it.
