@@ -31,6 +31,15 @@ updated, just next steps, context info and status of subtasks"):
   line is never struck without a replacement, and a Waiting line only when
   `waiting:` is not true: ending a wait is state, so it waits for Submit (the
   row's gw), and the contradiction goes into Current context instead.
+- his own lines (owner decision, Nov 1): a Next, Then or Waiting line carrying his
+  attribution, "(the owner" anywhere in it, is his direction. rw and anx never
+  rewrite it; the replacement goes into the row's `prop` list and Current
+  context as a proposal he accepts with one tap. Lines Claude wrote stay
+  rewritable as above.
+- the DoD line (owner decision, Nov 1): `DoD: …` or `DoD (Claude's guess): …`, the first
+  line of `## Next action`, says what done well looks like. Read, never written
+  here: a DoD is proposed when work on the task starts (SYSTEM.md § Capture note
+  schema). The open Next step sits right under it.
 
 Same shape as every AI job here: the model holds no tools and returns JSON;
 Python validates it and does every write (apply_to_tasks). Revert path is the
@@ -632,6 +641,15 @@ task's "## Current context" block and read there days later: give dates as
 "Oct 7", never "today" or "yesterday", and name each source.
 Status, dates and waiting are never written before his Submit, whatever you
 guess.
+Definition of Done (owner decision, Nov 1). A task's "## Next action" block may open
+with "DoD: ..." (confirmed by him) or "DoD (Claude's guess): ..." (not yet
+confirmed): what done well looks like, its scope, with whom, what "well" means.
+Read it before anything else on that row. Guess done only when the data shows
+the DoD met, not merely every step ticked; a step that no longer leads to the
+DoD, or news that changes what the DoD can be, goes into s and sets lc. Never
+write or reword a DoD yourself. A Next, Then or Waiting line containing
+"(the owner" is his own direction: you may still put its replacement in rw or nx,
+but Python only proposes it to him, so say in s why it looks wrong now.
 """
 
 DATA = """\
@@ -722,6 +740,8 @@ def render(d: dict, now: datetime, sources: dict) -> str:
 
 STEP = re.compile(r"^- \[( |x)\] (Next|Then):\s*(.+?)\s*$")
 OPEN_LINE = re.compile(r"^- \[ \] (Next|Then|Waiting):\s*(.+?)\s*$")
+DOD = re.compile(r"^DoD( \(Claude's guess\))?: (.+)$")
+HIS = re.compile(r"\(the owner\b")  # his attribution: the line is his direction (owner decision, Nov 1)
 
 
 def _oneline(s) -> str:
@@ -735,14 +755,14 @@ def _norm(s: str) -> str:
 
 def _next_block(lines: list[str], start: int) -> tuple[int, int] | None:
     """(header index, end index exclusive) of the ## Next action block: the header,
-    its checkbox lines and the "**Write it here:**" line that may sit under them."""
+    its DoD line, its checkbox lines and the "**Write it here:**" line that may sit under them."""
     hdr = next((i for i in range(start, len(lines)) if lines[i].startswith("## Next action")), None)
     if hdr is None:
         return None
     j = hdr + 1
     while j < len(lines):
         ln = lines[j]
-        if ln.startswith(("- ", "  ", "\t", "**Write it here")):
+        if ln.startswith(("- ", "  ", "\t", "**Write it here")) or DOD.match(ln):
             j += 1
         elif not ln.strip() and j + 1 < len(lines) and lines[j + 1].startswith("- "):
             j += 1
@@ -806,6 +826,15 @@ def _apply_one(text: str, r: dict, stamp: str) -> tuple[str, list[str]]:
                     if not s or _norm(s.group(2)) != _norm(old) or (new and _norm(new) == _norm(old)):
                         continue
                     kind = s.group(1)
+                    if HIS.search(lines[i]):
+                        # His direction: propose, never rewrite (owner decision, Nov 1)
+                        r.setdefault("prop", []).append({"old": f"{kind}: {s.group(2)}",
+                                                         "new": f"{kind}: {new}" if new else "",
+                                                         "why": why})
+                        extra.append(f"Proposed, your line kept: \"{kind}: {s.group(2)}\" → "
+                                     + (f"\"{kind}: {new}\"" if new else "strike it")
+                                     + (f" ({why})" if why else ""))
+                        break
                     if not new and (kind == "Next" or (kind == "Waiting" and waiting_on)):
                         extra.append(f"Contradicted, left for Submit: \"{kind}: {s.group(2)}\""
                                      + (f" ({why})" if why else ""))
@@ -835,7 +864,11 @@ def _apply_one(text: str, r: dict, stamp: str) -> tuple[str, list[str]]:
                 open_next = next(((i, s) for i, s in steps if s.group(1) == " " and s.group(2) == "Next"), None)
                 if open_next:
                     i, s = open_next
-                    if _norm(s.group(3)) != _norm(nx):
+                    if _norm(s.group(3)) != _norm(nx) and HIS.search(lines[i]):
+                        r.setdefault("prop", []).append({"old": f"Next: {s.group(3)}",
+                                                         "new": f"Next: {nx}", "why": ""})
+                        extra.append(f"Proposed next step, your line kept: \"{nx}\"")
+                    elif _norm(s.group(3)) != _norm(nx):
                         # His wording stays verbatim, struck and no longer a checkbox
                         # (owner decision, 2026-10-07: option B, high-confidence cases only).
                         lines[i:i + 1] = [f"- [ ] Next: {nx}",
@@ -856,14 +889,15 @@ def _apply_one(text: str, r: dict, stamp: str) -> tuple[str, list[str]]:
                         changes.append(f"next added: {nx}")
                         extra.append("New next step from the pre-run")
             # The open Next step is always the block's top line (owner decision, 2026-10-07),
-            # with a step it replaced right under it.
+            # under the DoD line if there is one (Nov 1), with a step it replaced right under it.
             if changes:
+                top = hdr + 2 if hdr + 1 < end and DOD.match(lines[hdr + 1]) else hdr + 1
                 i = next((k for k in range(hdr + 1, end) if lines[k].startswith("- [ ] Next:")), None)
-                if i is not None and i != hdr + 1:
+                if i is not None and i != top:
                     n = 2 if i + 1 < end and lines[i + 1].startswith("- ~~Next:") else 1
                     moved = lines[i:i + n]
                     del lines[i:i + n]
-                    lines[hdr + 1:hdr + 1] = moved
+                    lines[top:top] = moved
         blk = _next_block(lines, 0)
     new_ctx = _ctx_block(r, stamp, extra)
     if changes or [l for l in old_ctx if not l.startswith("*Written by")] != \

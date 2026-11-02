@@ -28,7 +28,7 @@ from pathlib import Path
 from runner import config
 from runner.ask import RESEARCH_TOOLS, AskFailed, ask
 
-from . import TZ, _label, all_rows, build_view, load_prerun, log_event, task_path
+from . import TZ, _label, all_rows, build_view, load_prerun, log_event, read_note, task_path, write_dod
 
 STATE = config.STATE_DIR / "checkin_app" / "prep"
 PER_RUN = 3          # sessions per pre-run: the Claude limit was hit on Oct 30
@@ -39,6 +39,12 @@ the morning pre-run's row for it (context, why, the steps it says you can take) 
 any earlier preparation and answers of his are below.
 
 How to work:
+0. Work toward the task's Definition of Done: the "DoD:" line at the top of its Next action
+   block (owner decision, Nov 1). If there is none and the data does not mark it a two-minute task, first
+   draft one in one line from the note, the vault and the context: the scope (the whole thing,
+   not just the title), with whom, and what "well" means. Return it as "dod". Whatever of those
+   three you cannot fill, ask as the first entry in "asks" instead of guessing. Never change a
+   confirmed DoD; if news makes it look wrong, say so in "summary".
 1. Split the task into its steps. Mark each one as independent, or blocked by a
    decision or fact only the owner has.
 2. Do EVERY independent step now, not only the first one: research and compare on the
@@ -60,7 +66,8 @@ How to work:
    he has to decide or do next, even when "asks" is empty.
 
 Reply with JSON only, no prose around it:
-{"did": "one sentence, at most 20 words",
+{"dod": "your one-line Definition of Done, only when the note has none, else empty",
+ "did": "one sentence, at most 20 words",
  "decide": "one sentence: the decision or step that is his",
  "summary": "two or three lines, what is ready",
  "done": [{"step": "...", "result": "...", "source": "..."}],
@@ -108,10 +115,16 @@ def stale_reason(row: dict, st: dict, generated: str) -> str:
 
 
 def load_state(row_id: str) -> dict | None:
+    return load_state_file(STATE / f"{_key({'id': row_id})}.json")
+
+
+def load_state_file(p: Path) -> dict | None:
+    """A state file, or None when it is missing, torn or not an object (Nov 1)."""
     try:
-        return json.loads((STATE / f"{_key({'id': row_id})}.json").read_text())
+        st = json.loads(p.read_text())
     except (OSError, ValueError):
         return None
+    return st if isinstance(st, dict) else None
 
 
 def save_state(row: dict, st: dict) -> None:
@@ -125,7 +138,8 @@ def save_state(row: dict, st: dict) -> None:
 def _parse(text: str) -> dict:
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip())
     d = json.loads(text[text.index("{"): text.rindex("}") + 1])
-    return {"did": str(d.get("did", ""))[:200],
+    return {"dod": " ".join(str(d.get("dod") or "").split())[:300],
+            "did": str(d.get("did", ""))[:200],
             "decide": str(d.get("decide", ""))[:200],
             "summary": str(d.get("summary", ""))[:300],
             "done": [x for x in d.get("done", []) if isinstance(x, dict) and x.get("step")][:12],
@@ -182,11 +196,27 @@ def raw_row(row: dict) -> dict:
     return {}
 
 
+def two_minute(p: Path | None, raw: dict) -> bool:
+    """SYSTEM.md's two-minute task, which gets no DoD: the whole task, not its next step.
+    timeEstimate of 2 or less, or the pre-run's e at 2m or less, or exactly one open step
+    marked (2 min) or less."""
+    live = read_note(p) if p else {}
+    te = str(live.get("time_est", "")).strip()
+    if te.isdigit():
+        return int(te) <= 2
+    e = re.match(r"^\s*(\d+)\s*m?\s*$", str(raw.get("e") or ""))
+    if e:
+        return int(e.group(1)) <= 2
+    one = re.search(r"\((\d+)\s*min\)\s*$", live.get("next", ""))
+    return bool(live) and not live.get("steps") and bool(one) and int(one.group(1)) <= 2
+
+
 def prepare(row: dict, generated: str = "") -> dict | None:
     p = task_path(row["id"]) if row.get("task") else None
     prev = load_state(row["id"]) or {}
     raw = raw_row(row)
-    data = ("=== TASK NOTE ===\n" + (p.read_text(encoding="utf-8") if p else "(no task note yet)") +
+    data = ("=== TWO-MINUTE TASK (no DoD) ===\n" + ("yes" if two_minute(p, raw) else "no") +
+            "\n\n=== TASK NOTE ===\n" + (p.read_text(encoding="utf-8") if p else "(no task note yet)") +
             "\n\n=== PRE-RUN ROW ===\n" + json.dumps({k: raw.get(k) for k in ("n", "m", "s", "nx", "ctx", "cp", "wf")},
                                                     ensure_ascii=False, indent=1) +
             "\n\n=== EARLIER PREPARATION AND HIS ANSWERS ===\n" +
@@ -200,6 +230,14 @@ def prepare(row: dict, generated: str = "") -> dict | None:
         return None
     if p:
         write_note(p, res, now)
+        if res.get("dod") and not read_note(p).get("dod"):
+            # Its guess goes into the note marked as such; he confirms it in one tap (Nov 1).
+            try:
+                write_dod(p, res["dod"], False, now.date(), src="prepared by Claude")
+                log_event("signal", signal="dod_proposed", id=row["id"], title=row.get("title", ""),
+                          dod=res["dod"], src="prep", test=False, claude={})
+            except ValueError:
+                pass
     st = {"id": row["id"], "title": row.get("title", ""), "at": now.isoformat(timespec="minutes"),
           "note_sig": _note_sig(p), "generation": generated, "result": res,
           "answers": prev.get("answers", []), "pending": False}

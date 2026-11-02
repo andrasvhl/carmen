@@ -26,7 +26,7 @@ from pathlib import Path
 from runner import config
 from runner.ask import AskFailed, ask
 
-from . import JOURNAL_DIR, MED, TZ, _plan_today_mod, load_prerun, log_event
+from . import JOURNAL_DIR, MED, TZ, _plan_today_mod, clean_rows, load_prerun, log_event
 from . import mentions
 
 STATE = config.STATE_DIR / "checkin_app"
@@ -170,6 +170,14 @@ def digest(d: dict) -> tuple[str, dict, int]:
     return ("\n".join(lines) if n else "NOTHING NEW") + "\n", quotes, n
 
 
+def new_rows_of(payload: dict) -> list[tuple[str, list]]:
+    """The judgment's new rows as (group, rows) pairs, whatever shape the model wrote them in."""
+    new = payload.get("new")
+    new = list(new.items()) if isinstance(new, dict) else new if isinstance(new, list) else []
+    return [(p[0], p[1]) for p in new if isinstance(p, (list, tuple)) and len(p) == 2
+            and isinstance(p[0], str) and isinstance(p[1], list)]
+
+
 def apply_payload(groups: dict, payload: dict, quotes: dict, stamp: str) -> None:
     """update_panel.py's semantics on plain rows: drops, row replaces, field changes, new rows."""
     def expand(r):
@@ -189,8 +197,9 @@ def apply_payload(groups: dict, payload: dict, quotes: dict, stamp: str) -> None
                     return g, i
         return None, None
 
-    for ch in payload.get("changes") or []:
-        if not isinstance(ch, dict) or not ch.get("n"):
+    changes = payload.get("changes") if isinstance(payload.get("changes"), list) else []
+    for ch in changes:
+        if not isinstance(ch, dict) or not isinstance(ch.get("n"), str) or not ch["n"]:
             continue
         g, i = find(ch["n"])
         if g is None:
@@ -215,8 +224,8 @@ def apply_payload(groups: dict, payload: dict, quotes: dict, stamp: str) -> None
         r.pop("pend", None)
         expand(r)
         tidy(r)
-    for g, rows in payload.get("new") or []:
-        for r in rows if isinstance(rows, list) else []:
+    for g, rows in new_rows_of(payload):
+        for r in rows:
             if isinstance(r, dict) and r.get("n") and r.get("g"):
                 expand(r)
                 tidy(r)
@@ -367,8 +376,10 @@ def main() -> int:
                        cwd=config.VAULT, timeout=TIMEOUT)
             text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip())
             payload = json.loads(text[text.index("{"): text.rindex("}") + 1])
+            if not isinstance(payload, dict):
+                raise ValueError("the judgment was not a JSON object")
         except (AskFailed, ValueError) as exc:
-            err = str(exc)[:300]
+            payload, err = {}, str(exc)[:300]
             log_event("update_failed", detail=err)
     apply_payload(groups, payload, quotes, now.strftime("%H:%M"))
     med = {}
@@ -395,14 +406,17 @@ def main() -> int:
            "fetched": fetched if fetch_ok and not err else (since if since != prerun_at else ""),
            "journal": {"date": today.isoformat(), "sig": sig} if entry_text else {},
            "messages": n_msgs, "error": err,
-           "rows": [[g, groups[g]] for g in dict.fromkeys(order) if groups.get(g)],
-           "notes": (payload.get("notes") or [])[:3]}
+           # The app cleans rows on load too; cleaning here keeps a bad field out of the file.
+           "rows": clean_rows([[g, groups[g]] for g in dict.fromkeys(order) if groups.get(g)]),
+           "notes": [n for n in payload.get("notes") or [] if isinstance(n, str)][:3]
+                    if isinstance(payload.get("notes"), list) else []}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     tmp = OUT.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     os.replace(tmp, OUT)
-    log_event("updated", since=since, meditation_result=med, messages=n_msgs, meditation=len(recs), changes=len(payload.get("changes") or []),
-              new=sum(len(r) for _, r in payload.get("new") or []), error=err)
+    log_event("updated", since=since, meditation_result=med, messages=n_msgs, meditation=len(recs),
+              changes=len(payload.get("changes") or []) if isinstance(payload.get("changes"), list) else 0,
+              new=sum(len(r[1]) for r in new_rows_of(payload)), error=err)
     return 1 if err else 0
 
 

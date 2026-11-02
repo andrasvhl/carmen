@@ -104,16 +104,28 @@ async def main():
     from tests.tg_bridge._fakes import interruptible_behaviour
     fake.behaviour = interruptible_behaviour
     hub.send("plan:2026-10-31", "Plan Oct 31", "plan it", test=False, kind="plan")
-    try:
-        hub.send("plan:2026-10-31", "Plan Oct 31", "again", test=False, kind="plan")
-        check("a second message while busy is refused", False)
-    except chat.Busy:
-        check("a second message while busy is refused", True)
+    st = hub.send("plan:2026-10-31", "Plan Oct 31", "again", test=False, kind="plan")
+    check("a message while busy is queued, not refused (Nov 1)",
+          st["busy"] and st["messages"][-1]["text"] == "again" and st["messages"][-1].get("queued"))
     await asyncio.sleep(0.1)
     check("the status line shows the tool", "vt" in hub.state("plan:2026-10-31")["status"])
     await hub.stop("plan:2026-10-31")
     await wait_idle(hub, "plan:2026-10-31")
     check("Stop ends the turn", hub.state("plan:2026-10-31")["messages"][-1]["text"] == "Stopped.")
+    check("Stop drops the queued message, no new turn",
+          not hub.state("plan:2026-10-31")["busy"]
+          and any(m.get("discarded") for m in hub.state("plan:2026-10-31")["messages"]))
+    from tests.tg_bridge._fakes import answer_behaviour
+    fake.behaviour, old_delay = answer_behaviour, getattr(fake, "delay", 0)
+    fake.delay = 0.3
+    hub.send("task:Queue", "Queue", "first", test=False)
+    hub.send("task:Queue", "Queue", "second", test=False)
+    await wait_idle(hub, "task:Queue")
+    replies = [m["text"] for m in hub.state("task:Queue")["messages"] if m["role"] == "claude"]
+    check("a queued message runs right after the reply, in order",
+          replies == ["answer to: first", "answer to: second"]
+          and not any(m.get("queued") for m in hub.state("task:Queue")["messages"]))
+    fake.delay = old_delay
 
     # 5. A turn cut by a restart is said once, never replayed.
     c = chat.load("task:Other")

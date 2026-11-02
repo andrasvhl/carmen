@@ -55,6 +55,7 @@ STEP_EST_ANY = re.compile(r"\(\s*~?\d+(?:[.,]\d+)?\s*(?:m|mins?|minutes?|h|hrs?|
 THEN_OPEN = re.compile(r"^- \[ \] Then:", re.M)
 WAIT_OPEN = re.compile(r"^- \[ \] Waiting:", re.M)
 LOG_LINE = re.compile(r"^- [A-Z][a-z]{2} \d{1,2} ·")
+DOD = re.compile(r"^DoD( \(Claude's guess\))?: \S.*$")
 CTX_START, CTX_END = "## Current context", "%% end current context %%"
 
 
@@ -156,6 +157,20 @@ def check(text: str, keys: set[str] | None, today: str | None = None,
         if len(NEXT_OPEN.findall(block)) > 1:
             errors.append("more than one open `Next:`; keep one, make the rest `Then:`")
 
+    # The Definition of Done is the block's first line (owner decision, Nov 1): `DoD: …` when he
+    # confirmed it, `DoD (Claude's guess): …` until then.
+    dods = [l for l in block.splitlines() if re.match(r"^\W*(dod|definition of done)\b", l, re.I)]
+    if dods:
+        first = next((l for l in block.splitlines() if l.strip()), "")
+        if len(dods) > 1:
+            errors.append("more than one DoD line in `## Next action`; keep one")
+        elif not DOD.match(dods[0]):
+            errors.append(f"DoD line must read `DoD: <text>` or `DoD (Claude's guess): <text>`, "
+                          f"plain, no bullet; found {dods[0].strip()[:80]!r}")
+        elif first != dods[0]:
+            errors.append("the DoD line must be the first line of `## Next action`, above the "
+                          "open `Next:`")
+
     # Step estimates live inline at the end of a Next or Then line, exactly "(N min)" or "(N h)"
     # (owner decision, 2026-10-12): plan-today reads them for the two-minute page and writes them back.
     for line in re.findall(r"^- \[ \] (?:Next|Then):.*$", block, re.M):
@@ -219,6 +234,10 @@ def check(text: str, keys: set[str] | None, today: str | None = None,
                              "add `- [ ] Waiting: <who>, <on what>` and `waiting: true`")
         if status in ACTIVE and newly_ticked and not re.search(r"^- \[ \] ", block, re.M):
             questions.append("every step is ticked: is the task done?")
+        old_dod = re.findall(r"^DoD: .*$", old, re.M)
+        if old_dod and old_dod[0] not in new:
+            questions.append("a DoD the owner confirmed was just changed or removed. Only he "
+                             "changes a confirmed DoD: did he ask for this?")
         closed = bool(re.search(r"^status:\s*(done|cancelled)\b", new, re.M)) \
             and not re.search(r"^status:\s*(done|cancelled)\b", old, re.M)
         sch_new = re.findall(r"^scheduled:.*$", new, re.M)

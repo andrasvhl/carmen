@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Restart Carmen (checkin-app.service) only if the code on disk is sound.
+#
+# WHY THIS EXISTS
+#   2026-10-31: two sessions edited jobs/checkin_app/__init__.py from stale copies; one
+#   overwrote three commits and left the file uncompilable (fixed in ce34e58). A restart
+#   at that moment takes the app down on his phone until someone notices. The running
+#   process keeps serving the old code until it restarts, so the restart is the gate.
+#
+# WHAT IT DOES
+#   Compiles every module of the app, runs its four offline suites (robustness, chat, send,
+#   the Telegram bridge it shares AgentPool with), then restarts and checks it answers.
+#   Any failure: no restart, exit 1, the running app untouched.
+#   A restart cuts a chat turn in progress, so it also refuses while one is running,
+#   unless --force.
+#
+#   checkin-restart            check, then restart
+#   checkin-restart --check    check only
+#   checkin-restart --force    restart even with a chat turn running
+set -uo pipefail
+cd "$(dirname "$0")/.." || exit 1
+PY=.venv/bin/python
+mode="${1:-}"
+
+fail() { echo "checkin-restart: $1, not restarting" >&2; exit 1; }
+
+$PY -m py_compile jobs/checkin_app/*.py jobs/tg_bridge/*.py || fail "a module does not compile"
+for t in tests.checkin_app_robust tests.checkin_app_chat tests.checkin_app_send tests.tg_bridge; do
+    out=$(timeout 600 $PY -m "$t" 2>&1) || { echo "$out" | grep -E "FAIL|Error" | head -20 >&2; fail "$t failed"; }
+    echo "ok  $t"
+done
+[ "$mode" = "--check" ] && { echo "checks passed"; exit 0; }
+
+if [ "$mode" != "--force" ] && grep -lq '"busy": *true' ~/.local/state/automation/checkin_app/chat/*.json 2>/dev/null; then
+    fail "a chat turn is running (--force to cut it)"
+fi
+# A Refresh, the pre-run and task prep run as children of the service, so a restart kills
+# them too (Nov 1: a Refresh tapped at 22:45 died in a deploy restart a minute later and
+# Replies stayed on the morning's data). Refuse while one runs, as for a chat turn.
+if [ "$mode" != "--force" ]; then
+    for f in prerun.pid prep.pid; do
+        pid=$(cat ~/.local/state/automation/checkin_app/$f 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && grep -qa "automation\|jobs" /proc/$pid/cmdline 2>/dev/null; then
+            fail "a ${f%.pid} run is going (pid $pid; --force to cut it)"
+        fi
+    done
+fi
+sudo systemctl restart checkin-app || fail "systemctl refused"
+for _ in $(seq 1 30); do
+    code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8790/checkin/login) && [ "$code" = 200 ] && {
+        echo "restarted, answering"; exit 0; }
+    sleep 1
+done
+echo "checkin-restart: restarted but not answering after 30 s; journalctl -u checkin-app" >&2
+exit 1

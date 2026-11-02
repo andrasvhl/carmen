@@ -1,5 +1,5 @@
 {
- "version": "1.1.2",
+ "version": "1.1.3",
  "released": "2026-10-30",
  "phases": [
   {
@@ -29,6 +29,13 @@
   }
  ],
  "entries": [
+  {
+   "date": "2026-11-02",
+   "display_date": "Nov 2, 2026",
+   "title": "Choosing the day, then doing it",
+   "summary": "The app now keeps choosing and doing apart. Plan is where you pick the day's tasks and see them on your calendar, and the list no longer reshuffles as you add to it. Do is the list you work from: it keeps your order, carries unfinished tasks to the next day and, after three days, asks whether to keep, move or drop one. Start on a task opens a panel with the next step, the steps after it and a chat in which Claude begins the work. Every task gets a definition of done, which Claude proposes and you confirm with one tap. Free time now follows your week structure: routines like lunch and the commute count as taken, and focus blocks count as room for the work they are meant for. When you plan more than fits, Claude proposes what gives. Refresh updates every tab, answered messages leave Replies, you can keep typing while Claude replies, and finishing the day draws a small ensō. (Carmen)",
+   "source": "manual"
+  },
   {
    "date": "2026-11-01",
    "display_date": "Nov 1, 2026",

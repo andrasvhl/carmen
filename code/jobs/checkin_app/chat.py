@@ -200,15 +200,23 @@ class Hub:
     # ---- a turn ------------------------------------------------------------------
 
     def send(self, key: str, title: str, text: str, *, context: str = "", test: bool = True,
-             kind: str = "task", prompt_text: str | None = None, voice: bool = False) -> dict:
+             kind: str = "task", prompt_text: str | None = None, voice: bool = False,
+             hidden: bool = False) -> dict:
         """text is what the sheet shows; prompt_text, when given, is what Claude gets
         (a voice note: the bridge's transcript framing, media.frame_transcript)."""
         if self.rt.get(key, {}).get("busy"):
-            raise Busy("Claude is still answering")
+            # Sent while Claude is still answering (owner decision, Nov 1): shown at once and collected
+            # for the turn right after this one, as the Telegram bridge does.
+            conv = load(key)
+            conv["messages"].append({"role": "you", "text": text, "at": _now(), "test": test, "queued": True,
+                                     **({"voice": True} if voice else {}), **({"hidden": True} if hidden else {})})
+            save(conv)
+            self.rt[key].setdefault("queue", []).append({"text": prompt_text or text, "test": test})
+            return self.state(key)
         conv = load(key)
         conv.update(title=title or conv.get("title", ""), kind=kind, busy=True)
         conv["messages"].append({"role": "you", "text": text, "at": _now(), "test": test,
-                                 **({"voice": True} if voice else {})})
+                                 **({"voice": True} if voice else {}), **({"hidden": True} if hidden else {})})
         save(conv)
         self.rt[key] = {"busy": True, "labels": [], "approval": None}
         task = asyncio.create_task(self._turn(key, title, prompt_text or text, context, test))
@@ -286,8 +294,19 @@ class Hub:
             conv["busy"] = False
             if reply:
                 conv["messages"].append({"role": role, "text": reply, "at": _now(), "test": test})
+            queue = rt.pop("queue", [])
+            if queue:   # what he sent meanwhile goes now, in one turn
+                for m in conv["messages"]:
+                    m.pop("queued", None)
+                conv["busy"] = True
             save(conv)
-            rt.update(busy=False, labels=[], approval=None)
+            rt.update(busy=bool(queue), labels=[], approval=None)
+            if queue:
+                text_next = queue[0]["text"] if len(queue) == 1 else \
+                    "Sent while you were answering:\n\n" + "\n\n".join(q["text"] for q in queue)
+                task = asyncio.create_task(self._turn(key, title, text_next, "", queue[-1]["test"]))
+                self._tasks.add(task)
+                task.add_done_callback(self._tasks.discard)
             # Claude's side of the exchange, next to his chat_message signals, so a later read of
             # the log sees what Claude answered and did (the tools it ran), not only his words.
             from . import log_event
@@ -372,6 +391,12 @@ class Hub:
         rt = self.rt.get(key) or {}
         if not rt.get("busy"):
             return False
+        if rt.pop("queue", None):   # Stop also drops what was waiting, as the bridge's /stop
+            conv = load(key)
+            for m in conv["messages"]:
+                if m.pop("queued", None):
+                    m["discarded"] = True
+            save(conv)
         ap = rt.get("approval")
         if ap and ap["id"] in self._waiting and not self._waiting[ap["id"]].done():
             self._waiting[ap["id"]].set_result(None)

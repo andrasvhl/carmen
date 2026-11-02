@@ -32,9 +32,20 @@ BEST_YEAR = "Best Year of My Life"
 
 def _rows() -> list[dict]:
     try:
-        return [json.loads(l) for l in LEDGER.read_text(encoding="utf-8").splitlines() if l.strip()]
-    except (OSError, ValueError):
+        lines = LEDGER.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
         return []
+    out = []
+    for l in lines:   # one torn or hand-edited line must not drop the whole ledger (Nov 1)
+        try:
+            r = json.loads(l)
+        except ValueError:
+            continue
+        if isinstance(r, dict) and re.match(r"^\d{4}-\d{2}-\d{2}$", str(r.get("date", ""))):
+            if not isinstance(r.get("task", ""), str):
+                r.pop("task")
+            out.append(r)
+    return out
 
 
 def recent(today: dt.date, days: int = WINDOW_DAYS) -> list[dict]:
