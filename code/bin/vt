@@ -43,6 +43,7 @@ case "${1:-}" in
     people)    shift; exec "$PYTHON" -m tools.people "$@" ;;
     profiles)  shift; exec "$PYTHON" -m tools.check_profiles "$@" ;;
     todos)     shift; exec "$PYTHON" -m tools.todos "$@" ;;
+    taskids)   shift; exec "$PYTHON" -m tools.taskids "$@" ;;
     move)      shift; exec "$PYTHON" -m tools.move "$@" ;;
     canvas)    shift; exec "$PYTHON" -m tools.canvas "$@" ;;
     transcribe) shift; exec "$PYTHON" -m tools.transcribe "$@" ;;
@@ -53,6 +54,6 @@ case "${1:-}" in
     trains)    shift; exec "$PYTHON" -m tools.trains "$@" ;;
     ferries)   shift; exec "$PYTHON" -m tools.ferries "$@" ;;
     wispr)     shift; exec "$PYTHON" -m tools.wispr "$@" ;;
-    "")        echo "usage: vt {backlinks|canvas|docs|ferries|flights|freetime|move|people|profiles|tasks|todos|trains|transcribe|wispr} [args...]" >&2; exit 2 ;;
-    *)         echo "vt: unknown tool '$1' (expected: backlinks, canvas, docs, ferries, flights, freetime, move, people, profiles, tasks, todos, trains, transcribe, wispr)" >&2; exit 2 ;;
+    "")        echo "usage: vt {backlinks|canvas|docs|ferries|flights|freetime|move|people|profiles|taskids|tasks|todos|trains|transcribe|wispr} [args...]" >&2; exit 2 ;;
+    *)         echo "vt: unknown tool '$1' (expected: backlinks, canvas, docs, ferries, flights, freetime, move, people, profiles, taskids, tasks, todos, trains, transcribe, wispr)" >&2; exit 2 ;;
 esac

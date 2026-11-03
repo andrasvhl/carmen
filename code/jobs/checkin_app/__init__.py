@@ -109,7 +109,9 @@ def _file_sig(secret: str, rel: str, exp: str) -> str:
 
 def sign_file(secret: str, rel: str, now: float | None = None) -> str:
     from urllib.parse import quote
-    exp = str(int((now or time.time()) + FILE_LINK_AGE))
+    # The expiry is rounded up to a whole day (Nov 3: images in the chat flashed, because each
+    # poll signed a new URL and the browser loaded the picture again): the same link all day.
+    exp = str((int((now or time.time()) + FILE_LINK_AGE) // 86400 + 1) * 86400)
     return f"file?p={quote(rel, safe='')}&e={exp}&s={_file_sig(secret, rel, exp)}"
 
 
@@ -342,7 +344,68 @@ def task_path(name: str) -> Path | None:
     return p if p.is_file() else None
 
 
+def _stepmod():
+    from . import steps
+    return steps
+
+
+_NOTE_CACHE: dict = {}   # path -> ((mtime_ns, size, day), parsed note)
+
+
+_WORK_DONE = re.compile(r"\b(?:booked|sent|submitted|paid|completed|confirmed|done|ticked|replied|uploaded|filled|"
+                        r"messaged|texted|ordered|bought|returned|cancelled|signed)\b", re.I)
+_NOT_WORK = re.compile(r"prepared by Claude|DoD proposed|DoD drafted|your meditation|scheduled for|not waiting|"
+                       r"(?:^|·\s)waiting on|not (?:yet )?(?:sent|booked|paid|submitted|done)", re.I)
+
+
+_DUE_MARK = re.compile(r"\(due (?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\w*\s+)?([A-Z][a-z]{2})\w*\s+(\d{1,2})\)")
+_MON = {m: n for n, m in enumerate(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1)}
+
+
+def _step_due(body: str) -> tuple[str, str]:
+    """The earliest "(due Mon D)" on an open step line, as (YYYY-MM-DD, the step's text)."""
+    today = dt.datetime.now(TZ).date()
+    best = ("", "")
+    body = body.split("\n## Log", 1)[0]
+    for m in re.finditer(r"^\s*- \[ \] (?:(?:Next|Then):\s*)?(.+)$", body, re.M):
+        dm = _DUE_MARK.search(m.group(1))
+        if not dm or dm.group(1) not in _MON:
+            continue
+        try:
+            d = dt.date(today.year, _MON[dm.group(1)], int(dm.group(2)))
+        except ValueError:
+            continue
+        if d < today - dt.timedelta(days=60):   # "(due Jan 5)" written in November is next year
+            d = d.replace(year=today.year + 1)
+        if not best[0] or d.isoformat() < best[0]:
+            best = (d.isoformat(), m.group(1).strip())
+    return best
+
+
+def _done_today(body: str) -> int:
+    pref = f"- {_label(dt.datetime.now(TZ).date())} · "
+    return sum(1 for l in body.splitlines()
+               if l.startswith(pref) and _WORK_DONE.search(l) and not _NOT_WORK.search(l))
+
+
 def read_note(p: Path) -> dict:
+    """read_note, kept per file until the file changes (or the day turns, for wait_since);
+    a deep copy each time, so no caller edits the cache (Nov 3, speed)."""
+    import copy
+    try:
+        st = p.stat()
+        sig = (st.st_mtime_ns, st.st_size, dt.datetime.now(TZ).date())
+    except OSError:
+        return _read_note(p)
+    hit = _NOTE_CACHE.get(str(p))
+    if hit and hit[0] == sig:
+        return copy.deepcopy(hit[1])
+    d = _read_note(p)
+    _NOTE_CACHE[str(p)] = (sig, d)
+    return copy.deepcopy(d)
+
+
+def _read_note(p: Path) -> dict:
     """The live state of a task note: what the app shows over the pre-run's copy,
     so a change made anywhere (a tap, Claude in chat, Obsidian) shows at once."""
     text = p.read_text(encoding="utf-8", errors="replace")
@@ -354,12 +417,70 @@ def read_note(p: Path) -> dict:
 
     nxt = re.search(r"^- \[ \] Next: (.*)$", body, re.M)
     wait = re.search(r"^- \[ \] Waiting: (.*)$", body, re.M)
-    return {"status": fm("status"), "scheduled": fm("scheduled")[:10], "due": fm("due")[:10],
+    # A step's own deadline (Nov 3, "(due Nov 13)" on its line): the task counts as due by its
+    # earliest open one when that comes before the task's own due date.
+    sdue, stext = _step_due(body)
+    tdue = fm("due")[:10]
+    return {"status": fm("status"), "scheduled": fm("scheduled")[:10],
+            "due": min(d for d in (tdue, sdue) if d) if (tdue or sdue) else "",
+            "task_due": tdue, "step_due": sdue, "step_due_text": stext,
             "waiting": fm("waiting").lower() == "true",
             "next": nxt.group(1).strip() if nxt else "",
             "wait_line": wait.group(1).strip() if wait else "",
+            "task_id": fm("task_id"), "event_key": fm("event_key"),
+            # Steps done today, for today's chunk (Nov 3): the app's own step lines, and a log line
+            # from anyone else (a Claude chat) that says something was booked, sent, paid, ...
+            "done_today": _done_today(body),
+            "wait_since": (lambda d: d.isoformat() if d else "")(
+                _stepmod().waiting_since(body, dt.datetime.now(TZ).date())),
             "priority": fm("priority"), "time_est": fm("timeEstimate"),
-            "description": _description(body), "steps": _steps(body), **_dod(body)}
+            "description": _description(body), "steps": _steps(body), "done_steps": _done_steps(body),
+            **_dod(body)}
+
+
+_MON = {m: i for i, m in enumerate("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(), 1)}
+
+
+def _step_key(t: str) -> str:
+    t = re.sub(r"\s*\((?:the owner[^)]*|\d+\s*min|[\d.]+\s*h)\)\s*$", "", t.strip())
+    return re.sub(r"\W+", " ", t.lower()).strip()[:80]
+
+
+def _done_steps(body: str, limit: int = 3, today: dt.date | None = None) -> list[dict]:
+    """The last steps he finished, newest first, for the Start panel under Next (owner decision, Nov 3:
+    "history of past 3 steps that were accomplished would be nice to see below next steps").
+    From the app's Log lines ("step done:", "step ticked:"), which carry the date, and the ticked
+    lines in ## Next action that no Log line names, dated when the line says "(Nov 3". Undated
+    ones come last. Each is {"t": the step, "d": "Nov 3" or ""}."""
+    today = today or dt.datetime.now(TZ).date()
+
+    def order(d: str) -> int:
+        m = re.match(r"([A-Z][a-z]{2}) (\d{1,2})$", d or "")
+        if not m or m.group(1) not in _MON:
+            return 0
+        try:
+            x = dt.date(today.year, _MON[m.group(1)], int(m.group(2)))
+        except ValueError:
+            return 0
+        return (x.replace(year=x.year - 1) if x > today else x).toordinal()
+
+    out, seen = [], set()
+    log = body.split("\n## Log", 1)[1] if "\n## Log" in body else ""
+    for line in reversed(log.splitlines()):
+        m = re.match(r"^- ([A-Z][a-z]{2} \d{1,2}) · step (?:done|ticked): (.+?)(?: · |$)", line)
+        if m and _step_key(m.group(2)) not in seen:
+            seen.add(_step_key(m.group(2)))
+            out.append({"t": m.group(2).strip(), "d": m.group(1)})
+    block = re.search(r"^## Next action\s*\n(.*?)(?=^## |\Z)", body, re.M | re.S)
+    for m in re.finditer(r"^\s*- \[x\] (?:(?:Next|Then|Waiting): )?(.+)$", block.group(1) if block else "", re.M):
+        t = re.sub(r"\s*\((?:\d+\s*min|[\d.]+\s*h)\)\s*$", "", m.group(1).strip())
+        if not t or _step_key(t) in seen:
+            continue
+        seen.add(_step_key(t))
+        d = re.search(r"\(([A-Z][a-z]{2} \d{1,2})\b", t)
+        out.append({"t": t, "d": d.group(1) if d else ""})
+    out.sort(key=lambda x: -order(x["d"]))   # stable: within a day, the Log's newest first
+    return out[:limit]
 
 
 def _dod(body: str) -> dict:
@@ -414,7 +535,8 @@ def _detail(live: dict, task_est: str = "", next_est: str = "") -> dict:
             "status_raw": live.get("status", ""),
             "due": live.get("due", ""), "scheduled": live.get("scheduled", ""),
             "task_est": te, "next_est": next_est, "description": live.get("description", ""),
-            "steps": live.get("steps", []), "dod": live.get("dod", ""), "dod_guess": live.get("dod_guess", False)}
+            "steps": live.get("steps", []), "done_steps": live.get("done_steps", []),
+            "dod": live.get("dod", ""), "dod_guess": live.get("dod_guess", False)}
 
 
 def _minutes(est: str) -> int | None:
@@ -486,6 +608,9 @@ def with_meditation(data: dict, today: dt.date, entry: Path | None = None) -> di
             if r.get("lk") and not task_path(r["lk"]):
                 r.pop("lk")
             r.pop("pend", None)
+            # The matcher's rough row until the Refresh judges the entry: the page shows it as
+            # being filled in (Nov 3, the owner: "I did not see that they are being updated").
+            r["mp"] = 1
     except Exception as exc:   # the meditation is a layer on top; the view must never fail on it
         log_event("error", where="meditation", detail=str(exc)[:200])
         return data
@@ -512,6 +637,11 @@ def build_view(data: dict, today: dt.date | None = None) -> dict:
                 p = task_path(r.get("lk") or "")
                 if r.get("lk") and not p:
                     continue
+                # A row without its link that names a task note exactly is that task (Nov 3: the
+                # CS 351Z row came back from an update without "lk", so the Start panel showed the
+                # update's guess as Next and none of the note's steps or its DoD).
+                if not p and not r.get("lk") and task_path(r.get("n") or ""):
+                    p, r = task_path(r["n"]), {**r, "lk": r["n"]}
                 drop_note = ""
                 if dmod and gone and not r.get("lk") and "meditation" not in group.lower():
                     rec = dmod.check(r, gone)
@@ -540,6 +670,10 @@ def build_view(data: dict, today: dt.date | None = None) -> dict:
                     "meta": drop_note or ("" if str(r.get("m", "")).startswith("Update") else r.get("m", "")),
                     "update": r.get("upd") or (r.get("m", "") if str(r.get("m", "")).startswith("Update") else ""),
                     "waiting": live.get("wait_line") or r.get("wf", ""),
+                    # The wait looks over (Nov 3): the pre-run saw the answer (gw 0) on a task
+                    # still marked waiting; Do brings it back from the Waiting fold.
+                    "wait_over": r.get("gw") == 0 and bool(live.get("waiting")),
+                    "med_pending": bool(r.get("mp")),
                     # A "(N min)" he set on the Next line wins over the pre-run's guess.
                     "est": (lambda m: f"{m.group(1)}m" if m else "")(re.search(r"\((\d+)\s*min\)\s*$", live.get("next", "")))
                            or (lambda x: f"{x}m" if isinstance(x, (int, float)) else x)(r.get("ne") or r.get("e")) or "",
@@ -592,8 +726,11 @@ def build_view(data: dict, today: dt.date | None = None) -> dict:
     live_rows = [r for r in rows if not r["later"]]
     # A reply the pre-run or a Refresh judged answered, or now waiting on the other side,
     # leaves Replies (Nov 2: Refresh set it to done and it stayed); Plan's folds still have it.
+    # Skip in Replies hides the reply for the day and nothing else (Nov 3): the task keeps its
+    # date and its place on Do.
+    skipped = set(ov.get("reply_skip", {}).get(today.isoformat(), []))
     replies = sorted([r for r in live_rows if r["tab"] == "replies" and r["guess"] != "done"
-                      and r["group"] != "Waiting"], key=rank)
+                      and r["group"] != "Waiting" and r["id"] not in skipped], key=rank)
     # ToDo is his day, picked by what matters rather than by which tab a task lives in
     # (owner decision, Oct 31): every task competes for it, Claude tasks included.
     # Replies and ToDo are not exclusive (owner decision, Oct 31): a task with a draft is listed in
@@ -726,8 +863,20 @@ def do_view(view: dict, ov: dict) -> dict:
     top = (([t["one"]] if t["one"] else []) + t["needs"]) if same else []
     closed = t["closed"] if same else _safe(closed_recently, day, where="closed_recently", default=[])
     dated = _safe(day_list, day, by_id, where="do day_list", default=[])
-    return dmod.view(day, by_id, closed, dated, top, day_events(day), note, make_row, _label,
-                     ov["selected"].get(day.isoformat(), []))
+    d = dmod.view(day, by_id, closed, dated, top, day_events(day), note, make_row, _label,
+                  ov["selected"].get(day.isoformat(), []))
+    # A short and a long next step (Nov 3): the card's title is the short one.
+    from . import shortsteps
+    store = shortsteps._load()
+    longs = []
+    for r in d["rows"]:
+        step = re.sub(r"\s*\(\d+\s*min\)\s*$", "", r.get("next") or "").strip()
+        if step:
+            r["next_short"], final = shortsteps.short(step, store)
+            if not final:
+                longs.append(step)
+    shortsteps.ensure(longs, log_event)
+    return d
 
 
 FM_PRIO = {"4-high": "H", "3-normal": "N"}
@@ -773,6 +922,23 @@ DAY_VIEW_SKIP: tuple[str, ...] = ()   # calendar ids to leave out of the day vie
 SLOT_RE = re.compile(r"big rocks?|admin backup|^\W*🔒", re.I)
 CAL_KIND = {"Focus": "focus", "Social": "social", "Luma": "social", "Partiful": "social",
             "<YOUR_PERSONAL_EMAIL>": "personal"}
+
+
+def task_links(desc: str) -> list[str]:
+    """The task notes a calendar block links (its Task: lines), as note names."""
+    from urllib.parse import unquote
+    return [unquote(m).rsplit("/", 1)[-1] for m in
+            re.findall(r"Task:\s*obsidian://open\?[^\s<\"]*?file=([^&\s<\"]+)", desc or "")]
+
+
+def _event_key(uid: str) -> str:
+    from tools.taskids import event_key
+    return event_key(uid)
+
+
+def task_ids(desc: str) -> list[str]:
+    """The task IDs a block names: `Task: <link> (t-xxxxxx)`, one per task (Nov 3)."""
+    return re.findall(r"Task:[^\n]*?\((t-[0-9a-f]{6})\)", desc or "")
 
 
 def day_events(day: dt.date, fresh: bool = False) -> list[dict] | None:
@@ -825,7 +991,11 @@ def day_events(day: dt.date, fresh: bool = False) -> list[dict] | None:
                 desc = re.sub(r"\s*\n\s*\n\s*", "\n", re.sub(r"<br\s*/?>|</p>|</li>", "\n", e.get("description") or ""))
                 info = {"cal": name if "@" not in name else ("Work" if "<WORK_MAIL_DOMAIN>" in name else "Personal"),
                         "loc": (e.get("location") or "")[:160],
-                        "desc": re.sub(r"<[^>]+>", "", desc).strip()[:600]}
+                        "desc": re.sub(r"<[^>]+>", "", desc).strip()[:600],
+                        # Nov 3: a batch lists its tasks' links after the 600 shown characters,
+                        # so the names are read from the whole description.
+                        "tasks": task_links(desc), "task_ids": task_ids(desc),
+                        "key": _event_key(e.get("iCalUID") or e.get("id", ""))}
                 raw = e.get("description") or ""
                 slot = bool(SLOT_RE.search(title)) or raw.lstrip().startswith("SCHEDULABLE BLOCKER")
                 if not st.get("dateTime"):
@@ -941,6 +1111,89 @@ def frozen_keys(key_fn, rows, tag: str, day: dt.date) -> dict:
     return out
 
 
+STEP_UNDO = config.STATE_DIR / "checkin_app" / "step_undo.json"   # today's notes before a step tap
+# Ticks on the parts of a Next step in the Start panel (Nov 3). The note keeps the full step as
+# written ("the full info per next step in the background should still be saved"); these ticks
+# only mark parts of it, and reset when the Next line changes.
+SUBTICKS = config.STATE_DIR / "checkin_app" / "subticks.json"
+
+
+_WINS_LINES: dict = {}   # (path, mtime) -> the note's Log-shaped lines; a note is reread only after a change
+
+
+def today_wins(day: dt.date) -> dict:
+    """What he finished today, small things included, for the Today fold on Do (owner decision, Nov 3:
+    "more a 'Ah cool I already did all this'"). Read from the Log lines the app writes into each
+    note ("step done:", "step ticked:", "done", "sent mail to"), notes touched today only.
+    Claude's prep ("prepared by Claude: N steps done") is counted apart, its largest run per task."""
+    pref = f"- {_label(day)} · "
+    start = dt.datetime.combine(day, dt.time(0), TZ).timestamp()
+    wins, prep = [], {}
+    paths = sorted(config.INBOX.glob("*.md"), key=lambda q: q.stat().st_mtime, reverse=True)
+    for p in paths:
+        try:
+            mt = p.stat().st_mtime
+            if mt < start:
+                break
+            key = (str(p), mt)
+            if key not in _WINS_LINES:   # read a note again only when it changed
+                _WINS_LINES[key] = [l for l in p.read_text(encoding="utf-8", errors="replace").splitlines()
+                                    if l.startswith("- ") and " · " in l]
+            lines = _WINS_LINES[key]
+        except OSError:
+            continue
+        for line in reversed(lines):
+            if not line.startswith(pref):
+                continue
+            rest = line[len(pref):]
+            m = re.match(r"step (?:done|ticked): (.+?) · ", rest)
+            if m:
+                wins.append({"t": m.group(1), "task": p.stem})
+            elif rest.startswith("done · "):
+                wins.append({"t": "Finished the task", "task": p.stem, "big": True})
+            elif rest.startswith("sent mail to "):
+                wins.append({"t": "Sent mail to " + rest[len("sent mail to "):].split(" · ")[0], "task": p.stem})
+            else:
+                m = re.match(r"prepared by Claude: (\d+) steps? done", rest)
+                if m:
+                    prep[p.stem] = max(prep.get(p.stem, 0), int(m.group(1)))
+                elif _WORK_DONE.search(rest) and not _NOT_WORK.search(rest):
+                    # What he did and told Claude in a chat (Nov 3, "San mateo booked"): the
+                    # chat logs it in the note, so it counts like a tap. The source is dropped.
+                    said = re.sub(r"\s+·\s+[^·]*$", "", rest).strip()
+                    said = said if len(said) <= 160 else said[:158].rsplit(" ", 1)[0] + " …"
+                    if said:
+                        wins.append({"t": said[:1].upper() + said[1:], "task": p.stem, "chat": True})
+    # Cards with no note that he tapped Done on (do.free_done, Nov 3).
+    try:
+        from . import do as _dm
+        for x in _dm.free_done_list(day):
+            wins.append({"t": "Finished the task", "task": x.get("title") or x["id"], "big": True})
+    except Exception as exc:
+        log_event("error", where="today_wins free_done", detail=repr(exc)[:200])
+    # A chat line is not counted again when a tapped step of the same note already says it.
+    words = lambda s: set(re.findall(r"[a-z]{4,}", s.lower()))
+    taps = [(w["task"], words(w["t"])) for w in wins if not w.get("chat") and not w.get("big")]
+    wins = [w for w in wins if not w.get("chat")
+            or not any(t == w["task"] and len(ws & words(w["t"])) >= 3 for t, ws in taps)]
+    return {"items": wins, "claude_steps": sum(prep.values()), "claude_tasks": len(prep)}
+
+
+def _load_json(p: Path, empty):
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+        return d if isinstance(d, type(empty)) else empty
+    except (OSError, ValueError):
+        return empty
+
+
+def _save_json(p: Path, d) -> None:
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+    os.replace(tmp, p)
+
+
 NORAISE = config.STATE_DIR / "checkin_app" / "noraise.json"   # "Not now" on Raise priority, per task
 
 
@@ -972,7 +1225,7 @@ def load_overrides() -> dict:
     # one: a task name per day; the rest: a list of names per day. Anything else is dropped,
     # so a hand-edited or half-written file cannot take the view down (Nov 1).
     out = {}
-    for kind in ("one", "hidden", "selected", "notone", "pulled"):
+    for kind in ("one", "hidden", "selected", "notone", "pulled", "reply_skip"):
         days = ov.get(kind) if isinstance(ov.get(kind), dict) else {}
         if kind == "one":
             out[kind] = {d: v for d, v in days.items() if isinstance(v, str)}
@@ -1952,10 +2205,15 @@ def make_app():
         return HTMLResponse(HTML.read_text(encoding="utf-8"),
                             headers={"Cache-Control": "no-store"})
 
+    talk_check = {"at": 0.0}
+
     async def view(req: Request):
         if not authed(req):
             return JSONResponse({"error": "unauthorised"}, status_code=403)
-        await asyncio.to_thread(check_talk_deltas)
+        # The talk check reads every talked-about note: once a minute is enough (Nov 3, speed).
+        if time.time() - talk_check["at"] > 60:
+            talk_check["at"] = time.time()
+            await asyncio.to_thread(check_talk_deltas)
         v = await asyncio.to_thread(current_view)
         maybe_start_prep(v.get("generated", ""))
         try:
@@ -1965,6 +2223,12 @@ def make_app():
         try:   # which cards already have a chat in the app: their Talk shows it
             from .chat import summaries
             v["chats"] = summaries()
+            v["subticks"] = _load_json(SUBTICKS, {})
+            try:
+                from . import do as _do
+                v["wins"] = today_wins(_do.do_day(dt.datetime.now(TZ)))
+            except Exception as exc:   # a delight, never a broken view
+                log_event("error", where="today_wins", detail=repr(exc)[:200])
         except Exception as exc:
             log_event("error", where="chat summaries", detail=str(exc)[:200])
         if req.query_params.get("open"):   # a real open, not an auto-refresh
@@ -2025,6 +2289,88 @@ def make_app():
         day_name = "tomorrow" if body.get("day") == "tomorrow" else "today"
         base_day = dt.datetime.now(TZ).date() + dt.timedelta(days=1 if day_name == "tomorrow" else 0)
         tab_name = body.get("tab", "")
+        if action == "step_done" and not task_path(row_id):
+            # A card with no note behind it (a message row, Nov 3: "no task note for this card"):
+            # Done takes it off today as it always did; there is no step to tick and no Undo.
+            action = "done"
+            body["no_note"] = True
+        if action in ("subtick", "tick_line"):
+            p = task_path(row_id)
+            if not p:
+                return JSONResponse({"error": "no task note for this card"}, status_code=400)
+            if dry:
+                return JSONResponse({"ok": True, "keep": True, "msg": "Test mode, nothing written"})
+            if action == "subtick":
+                ticks = _load_json(SUBTICKS, {})
+                nxt, n = str(body.get("next", ""))[:2000], body.get("n")
+                if not isinstance(n, int) or n < 0:
+                    return JSONResponse({"error": "bad request"}, status_code=400)
+                e = ticks.get(p.stem) if isinstance(ticks.get(p.stem), dict) else {}
+                done = set(e.get("done", [])) if e.get("next") == nxt else set()
+                done.add(n) if body.get("on") else done.discard(n)
+                ticks[p.stem] = {"next": nxt, "done": sorted(done), "at": dt.datetime.now(TZ).date().isoformat()}
+                _save_json(SUBTICKS, ticks)
+                signal("subtick", {"id": row_id, "title": row_id}, "today", n=n, on=bool(body.get("on")))
+                return JSONResponse({"ok": True, "keep": True, "msg": "", "done": sorted(done)})
+            # tick_line: one later step of the note, ticked where it stands, nothing else changed
+            text = p.read_text(encoding="utf-8")
+            want = _one_line(text_in)
+            pat = re.compile(r"^(\s*)- \[ \] ((?:Then: )?)" + re.escape(want) + r"\s*$", re.M)
+            if not want or not pat.search(text):
+                return JSONResponse({"error": "that step changed in the note; refresh"}, status_code=409)
+            text = pat.sub(lambda m: f"{m.group(1)}- [x] {m.group(2)}{want}", text, count=1)
+            head, _, rest = text.partition("\n---\n")
+            text = head + "\n---\n" + _log(rest, f"- {_label(dt.datetime.now(TZ).date())} · step ticked: {want} · check-in app")
+            p.write_text(text, encoding="utf-8")
+            signal("step_ticked", {"id": row_id, "title": row_id}, "today", text=want[:300])
+            return JSONResponse({"ok": True, "keep": True, "msg": ""})
+        if action in ("step_done", "step_undo", "not_waiting", "step_wait", "set_waiting", "edit_waiting"):
+            # Done on a Do card is the step, not always the task (Nov 3): steps.py reads what
+            # comes next. Undo puts the note back as it was, if nothing changed it since.
+            import hashlib
+            p = task_path(row_id)
+            if not p:
+                return JSONResponse({"error": "no task note for this card"}, status_code=400)
+            today_d = dt.datetime.now(TZ).date()
+            undo_all = _load_json(STEP_UNDO, {})
+            before = p.read_text(encoding="utf-8")
+            if action == "step_undo":
+                u = undo_all.get(p.stem)
+                if not u or hashlib.sha256(before.encode()).hexdigest() != u.get("after"):
+                    return JSONResponse({"error": "the note changed since; undo it in Obsidian"}, status_code=409)
+                signal("step_undone", {"id": row_id, "title": row_id}, "today", test=dry)
+                if dry:
+                    return JSONResponse({"ok": True, "keep": True, "msg": "Test mode, nothing written"})
+                p.write_text(u["before"], encoding="utf-8")
+                undo_all.pop(p.stem, None)
+                _save_json(STEP_UNDO, undo_all)
+                return JSONResponse({"ok": True, "keep": True, "msg": "", "state": "undone"})
+            who = _one_line(text_in)[:120]
+            if action in ("step_wait", "set_waiting", "edit_waiting") and not who:
+                return JSONResponse({"error": "say whom you wait on"}, status_code=400)
+            if action == "step_wait":
+                # "Waiting instead" (Nov 3): the Done just made, redone as a wait on him/her.
+                u = undo_all.get(p.stem)
+                if not u or hashlib.sha256(before.encode()).hexdigest() != u.get("after"):
+                    return JSONResponse({"error": "the note changed since; set the wait in the card"}, status_code=409)
+                after, res = _stepmod().step_done(u["before"], today_d, _label(today_d), who=who)
+                before = u["before"]
+            elif action == "edit_waiting":
+                after, res = _stepmod().edit_waiting(before, who, _label(today_d)), {"state": "waiting", "who": who}
+            elif action == "set_waiting":
+                after, res = _stepmod().set_waiting(before, who, _label(today_d)), {"state": "waiting", "who": who}
+            elif action == "not_waiting":
+                after, res = _stepmod().not_waiting(before, _label(today_d)), {"state": "not_waiting"}
+            else:
+                after, res = _stepmod().step_done(before, today_d, _label(today_d))
+            signal(action, {"id": row_id, "title": row_id}, "today", test=dry, **res)
+            if dry:
+                return JSONResponse({"ok": True, "keep": True, "msg": "Test mode, nothing written", **res})
+            p.write_text(after, encoding="utf-8")
+            undo_all[p.stem] = {"before": before, "after": hashlib.sha256(after.encode()).hexdigest(),
+                                "at": today_d.isoformat()}
+            _save_json(STEP_UNDO, {k: v for k, v in undo_all.items() if v.get("at") == today_d.isoformat()})
+            return JSONResponse({"ok": True, "keep": True, "msg": "", **res})
         if action in ("dod_confirm", "dod_set", "prop_accept", "prop_ignore", "steps_save"):
             p = task_path(row_id)
             if not p:
@@ -2068,12 +2414,21 @@ def make_app():
                 ids = [str(i) for i in body.get("ids")] if isinstance(body.get("ids"), list) else []
                 log_event("do_commit", day=base_day.isoformat(), n=len(ids), test=dry)
                 if not dry:
-                    dmod.commit(base_day, ids)
+                    chunks = body.get("chunks") if isinstance(body.get("chunks"), dict) else None
+                    dmod.commit(base_day, ids, chunks)
+                    # Planned for this day means this day (Nov 3: El Cruce, added in Plan but still
+                    # scheduled Nov 4, showed on Do only as "Moved to Nov 4"): a later date comes
+                    # forward, as Add on Do already does. An earlier or missing date stays.
+                    for i in ids:
+                        tp = task_path(i)
+                        if tp and read_note(tp)["scheduled"] > base_day.isoformat():
+                            apply(tp, "schedule", base=base_day)
                 return JSONResponse({"ok": True, "keep": True, "msg": ""})
-            if action not in ("do_add", "do_drop", "do_keep", "do_dismiss", "do_unmove") or not row_id:
+            if action not in ("do_add", "do_drop", "do_keep", "do_dismiss", "do_unmove", "do_more") or not row_id:
                 return JSONResponse({"error": "bad request"}, status_code=400)
             signal({"do_add": "do_added", "do_drop": "do_dropped", "do_keep": "do_kept",
-                    "do_dismiss": "do_suggestion_dismissed", "do_unmove": "do_move_undone"}[action],
+                    "do_dismiss": "do_suggestion_dismissed", "do_unmove": "do_move_undone",
+                    "do_more": "do_kept_going"}[action],
                    {"id": row_id, "title": row_id}, "today", test=dry, source=str(body.get("from", ""))[:20])
             if dry:
                 return JSONResponse({"ok": True, "keep": True, "msg": "Test mode, nothing changed"})
@@ -2083,6 +2438,12 @@ def make_app():
                 if p and read_note(p)["scheduled"] != dday.isoformat():
                     apply(p, "schedule", base=dday)
                 return JSONResponse({"ok": True, "keep": True, "msg": "Added to today"})
+            if action == "do_more":   # Keep going: the next step joins today's chunk
+                st = read_note(p) if p else {}
+                if not st.get("next"):
+                    return JSONResponse({"error": "this task has no next step"}, status_code=400)
+                dmod.more(dday, row_id, st["next"])
+                return JSONResponse({"ok": True, "keep": True, "msg": ""})
             if action == "do_unmove":
                 if p:
                     apply(p, "schedule", base=dday)
@@ -2273,15 +2634,17 @@ def make_app():
                 log_event("error", where="dropped.record", detail=str(exc)[:200])
             return JSONResponse({"ok": True, "msg": f"Sent to {to}"})
         if action == "skipreply":
-            # Skip on a reply (Oct 30: "similar skip should be stored for replies"): a task
-            # moves a day; a taskless reply is hidden today and goes into the 14-day drop
-            # memory, so the next pre-run does not draft it again unless the person writes.
+            # Skip on a reply (Oct 30: "similar skip should be stored for replies"): the reply
+            # leaves Replies for today; a taskless one also goes into the 14-day drop memory, so
+            # the next pre-run does not draft it again unless the person writes. A task is never
+            # moved by it (Nov 3: Skip moved the sports medicine task to tomorrow, off Do).
             signal("reply_skipped", row, day_name, test=dry, draft=(row.get("draft") or {}).get("body", "")[:400])
             if dry:
                 return JSONResponse({"ok": True, "keep": True, "msg": "Test mode, nothing changed: skipped"})
             p = task_path(row_id) if row["task"] else None
             if p:
-                return JSONResponse({"ok": True, "msg": apply(p, "tomorrow", base=base_day)})
+                save_override("reply_skip", base_day, row_id)
+                return JSONResponse({"ok": True, "msg": "Skipped in Replies for today"})
             save_override("hidden", base_day, row_id)
             try:
                 raw = next((r for _, items in load_prerun().get("rows", []) for r in items
@@ -2383,6 +2746,11 @@ def make_app():
             signal("removed", row, day_name, test=dry, reason="done", why="")
             if not dry:
                 save_override("hidden", base_day, row_id)
+                try:   # remembered, so it shows in Done and Progress today (Nov 3)
+                    from . import do as _dm
+                    _dm.free_done(_dm.do_day(dt.datetime.now(TZ)), row_id, row.get("title") or row_id)
+                except Exception as exc:
+                    log_event("error", where="do.free_done", detail=repr(exc)[:200])
                 try:
                     raw = next((r for _, items in load_prerun().get("rows", []) for r in items
                                 if not r.get("lk") and r.get("n") == row.get("title")), None)
@@ -2391,7 +2759,7 @@ def make_app():
                                               via="check-in app (done)")
                 except Exception as exc:
                     log_event("error", where="dropped.record", detail=str(exc)[:200])
-            return JSONResponse({"ok": True, "keep": dry,
+            return JSONResponse({"ok": True, "keep": dry, **({"state": "closed"} if body.get("no_note") else {}),
                                  "msg": ("Test mode, nothing changed: " if dry else "") + "Done"})
         if action in ("done", "tomorrow", "next", "note", "schedule"):
             p = task_path(row_id) if row["task"] else None
@@ -2674,9 +3042,15 @@ def make_app():
         yield
         task.cancel()
         await shutdown()
-    return Starlette(routes=routes, lifespan=lifespan)
+    # Compressed (Nov 3): the view is about 226 KB of JSON, about 30 KB gzipped, on a phone.
+    from starlette.middleware import Middleware
+    from starlette.middleware.gzip import GZipMiddleware
+    return Starlette(routes=routes, lifespan=lifespan,
+                     middleware=[Middleware(GZipMiddleware, minimum_size=1024)])
 
 
 def main() -> None:
     import uvicorn
+    from . import shortsteps
+    shortsteps.ENABLED = True   # only the live server summarises steps (Nov 3)
     uvicorn.run(make_app(), host="127.0.0.1", port=PORT, log_level="warning")

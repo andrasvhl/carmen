@@ -52,7 +52,26 @@ DEFAULT_PRIORITY = "1-none"
 URGENT_PRIORITY = "4-high"
 
 
+_FM_CACHE = {}   # path -> ((mtime_ns, size), fm); Carmen reads the Inbox several times a view
+
+
 def parse_fm(path):
+    """parse_fm, kept per file until the file changes (Nov 3: the check-in app read all 400
+    notes three times per page load). Returns a copy, so a caller can never edit the cache."""
+    try:
+        st = os.stat(path)
+    except OSError:
+        return _parse_fm(path)
+    sig = (st.st_mtime_ns, st.st_size)
+    hit = _FM_CACHE.get(path)
+    if hit and hit[0] == sig:
+        return dict(hit[1]) if hit[1] is not None else None
+    fm = _parse_fm(path)
+    _FM_CACHE[path] = (sig, fm)
+    return dict(fm) if fm is not None else None
+
+
+def _parse_fm(path):
     """Line-based frontmatter reader. Handles `key: value` and block lists
     (`key:` followed by indented `- item` lines). Not a full YAML parser —
     enough for this schema, which is flat."""
@@ -277,7 +296,8 @@ def add_task(text, urgent, due, scheduled, priority, project, next_action="", bo
     else:
         priority = priority or DEFAULT_PRIORITY
 
-    fm = ["---", "type: action",
+    from tools import taskids   # the stable key blocks and Carmen join on (Nov 3)
+    fm = ["---", "type: action", f"task_id: {taskids.new_id(set(taskids.index().keys()))}",
           f"captured: {now.strftime('%Y-%m-%dT%H:%M')}", "status: inbox"]
     if urgent:
         fm.append("urgent: true")

@@ -426,6 +426,9 @@ ClientFactory = Callable[[ClientSpec], AgentClient]
 _END = object()
 
 
+MAX_BUFFER_BYTES = 32 * 1024 * 1024   # up to 4 screenshots of 3 MB each, base64, with headroom
+
+
 class SdkClient:
     """ClaudeSDKClient behind the AgentClient interface.
 
@@ -458,6 +461,9 @@ class SdkClient:
             can_use_tool=self._can_use_tool,
             env=s.env, model=s.model,
             stderr=self.stderr.append,
+            # The SDK's 1 MB default per stream message broke on a phone photo sent in the
+            # check-in app (Nov 3): Read returns the image as base64, ~4 MB for a 3 MB JPEG.
+            max_buffer_size=MAX_BUFFER_BYTES,
             # setting_sources deliberately unset: spike 2, the default loads the
             # vault CLAUDE.md and the user-scope skills. Never ["user"] (OpenClaw).
         )

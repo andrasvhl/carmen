@@ -419,6 +419,11 @@ def _cget(tok: str, path: str) -> dict:
         return json.loads(r.read())
 
 
+def event_key(uid: str) -> str:
+    from tools.taskids import event_key as k
+    return k(uid)
+
+
 def calendar(today: date) -> tuple[str, int]:
     """Every calendar: full events from 3 days back to CAL_AHEAD_DAYS ahead, then busy times only
     to BUSY_AHEAD_DAYS (owner decision, 2026-10-12: drafts may offer slots up to three weeks out, and a
@@ -468,7 +473,8 @@ def calendar(today: date) -> tuple[str, int]:
             when = start[:16].replace("T", " ") + "-" + (en.get("dateTime") or en.get("date", ""))[11:16]
             lines.append(f"- {when} | {e.get('summary', '(no title)')} | "
                          f"{e.get('transparency', 'opaque')} | {me} | "
-                         f"{(e.get('description') or '')[:160].replace(chr(10), ' ')}")
+                         f"{(e.get('description') or '')[:160].replace(chr(10), ' ')} | "
+                         f"{event_key(e.get('iCalUID') or e.get('id', ''))}")
         n += len(lines)
         if lines:
             parts.append(f"### {c.get('summary')} ({c.get('accessRole')})\n" + "\n".join(lines))
@@ -636,6 +642,20 @@ before he sees the panel, so set them only when you are very certain:
   you are not sure a message contradicts the line, leave rw out and set lc with
   the reason instead ("Felix may mean Wed Oct 21: check"). The row's nx, wf and
   s must agree with the lines as rewritten, never with the old line.
+- sd: on a row tied to an existing task, the open step lines of its "## Next action"
+  block that name their own deadline ("by noon Fri Nov 13", "before the Nov 18 trip",
+  "until Dec 4"), each {{"step": the line exactly as it stands after "Next:" or
+  "Then:" (or after "- [ ] " for a plain step), "due": "YYYY-MM-DD"}}. Only a date the
+  line itself states or plainly implies, never a guess; leave out lines that already
+  carry "(due ...)". It writes "(due Nov 13)" into that step line, which planning reads.
+- ev: on a row tied to an existing task, the key (the "ev-..." last field of its
+  calendar line) of the one event that task is about: the appointment it prepares
+  for or happens at, the invite or party it answers ("Book and complete sports
+  medicine exam" and the clinic visit itself; "Answer Sam's birthday
+  dinner invite" and the Partiful birthday event). Only when that event is plainly
+  this task's, never because a word is shared, never a block booked for task work
+  (those carry "Task:" lines). Leave it out when unsure. It writes the task note's
+  event_key, which ties the task to that event's time in the app.
 The s and ctx of every row tied to an existing task are also written into that
 task's "## Current context" block and read there days later: give dates as
 "Oct 7", never "today" or "yesterday", and name each source.
@@ -740,6 +760,7 @@ def render(d: dict, now: datetime, sources: dict) -> str:
 
 STEP = re.compile(r"^- \[( |x)\] (Next|Then):\s*(.+?)\s*$")
 OPEN_LINE = re.compile(r"^- \[ \] (Next|Then|Waiting):\s*(.+?)\s*$")
+STEP_LINE = re.compile(r"^\s*- \[ \] (?:(?:Next|Then):\s*)?(?!Waiting:)(.+?)\s*$")   # any open step of his
 DOD = re.compile(r"^DoD( \(Claude's guess\))?: (.+)$")
 HIS = re.compile(r"\(the owner\b")  # his attribution: the line is his direction (owner decision, Nov 1)
 
@@ -806,6 +827,36 @@ def _apply_one(text: str, r: dict, stamp: str) -> tuple[str, list[str]]:
     else:
         old_ctx = []
     changes, extra = [], []
+    # The appointment this task is about (Nov 3): a key, set by judgment once, read exactly.
+    ev = str(r.get("ev") or "").strip()
+    if fm and re.match(r"^ev-[0-9a-f]{8}$", ev) and not r.get("lc") \
+            and not re.search(rf"^event_key:\s*{ev}\s*$", fm, re.M):
+        if re.search(r"^event_key:.*$", fm, re.M):
+            fm = re.sub(r"^event_key:.*$", f"event_key: {ev}", fm, count=1, flags=re.M)
+        else:
+            fm = re.sub(r"^(type:\s*action\s*)$", rf"\1\nevent_key: {ev}", fm, count=1, flags=re.M)
+        changes.append(f"event_key {ev}")
+    # Step deadlines (Nov 3): "(due Nov 13)" on the step's own line, before its "(N min)".
+    sds = r.get("sd") if isinstance(r.get("sd"), list) and not r.get("lc") else []
+    for sd in sds:
+        if not isinstance(sd, dict):
+            continue
+        want, due = _oneline(sd.get("step") or ""), str(sd.get("due") or "")
+        if not want or not re.match(r"^\d{4}-\d{2}-\d{2}$", due):
+            continue
+        try:
+            dd = date.fromisoformat(due)
+        except ValueError:
+            continue
+        mark = f"(due {dd.strftime('%b')} {dd.day})"
+        for k, l in enumerate(lines):
+            s = STEP_LINE.match(l)
+            if not s or _norm(s.group(1)) != _norm(want) or "(due " in l:
+                continue
+            m = re.search(r"\s*\(\d+\s*min\)\s*$", l)
+            lines[k] = (l[:m.start()] + f" {mark}" + l[m.start():]) if m else f"{l.rstrip()} {mark}"
+            changes.append(f"step due {due}")
+            break
     blk = _next_block(lines, 0)
     if blk is None and r.get("anx") and r.get("nx"):
         lines[0:0] = ["", "## Next action", ""]
@@ -960,6 +1011,12 @@ def main() -> int:
         today = now.date()
         since = now - timedelta(days=WINDOW_DAYS)
         sources = {}
+
+        try:   # task IDs (Nov 3): notes made outside `vt todos --add` get theirs here
+            from tools import taskids
+            sources["task_ids_added"] = taskids.sweep()[0]
+        except Exception as e:  # noqa: BLE001 - never stops the pre-run
+            sources["task_ids_added"] = f"FAILED: {e}"[:120]
 
         tasks = panel_tasks(today)
         sources["tasks"] = len(tasks)

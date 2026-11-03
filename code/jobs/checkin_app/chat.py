@@ -61,6 +61,15 @@ your working directory; the MacBook may be off.
   for the owner to tap Allow once in the app. A denial is his answer: do not retry the same thing
   in another form. Anything that sends, pays, books, RSVPs or deletes: propose it in the chat
   first and wait for his explicit OK, even where no tool would ask.
+- In a task chat, the note's `## Next action` block is the plan the app's Start panel shows:
+  the DoD line, one `- [ ] Next:` line, then at most three `- [ ] Then:` lines in order
+  (`_system/SYSTEM.md` § Capture note schema). When a turn settles or changes the steps (a
+  plan, a split of the work, a new sub-step, a step done), write them there in the same turn:
+  tick what is done (`- [x]`), set the Next, rewrite the Then lines, add a `## Log` line. Never
+  leave a plan only in the chat or in a free-text section of the note. Only his own steps go
+  there; what someone else does stays in the body or a `Waiting:` line, and Waiting replaces
+  the Next only when nothing of his own is open. A line carrying `(the owner` is his: propose a
+  change in the chat, do not rewrite it.
 - Replies are read in a chat sheet on his phone: short, plain, no tables.
 - Claude Code's scheduling tools are unavailable here. Scheduling lives in ~/automation timers.
 - Never print secrets into a reply."""

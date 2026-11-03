@@ -499,6 +499,27 @@ t0 = time.time()
 st, v = view()
 check("scale 400 rows load in under 2 s", st == 200 and time.time() - t0 < 2, round(time.time() - t0, 2))
 
+# Done and Progress (Nov 3): a card with no note he tapped Done on, a task closed elsewhere, and a
+# step he reported in a chat all show today.
+from jobs.checkin_app import do as _dm  # noqa: E402
+_day = _dm.do_day(dt.datetime.now(app.TZ))
+check("12 do.json is in the scratch home", str(_dm.STATE).startswith(str(HOME)), _dm.STATE)
+_dm.free_done(_day, "Move the chat to Wed as he proposed", "Move the chat to Wed as he proposed")
+_dm.free_done(_day, "Move the chat to Wed as he proposed", "Move the chat to Wed as he proposed")
+check("12 a note-less Done is remembered once", [x["id"] for x in _dm.free_done_list(_day)] == ["Move the chat to Wed as he proposed"])
+_lab = _day.strftime("%b %-d")
+note("Book the course", body=f"## Log\n- {_lab} · San Mateo mornings booked (E26); next is eRider · Claude session with the owner\n"
+                             f"- {_lab} · Follow-up drafted, not sent · check-in app\n- {_lab} · waiting on Sam · check-in app\n")
+_w = app.today_wins(_day)["items"]
+check("12 a step reported in a chat counts in Progress", any(w["t"].startswith("San Mateo mornings booked") and w["task"] == "Book the course" for w in _w), _w)
+check("12 what was not done does not count", not any("not sent" in w["t"] or "waiting on" in w["t"] for w in _w), _w)
+check("12 a note-less Done counts in Progress", any(w["task"] == "Move the chat to Wed as he proposed" and w.get("big") for w in _w), _w)
+_dv = _dm.view(_day, {}, [{"id": "Closed in Plan", "title": "Closed in Plan", "task": True, "closed": _day.isoformat()},
+                         {"id": "Closed yesterday", "title": "Closed yesterday", "task": True, "closed": "2000-01-01"}],
+               [], [], [], lambda i: None, lambda i: None, lambda d: str(d))
+check("12 Done holds what was closed anywhere today, and the note-less Done",
+      [r["id"] for r in _dv["done"]] == ["Closed in Plan", "Move the chat to Wed as he proposed"], [r["id"] for r in _dv["done"]])
+
 real_errors = [e for e in logged_errors() if e.get("where") not in ("row", "calendar", "update overlay", "bare pre-run",
                                                                     "run timeout", "journal")]
 check("no unexpected errors were logged", not real_errors, real_errors[:4])

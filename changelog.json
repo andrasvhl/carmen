@@ -1,5 +1,5 @@
 {
- "version": "1.1.3",
+ "version": "1.1.4",
  "released": "2026-10-30",
  "phases": [
   {
@@ -29,6 +29,13 @@
   }
  ],
  "entries": [
+  {
+   "date": "2026-11-03",
+   "display_date": "Nov 3, 2026",
+   "title": "One step at a time",
+   "summary": "Do now works in steps. Each card's title is a short version of its next step, with the full step one tap away, and Done completes that step: the next one moves up, or, when the step was a message to someone, the task goes into a Waiting fold until they answer and comes back marked Wait over. A Waiting button with a reason you can edit covers the rest, and a task whose date moves leaves a line with Undo instead of vanishing. Tasks carry stable IDs, so calendar blocks and appointments attach to the right task instead of being matched by words, and one block can hold several tasks. A Progress fold collects the small things done today, steps can carry their own deadlines that count when planning, and the Start panel follows the task note. Chat takes screenshots and photos, and taps move cards at once while the app loads a fraction of the data it did. (Carmen)",
+   "source": "manual"
+  },
   {
    "date": "2026-11-02",
    "display_date": "Nov 2, 2026",

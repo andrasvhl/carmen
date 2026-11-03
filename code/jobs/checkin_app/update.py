@@ -232,6 +232,12 @@ def apply_payload(groups: dict, payload: dict, quotes: dict, stamp: str) -> None
                 groups.setdefault(g, []).append(r)
 
 
+def _loose(s) -> str:
+    """A title for matching: no list markers, no punctuation differences, any case."""
+    s = re.sub(r"^(?:(?:\d+[.)]|[-*])\s+)+", "", str(s or "").strip())
+    return re.sub(r"[^0-9a-zà-ÿ]+", " ", s.casefold()).strip()
+
+
 def apply_meditation(m: dict, groups: dict, today: dt.date) -> dict:
     """Carry out the meditation judgment: create the few tasks it calls for, write each
     mention to its task note and the ledger, keep themes, and propose Probably done."""
@@ -263,9 +269,14 @@ def apply_meditation(m: dict, groups: dict, today: dt.date) -> dict:
                        "words": words, "created": True})
         if src == "two":
             save_override("selected", today, stem)
-            for rows in groups.values():   # the meditation row becomes this task's row
+            # The meditation row becomes this task's row. Matched by the row it names or by the
+            # new title, loosely: the row may already carry the judgment's title, and the note's
+            # name can differ from it ("1:1" is saved as "1-1"). Nov 3: an exact match missed and
+            # the task showed twice, once as the row and once as the task.
+            want = {_loose(c.get("row")), _loose(title), _loose(stem)} - {""}
+            for rows in groups.values():
                 for r in rows:
-                    if r.get("n") == c.get("row") and not r.get("lk"):
+                    if not r.get("lk") and _loose(r.get("n")) in want:
                         r.update({"lk": stem, "n": stem, "nx": nx, "upd": "New task from your meditation"})
                         r.pop("nw", None)
 
