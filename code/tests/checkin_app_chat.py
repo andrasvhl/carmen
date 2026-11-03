@@ -53,6 +53,13 @@ async def main():
           and live_spec.permission_mode == "bypassPermissions")
     check("the app's channel, not Telegram's", "check-in app's chat" in live_spec.append
           and "Telegram bot" not in live_spec.append)
+    # Screenshots (Nov 2): the message keeps its images, Claude gets the saved path.
+    st = hub.send("task:Pics", "Pics", "see this", test=True, prompt_text="see this\n\n[the owner attached a screenshot, saved at Attachments/Carmen/x.png]",
+                  images=["obsidian://open?vault=<VAULT_NAME>&file=Attachments%2FCarmen%2Fx.png"])
+    await wait_idle(hub, "task:Pics")
+    sent = [m for m in hub.state("task:Pics")["messages"] if m["role"] == "you"][-1]
+    check("a message keeps its images", sent.get("images") and sent["text"] == "see this", sent)
+    check("Claude is told where the screenshot is", "Attachments/Carmen/x.png" in fake.prompts[-1])
     again = make(FakeAgent())
     check("history is there after reopening", len(again.state("task:Call Quinn")["messages"]) == 2)
     check("one Claude session per conversation", hub.store.switch(1, 0, "task:Call Quinn")[0].id

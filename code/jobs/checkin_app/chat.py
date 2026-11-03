@@ -201,7 +201,7 @@ class Hub:
 
     def send(self, key: str, title: str, text: str, *, context: str = "", test: bool = True,
              kind: str = "task", prompt_text: str | None = None, voice: bool = False,
-             hidden: bool = False) -> dict:
+             hidden: bool = False, images: list[str] | None = None) -> dict:
         """text is what the sheet shows; prompt_text, when given, is what Claude gets
         (a voice note: the bridge's transcript framing, media.frame_transcript)."""
         if self.rt.get(key, {}).get("busy"):
@@ -209,14 +209,16 @@ class Hub:
             # for the turn right after this one, as the Telegram bridge does.
             conv = load(key)
             conv["messages"].append({"role": "you", "text": text, "at": _now(), "test": test, "queued": True,
-                                     **({"voice": True} if voice else {}), **({"hidden": True} if hidden else {})})
+                                     **({"voice": True} if voice else {}), **({"hidden": True} if hidden else {}),
+                                     **({"images": images} if images else {})})
             save(conv)
             self.rt[key].setdefault("queue", []).append({"text": prompt_text or text, "test": test})
             return self.state(key)
         conv = load(key)
         conv.update(title=title or conv.get("title", ""), kind=kind, busy=True)
         conv["messages"].append({"role": "you", "text": text, "at": _now(), "test": test,
-                                 **({"voice": True} if voice else {}), **({"hidden": True} if hidden else {})})
+                                 **({"voice": True} if voice else {}), **({"hidden": True} if hidden else {}),
+                                     **({"images": images} if images else {})})
         save(conv)
         self.rt[key] = {"busy": True, "labels": [], "approval": None}
         task = asyncio.create_task(self._turn(key, title, prompt_text or text, context, test))

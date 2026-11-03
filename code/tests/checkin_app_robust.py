@@ -330,6 +330,30 @@ for body in ({"action": "done", "id": 5}, {"action": 5, "id": "Pay rent"}, {"act
     check(f"5 act {json.dumps(body)[:70]} answers without a 500", st < 500 and isinstance(res, dict), (st, res))
 r = client.post("/checkin/api/chat", content=b"[1]", headers={"content-type": "application/json"})
 check("5 chat with a list body is a 400", r.status_code == 400, r.status_code)
+# Screenshots in the chat (Nov 2): the upload route and what a message may name.
+PNG = b"\x89PNG\r\n\x1a\n" + b"0" * 64
+r = TestClient(app.make_app()).post("/checkin/api/chat/image", content=PNG, headers={"content-type": "image/png"})
+check("5 image upload needs auth", r.status_code == 403, r.status_code)
+r = client.post("/checkin/api/chat/image", content=b"%PDF-1.4", headers={"content-type": "application/pdf"})
+check("5 image upload refuses a non-image", r.status_code == 415, r.status_code)
+r = client.post("/checkin/api/chat/image", content=b"", headers={"content-type": "image/png"})
+check("5 image upload refuses an empty body", r.status_code == 400, r.status_code)
+r = client.post("/checkin/api/chat/image", content=b"0" * (app.IMAGE_MAX_BYTES + 1), headers={"content-type": "image/jpeg"})
+check("5 image upload refuses a huge file", r.status_code == 413, r.status_code)
+r = client.post("/checkin/api/chat/image", content=PNG, headers={"content-type": "image/png"})
+up = r.json() if r.status_code == 200 else {}
+check("5 image upload saves into Attachments/Carmen", r.status_code == 200 and up.get("path", "").startswith("Attachments/Carmen/")
+      and (VAULT / up["path"]).read_bytes() == PNG, (r.status_code, up))
+r2 = client.post("/checkin/api/chat/image", content=PNG, headers={"content-type": "image/png"})
+check("5 two uploads in one second get two files", r2.status_code == 200 and r2.json().get("path") != up.get("path"), r2.text[:200])
+r = TestClient(app.make_app()).get("/checkin/" + up.get("url", "x"))
+check("5 the uploaded image opens through its signed link", r.status_code == 200 and r.content == PNG
+      and r.headers.get("content-type") == "image/png", r.status_code)
+(VAULT / "Inbox" / "secret.png").write_bytes(PNG)
+names = app.chat_images({"images": [up["path"], up["path"], "Inbox/secret.png", "Attachments/Carmen/../../Inbox/secret.png",
+                                    "Attachments/Carmen/2026-11/missing.png", 5]}, VAULT)
+check("5 a message names only uploaded images, once each", names == [up["path"]], names)
+check("5 images is optional", app.chat_images({"images": "x"}, VAULT) == [] and app.chat_images({}, VAULT) == [])
 for path in ("/checkin/api/journal", "/checkin/api/day", "/checkin/api/day?day=tomorrow", "/api/view", "/checkin/",
              "/checkin/manifest.webmanifest", "/checkin/login"):
     r = client.get(path)

@@ -47,6 +47,10 @@ MAX_AUTH_AGE = 86400       # Telegram reissues initData every time the app opens
 TOP_N = 5                  # decisions under the one thing; a hard cap, not a filter (Oct 30)
 
 PRIO = {"H": 0, "N": 1, "Z": 2}
+IMAGE_MAX_BYTES = 12 * 1024 * 1024  # the page shrinks big photos first; a screenshot is far below
+IMAGES_MAX = 4                      # per message
+IMAGE_DIR = Path("Attachments") / "Carmen"
+IMAGE_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
 VOICE_MAX_BYTES = 20 * 1024 * 1024   # Groq's upload cap is 25 MB; the page stops recording at 5 min
 
 
@@ -129,6 +133,18 @@ def resolve_vault_file(rel: str, vault: Path) -> Path | None:
         if p.is_file() and p.is_relative_to(root):
             return p
     return None
+
+
+def chat_images(body: dict, vault: Path) -> list[str]:
+    """The attached images a chat message names (Nov 2): only files the upload route wrote,
+    under Attachments/Carmen/, still in the vault; at most IMAGES_MAX."""
+    out = []
+    for rel in body.get("images") if isinstance(body.get("images"), list) else []:
+        rel = str(rel)
+        if rel.startswith(IMAGE_DIR.as_posix() + "/") and ".." not in Path(rel).parts \
+                and resolve_vault_file(rel, vault) and rel not in out:
+            out.append(rel)
+    return out[:IMAGES_MAX]
 
 
 SIGNED_LINK = re.compile(r"file\?p=([^&\s)\"'<>]+)&e=\d+&s=[0-9a-f]+")
@@ -2494,11 +2510,12 @@ def make_app():
     async def send_message(req, h, body, key, kind, row_id, day_name, dry, tab_name, first, voice=False):
         from .chat import Busy
         text = str(body.get("text", ""))[:4000].strip()
+        images = chat_images(body, config.VAULT)
         base_day = dt.datetime.now(TZ).date() + dt.timedelta(days=1 if day_name == "tomorrow" else 0)
         context, row = "", None
         if kind == "plan":
             title = f"Plan {_label(base_day)}"
-            if not text:
+            if not text and not images:
                 v = await asyncio.to_thread(current_view)
                 ids = [str(i) for i in (body.get("ids") if isinstance(body.get("ids"), list) else [])][:TOP_N + 1]
                 picked, seen = [], set()
@@ -2514,7 +2531,7 @@ def make_app():
         else:
             row = await asyncio.to_thread(find, row_id)
             title = (row or {}).get("title") or load_title(key) or row_id
-            if not text:
+            if not text and not images:
                 return JSONResponse({"error": "empty message"}, status_code=400)
             if first and row:
                 # The same signals the Telegram Talk logged (claude_go, reply_talk, talk), at the
@@ -2532,18 +2549,52 @@ def make_app():
         # Every message he writes is judgment data (Oct 31, the owner: chat should feed the signals too):
         # his words verbatim, next to what Claude had suggested for the row (signal's `claude`).
         signal("chat_message", row or {"id": row_id or key, "title": title}, day_name, test=dry, key=key,
-               text=text[:2000], voice=voice, first=first, src=source(req),
+               text=text[:2000], voice=voice, first=first, src=source(req), images=len(images),
                **({"ids": [str(i) for i in (body.get("ids") or [])]} if kind == "plan" else {}))
         try:
             if voice:
                 from jobs.tg_bridge.media import frame_transcript
                 return JSONResponse(link_vault_files(h.send(key, title, text, context=context, test=dry, kind=kind,
                                            prompt_text=frame_transcript(text), voice=True), secret))
+            if images:
+                from urllib.parse import quote
+                said = "\n".join(f"[the owner attached a screenshot, saved at {rel} (absolute: "
+                                 f"{config.VAULT / rel}). Read it to see it.]" for rel in images)
+                links = ["obsidian://open?vault=<VAULT_NAME>&file=" + quote(rel, safe="") for rel in images]
+                return JSONResponse(link_vault_files(h.send(key, title, text, context=context, test=dry, kind=kind,
+                                           prompt_text=f"{text}\n\n{said}".strip(), images=links), secret))
             # Start on Do (Nov 1): the request to begin goes to Claude but not on his screen.
             return JSONResponse(link_vault_files(h.send(key, title, text, context=context, test=dry, kind=kind,
                                        hidden=bool(body.get("hidden"))), secret))
         except Busy as exc:
             return JSONResponse({"error": str(exc)}, status_code=409)
+
+    async def chat_image(req: Request):
+        """A screenshot or photo for the chat (Nov 2, the owner: "I want to be able to attach
+        screenshots when texting with carmen"). Saved into Attachments/Carmen/<YYYY-MM>/ with the
+        bridge's naming; the message that carries it hands Claude the path, as Telegram does."""
+        if not authed(req):
+            return JSONResponse({"error": "unauthorised"}, status_code=403)
+        ext = IMAGE_TYPES.get(req.headers.get("content-type", "").split(";")[0].strip().lower())
+        if not ext:
+            return JSONResponse({"error": "only images can be attached"}, status_code=415)
+        data = await req.body()
+        if not data:
+            return JSONResponse({"error": "empty image"}, status_code=400)
+        if len(data) > IMAGE_MAX_BYTES:
+            return JSONResponse({"error": "image too large"}, status_code=413)
+        now = dt.datetime.now(TZ)
+        folder = config.VAULT / IMAGE_DIR / now.strftime("%Y-%m")
+        folder.mkdir(parents=True, exist_ok=True)
+        base_name = f"{now.strftime('%Y-%m-%d %H%M%S')} screenshot"
+        path, n = folder / f"{base_name}.{ext}", 2
+        while path.exists():
+            path, n = folder / f"{base_name} {n}.{ext}", n + 1
+        with open(path, "xb") as fh:
+            fh.write(data)
+        rel = path.relative_to(config.VAULT).as_posix()
+        log_event("chat_image", bytes=len(data), src=source(req))
+        return JSONResponse({"path": rel, "url": sign_file(secret, rel)})
 
     async def chat_voice(req: Request):
         """A voice message (Oct 31): the recording goes up as the raw body, is transcribed by the
@@ -2604,6 +2655,7 @@ def make_app():
                    Route(f"{base}/api/act", act, methods=["POST"]),
                    Route(f"{base}/api/chat", chat_get), Route(f"{base}/api/chat", chat_post, methods=["POST"]),
                    Route(f"{base}/api/chat/voice", chat_voice, methods=["POST"]),
+                   Route(f"{base}/api/chat/image", chat_image, methods=["POST"]),
                    Route(f"{base}/api/day", day_view)]
     from contextlib import asynccontextmanager
 
