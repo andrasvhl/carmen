@@ -334,8 +334,26 @@ check("5 chat with a list body is a 400", r.status_code == 400, r.status_code)
 PNG = b"\x89PNG\r\n\x1a\n" + b"0" * 64
 r = TestClient(app.make_app()).post("/checkin/api/chat/image", content=PNG, headers={"content-type": "image/png"})
 check("5 image upload needs auth", r.status_code == 403, r.status_code)
-r = client.post("/checkin/api/chat/image", content=b"%PDF-1.4", headers={"content-type": "application/pdf"})
+r = client.post("/checkin/api/chat/image", content=b"hello", headers={"content-type": "text/plain"})
 check("5 image upload refuses a non-image", r.status_code == 415, r.status_code)
+# PDFs (Nov 3): accepted, checked for the PDF header, saved under their own (cleaned) name.
+r = client.post("/checkin/api/chat/image", content=b"<html>", headers={"content-type": "application/pdf"})
+check("5 a fake PDF is refused", r.status_code == 415, r.status_code)
+PDF = b"%PDF-1.4\n" + b"0" * 64
+from urllib.parse import quote
+r = client.post("/checkin/api/chat/image?name=" + quote("../Fitness Cert: Nov/3.pdf"), content=PDF,
+                headers={"content-type": "application/pdf"})
+pdf_up = r.json() if r.status_code == 200 else {}
+check("5 a PDF saves into Attachments/Carmen under its own name", r.status_code == 200
+      and pdf_up.get("path", "").startswith("Attachments/Carmen/") and pdf_up["path"].endswith(" 3.pdf")
+      and (VAULT / pdf_up["path"]).read_bytes() == PDF, (r.status_code, pdf_up))
+check("5 a PDF name is cleaned", app.attach_stem("../Fitness Cert: Nov/x.PDF") == "x"
+      and app.attach_stem("Brief (v2).pdf") == "Brief (v2)" and app.attach_stem("") == "document"
+      and app.attach_stem("::.pdf") == "document", app.attach_stem("../Fitness Cert: Nov/x.PDF"))
+r = TestClient(app.make_app()).get("/checkin/" + pdf_up.get("url", "x"))
+check("5 the uploaded PDF opens through its signed link", r.status_code == 200 and r.content == PDF
+      and r.headers.get("content-type") == "application/pdf", r.status_code)
+check("5 a message may name an uploaded PDF", app.chat_images({"images": [pdf_up.get("path")]}, VAULT) == [pdf_up.get("path")])
 r = client.post("/checkin/api/chat/image", content=b"", headers={"content-type": "image/png"})
 check("5 image upload refuses an empty body", r.status_code == 400, r.status_code)
 r = client.post("/checkin/api/chat/image", content=b"0" * (app.IMAGE_MAX_BYTES + 1), headers={"content-type": "image/jpeg"})

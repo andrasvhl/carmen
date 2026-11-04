@@ -326,7 +326,8 @@
 
   .toast { position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(10px);
     background: var(--ink); color: var(--ground); padding: 10px 14px; border-radius: 12px; font-size: 13.5px; opacity: 0;
-    transition: opacity .2s, transform .2s; max-width: calc(100% - 32px); pointer-events: none; }
+    transition: opacity .2s, transform .2s; max-width: calc(100% - 32px); pointer-events: none;
+    z-index: 60; }   /* above an open chat (.pop is 50): its errors went unseen (Nov 3) */
   .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
   .gone { animation: gone .35s forwards; }
   /* Chat in the app (Oct 31): Talk, Let Claude, Save & send and Plan it with Claude open this
@@ -559,6 +560,14 @@
   .msg .cpics { display: flex; flex-wrap: wrap; gap: 6px; }
   .msg .cpics + .ctext { margin-top: 6px; }
   .msg img.cpic { display: block; max-width: 100%; max-height: 260px; border-radius: 10px; }
+  /* PDFs (Nov 3): a named tile in the tray and in the thread instead of a picture */
+  .cthumb .cpdf { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 4px; font-size: 9.5px;
+    line-height: 1.15; color: var(--ink); word-break: break-all; overflow: hidden; }
+  .cthumb .cpdf b { font-size: 11px; color: #D9483B; }
+  .cthumb.up .cpdf { opacity: .45; }
+  .msg a.cpdfl { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 8px 10px; border-radius: 10px;
+    background: var(--soft); color: var(--ink); text-decoration: none; font-size: 13.5px; }
+  .msg a.cpdfl b { color: #D9483B; font-size: 11px; }
   .cdot { display: inline-block; width: 6px; height: 6px; border-radius: 3px; background: var(--accent); margin-left: 5px; vertical-align: 2px; }
   .doitem.pending { opacity: .45; transition: opacity .12s; }
   .dstep { margin: 0 0 10px; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--ink); font-size: 14px; }
@@ -566,12 +575,22 @@
   .pchunk { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: var(--accent-soft); font-size: 13.5px; }
   .pch-h { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
   .pchunk ol { margin: 4px 0 0; padding-left: 18px; color: var(--ink); line-height: 1.4; }
+  .pchunk li b { font-weight: 500; }
+  .pchunk ol { list-style: none; padding-left: 0; }
+  .pchunk li { position: relative; padding-left: 14px; margin-top: 3px; }
+  .pchunk li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 5px; height: 5px; border-radius: 3px; background: var(--accent); }
+  .pch-a .link { text-align: left; }
+  .item:not(.open) .selmind { display: none; }
   .pchunk ol span { color: var(--muted); font-size: 12px; }
   .pch-a { margin-top: 4px; font-size: 13px; }
   .dchunk { margin-top: 3px; font-size: 12.5px; color: var(--accent); font-weight: 600; }
   .ddue { display: inline-block; padding: 0 6px; border-radius: 6px; background: #FDEBD3; color: #8A4B08; font-size: 12px; font-weight: 600; }
-  .pch-w { margin-top: 4px; font-size: 12.5px; color: #8A4B08; }
+  .pch-w { margin-top: 4px; font-size: 12.5px; color: var(--muted); }
+  .pch-w b { color: #8A4B08; font-weight: 600; }
   ul.tp-check li.later { opacity: .5; }
+  .tp-today { margin: 0 -10px; padding: 8px 10px 6px; border-radius: 10px; background: var(--accent-soft); }
+  .tp-today > label { color: var(--accent) !important; }
+  .tp-today ul.tp-check + ul.tp-check { margin-top: 0; }
   .dwins { margin-top: 10px; padding: 6px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
   .dwin { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
   .dwin + .dwin { border-top: 0; }
@@ -796,16 +815,22 @@ function chunkMin(r, which) {
   for (let k = 0; k < n; k++) { const m = stepMin(s[k]) ?? (k === 0 ? mins(r.est) : null); if (m === null) return null; tot += m; }
   return tot;
 }
+// One line per step on a Plan card (Nov 3): the summary when Claude has written one, else the
+// step without its markers; the full step is in the tooltip and in Start.
+function shortOf(x) {
+  const s = (view && view.shorts || {})[x];
+  return s || stripDue(x).replace(/\s*\(\d+\s*min\)\s*$/, "");
+}
 function chunkBox(r) {
   const s = taskSteps(r), n = chunkN(r);
   if (s.length < 1) return "";
   const m = chunkMin(r);
   return `<div class="pchunk" data-id="${esc(r.id)}"><div class="pch-h">Today${n > 1 ? ` · ${n} steps` : ""}${m !== null ? " · " + fmt(m) : ""}</div>
-    <ol>${s.slice(0, n).map(x => `<li>${esc(stripDue(x).replace(/\s*\(\d+\s*min\)\s*$/, ""))}${stepMin(x) ? ` <span>${stepMin(x)}m</span>` : ""}${dueIso(x) ? ` <span class="ddue">due ${dueLabel(dueIso(x))}</span>` : ""}</li>`).join("")}</ol>
+    <ol>${s.slice(0, n).map(x => `<li title="${esc(stripDue(x))}"><b>${esc(shortOf(x))}</b>${stepMin(x) ? ` <span>${stepMin(x)}m</span>` : ""}${dueIso(x) ? ` <span class="ddue">due ${dueLabel(dueIso(x))}</span>` : ""}</li>`).join("")}</ol>
     ${s.slice(n).filter(x => { const di = dueIso(x), m = stepMin(x) || 0, days = di ? (new Date(di + "T12:00") - new Date(planIso() + "T12:00")) / 864e5 : 99;
         return di && (days <= 2 || (m >= 120 && days <= 7)); })
-      .map(x => `<div class="pch-w">${esc(stripDue(x).replace(/\s*\(\d+\s*min\)\s*$/, "").slice(0, 70))}${stepMin(x) ? ` (${fmt(stepMin(x))})` : ""} is due ${dueLabel(dueIso(x))}: it needs a day before then</div>`).join("")}
-    <div class="pch-a">${n < s.length ? `<button class="link" data-chunk="more">+ ${esc(s[n].replace(/\s*\(\d+\s*min\)\s*$/, "").slice(0, 60))}${s[n].length > 60 ? "…" : ""}</button>` : ""}${n > 1 ? `${n < s.length ? " · " : ""}<button class="link" data-chunk="less">− last step</button>` : ""}</div></div>`;
+      .map(x => `<div class="pch-w" title="${esc(stripDue(x))}: it needs time before then"><b>Due ${dueLabel(dueIso(x))}</b> · ${esc(shortOf(x))}${stepMin(x) ? ` · ${fmt(stepMin(x))}` : ""}</div>`).join("")}
+    <div class="pch-a">${n < s.length ? `<button class="link" data-chunk="more">+ ${esc(shortOf(s[n]))}</button>` : ""}${n > 1 ? `${n < s.length ? " · " : ""}<button class="link" data-chunk="less">− last step</button>` : ""}</div></div>`;
 }
 function mins(est) {
   const m = /^\s*(?:(\d+)h)?\s*(\d+)?\s*m?\s*$/.exec(est || "");
@@ -1484,7 +1509,7 @@ function chatBody(st) {
   const msgs = (st.messages || []).map((m, i) => {
     if (m.hidden) return "";
     const cls = m.role === "you" ? "you" : m.role === "claude" ? "claude" : "note";
-    const pics = (m.images || []).length ? `<div class="cpics">${m.images.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img class="cpic" src="${esc(u)}" alt="Screenshot"></a>`).join("")}</div>` : "";
+    const pics = (m.images || []).length ? `<div class="cpics">${m.images.map(u => pdfLabel(u) ? pdfChip(u) : `<a href="${esc(u)}" target="_blank" rel="noopener"><img class="cpic" src="${esc(u)}" alt="Screenshot"></a>`).join("")}</div>` : "";
     return `<div class="msg ${cls}${m.discarded ? " gone-msg" : ""}" data-i="${i}">${pics}${pics && m.text ? '<div class="ctext">' : ""}${m.voice ? "🎤 " : ""}${cls === "claude" ? md(m.text) : esc(m.text)}${pics && m.text ? "</div>" : ""}${m.queued ? '<span class="qtag">Claude reads this after its reply</span>' : m.discarded ? '<span class="qtag">Not sent, you stopped</span>' : ""}</div>`;
   }).join("");
   const ap = st.approval;
@@ -1705,6 +1730,31 @@ function doneStepsHtml(list) {
     return `<li><span class="tp-dck">✓</span><span class="tp-dt">${linkBare(md(t))}</span>${x.d ? `<span class="tp-dd">${esc(x.d)}</span>` : ""}</li>`;
   }).join("")}</ul></div>`;
 }
+// The steps in the task column (Nov 3, the owner: "chunked next steps grouped in the side bar as
+// well so you can see which ones you committed to"): Today, the Next step's parts and the
+// other steps of today's chunk, with their total; then Later, the rest. A task without a
+// chunk (opened outside Do) keeps Next step and After that.
+function stepSections(r, steps) {
+  const norm = s => stripDue(clean(s)).replace(/\s*\(\d+\s*min\)\s*$/, "").trim();
+  const inChunk = s => !!(r.chunk && r.chunk.steps.some(c => norm(c) === norm(s)));
+  const lineItem = (s, n, later) => {
+    const ps = stepParts(s), x = {main: ps[0] ? ps[0].main : clean(s), detail: ps.slice(1).map(q => q.main).concat(ps[0] && ps[0].detail ? [ps[0].detail] : []).join(" · ")};
+    return checkItem(x, false, `data-tp="line" data-n="${n}"`).replace("<li class=\"", later ? "<li class=\"later " : "<li class=\"");
+  };
+  const nextList = r.next
+    ? `<ul class="tp-check">${stepParts(r.next).map((x, n) => checkItem(x, subDone(r).has(n), `data-tp="sub" data-n="${n}"`)).join("")}</ul>`
+    : '<div class="tp-next">No next step written yet</div>';
+  const idx = steps.map((s, n) => [s, n]);
+  if (!r.chunk) {
+    return `<label>Next step</label>${nextList}
+      ${steps.length ? `<details class="tp-after"${chat && chat.split ? " open" : ""}><summary>After that · ${steps.length} step${steps.length > 1 ? "s" : ""}</summary><ul class="tp-check">${idx.map(([s, n]) => lineItem(s, n, false)).join("")}</ul></details>` : ""}`;
+  }
+  const today = idx.filter(([s]) => inChunk(s)), later = idx.filter(([s]) => !inChunk(s));
+  const total = r.chunk.min ? ` · ${fmt(r.chunk.min)}${r.chunk.unest ? "+" : ""}` : "";
+  return `<div class="tp-today"><label>Today · ${r.chunk.total} step${r.chunk.total > 1 ? "s" : ""}${total}</label>${nextList}
+      ${today.length ? `<ul class="tp-check">${today.map(([s, n]) => lineItem(s, n, false)).join("")}</ul>` : ""}</div>
+    ${later.length ? `<details class="tp-after tp-later"${chat && chat.split ? " open" : ""}><summary>Later · ${later.length} step${later.length > 1 ? "s" : ""}</summary><ul class="tp-check">${later.map(([s, n]) => lineItem(s, n, true)).join("")}</ul></details>` : ""}`;
+}
 function panelHead(r) {
   const steps = ((r.detail || {}).steps || []);
   const d = r.detail || {};
@@ -1713,14 +1763,7 @@ function panelHead(r) {
       ${d.dod ? `<div class="tp-dod">${esc(d.dod)}</div><div class="tp-acts">${d.dod_guess ? '<button class="link" data-tp="dodok">Confirm</button> · ' : ""}<button class="link" data-tp="dodedit">Edit</button></div>`
         : `<div class="tp-dod muted">None yet. Claude proposes one when it starts.</div><div class="tp-acts"><button class="link" data-tp="dodedit">Write one</button></div>`}</div>
     ${propLines(r)}
-    <div class="tp-sec tp-stepsec"><label>Next step</label>${r.next
-        ? `<ul class="tp-check">${stepParts(r.next).map((x, n) => checkItem(x, subDone(r).has(n), `data-tp="sub" data-n="${n}"`)).join("")}</ul>`
-        : '<div class="tp-next">No next step written yet</div>'}
-      ${steps.length ? `<details class="tp-after"${chat && chat.split ? " open" : ""}><summary>After that · ${steps.length} step${steps.length > 1 ? "s" : ""}</summary><ul class="tp-check">${steps.map((s, n) => {
-          const ps = stepParts(s), x = {main: ps[0] ? ps[0].main : clean(s), detail: ps.slice(1).map(q => q.main).concat(ps[0] && ps[0].detail ? [ps[0].detail] : []).join(" · ")};
-          const later = r.chunk && !r.chunk.steps.some(c => clean(c).replace(/\s*\(\d+\s*min\)\s*$/, "").trim() === clean(s).replace(/\s*\(\d+\s*min\)\s*$/, "").trim());
-          return checkItem(x, false, `data-tp="line" data-n="${n}"`).replace("<li class=\"", later ? "<li class=\"later " : "<li class=\"");
-        }).join("")}</ul></details>` : ""}
+    <div class="tp-sec tp-stepsec">${stepSections(r, steps)}
       ${r.task ? '<div class="tp-acts"><button class="link" data-tp="stepsedit">Edit steps</button></div>' : ""}</div>
     ${doneStepsHtml(d.done_steps)}
     <details class="tp-after tp-full"${fullOpen ? " open" : ""}><summary>Full details</summary>${detailBlock(r, true)}</details>
@@ -1760,7 +1803,7 @@ async function sendChat(text) {
   // Shown at once; the server's copy replaces it on the next paint.
   const log = document.getElementById("clog");
   const hidden = !!c.hiddenNext; c.hiddenNext = false;
-  const echo = imgs.length ? `<div class="cpics">${imgs.map(x => `<img class="cpic" src="${esc(x.url)}" alt="Screenshot">`).join("")}</div>` + (text ? `<div class="ctext">${esc(text)}</div>` : "") : esc(text);
+  const echo = imgs.length ? `<div class="cpics">${imgs.map(x => x.pdf ? pdfChip(x.url) : `<img class="cpic" src="${esc(x.url)}" alt="Screenshot">`).join("")}</div>` + (text ? `<div class="ctext">${esc(text)}</div>` : "") : esc(text);
   if ((text || imgs.length) && !hidden) log.insertAdjacentHTML("beforeend", `<div class="msg you in">${echo}</div>`);
   if (!c.busy) log.insertAdjacentHTML("beforeend", `<div class="msg claude thinking in"><span class="dots"><i></i><i></i><i></i></span><span>Thinking…</span></div>`);
   syncSend();
@@ -1785,14 +1828,30 @@ function paintThumbs() {
   if (!box) return;
   const imgs = (chat && chat.images) || [];
   box.classList.toggle("on", imgs.length > 0);
-  box.innerHTML = imgs.map((x, n) => `<div class="cthumb${x.path ? "" : " up"}"><img src="${esc(x.local || x.url)}" alt=""><button data-chat="imgdrop" data-n="${n}" aria-label="Remove">×</button></div>`).join("");
+  box.innerHTML = imgs.map((x, n) => `<div class="cthumb${x.path ? "" : " up"}">${x.pdf ? `<div class="cpdf"><b>PDF</b>${esc(x.pdf)}</div>` : `<img src="${esc(x.local || x.url)}" alt="">`}<button data-chat="imgdrop" data-n="${n}" aria-label="Remove">×</button></div>`).join("");
   syncSend();
+}
+// PDFs (Nov 3, the owner: "Yes, add PDFs") ride with the screenshots: same route, same 4 per
+// message; the vault file keeps its own name after the date, which the thread shows.
+const PDF_MAX = 12 * 1024 * 1024;
+const isPdfFile = f => f.type === "application/pdf" || (!f.type && /\.pdf$/i.test(f.name || ""));
+function pdfLabel(u) {
+  const m = /[?&]p=([^&]+)/.exec(u || "");
+  const rel = m ? decodeURIComponent(m[1]) : "";
+  return /\.pdf$/i.test(rel) ? rel.split("/").pop().replace(/^\d{4}-\d\d-\d\d \d{6} /, "") : "";
+}
+function pdfChip(u) {
+  return `<a class="cpdfl" href="${esc(u)}" target="_blank" rel="noopener"><b>PDF</b>${esc(pdfLabel(u) || "Document")}</a>`;
 }
 async function shrinkImage(file) {
   if (file.size <= IMG_KEEP && /^image\/(png|jpeg|webp|gif)$/.test(file.type)) return file;
   const url = URL.createObjectURL(file);
   try {
-    const im = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = url; });
+    // Chrome cannot decode HEIC (iPhone photos AirDropped to the Mac, Nov 3), so say what to do
+    const im = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i);
+      i.onerror = () => bad(new Error(/hei[cf]/i.test(file.type + file.name)
+        ? "HEIC cannot be read here, export it as JPEG first" : "could not read " + (file.name || "the image")));
+      i.src = url; });
     const k = Math.min(1, IMG_SIDE / Math.max(im.naturalWidth, im.naturalHeight));
     const cv = document.createElement("canvas");
     cv.width = Math.round(im.naturalWidth * k); cv.height = Math.round(im.naturalHeight * k);
@@ -1804,20 +1863,27 @@ async function addImages(files) {
   const c = chat;
   if (!c) return;
   c.images = c.images || [];
-  for (const f of Array.from(files || []).filter(f => /^image\//.test(f.type))) {
-    if (c.images.length >= 4) { toast("Up to 4 screenshots per message"); break; }
-    const item = {local: URL.createObjectURL(f)};
+  // A PDF or other file was dropped without a word (Nov 3, "uploading files from mac does not
+  // work"): name what was left out instead.
+  const ok = f => /^image\//.test(f.type) || isPdfFile(f);
+  const all = Array.from(files || []), skip = all.filter(f => !ok(f));
+  if (skip.length) toast(`Could not attach ${skip.map(f => f.name || "that file").join(", ")}: only images and PDFs`);
+  for (const f of all.filter(ok)) {
+    if (c.images.length >= 4) { toast("Could not attach more: up to 4 files per message"); break; }
+    const pdf = isPdfFile(f);
+    if (pdf && f.size > PDF_MAX) { toast(`Could not attach ${f.name}: over 12 MB`); continue; }
+    const item = pdf ? {pdf: (f.name || "Document").replace(/\.pdf$/i, "")} : {local: URL.createObjectURL(f)};
     c.images.push(item); if (chat === c) paintThumbs();
     try {
-      const blob = await shrinkImage(f);
-      const res = await fetch(base + "api/chat/image", {method: "POST", body: blob,
-        headers: {"x-init-data": initData, "content-type": blob.type || "image/jpeg"}});
+      const blob = pdf ? f : await shrinkImage(f);
+      const res = await fetch(base + "api/chat/image" + (pdf ? "?name=" + encodeURIComponent(f.name || "") : ""), {method: "POST", body: blob,
+        headers: {"x-init-data": initData, "content-type": pdf ? "application/pdf" : (blob.type || "image/jpeg")}});
       const j = await res.json().catch(() => ({}));
       if (res.status === 403 && !inTg) { location.href = base + "login"; return; }
       if (!res.ok) throw new Error(j.error || res.status);
       item.path = j.path; item.url = j.url;
     } catch (e) {
-      toast("Screenshot failed: " + e.message);
+      toast((pdf ? "PDF" : "Screenshot") + " failed: " + e.message);
       c.images = c.images.filter(x => x !== item);
     }
     if (chat === c) paintThumbs();
@@ -1825,19 +1891,23 @@ async function addImages(files) {
 }
 function pickImages() {
   const f = document.createElement("input");
-  f.type = "file"; f.accept = "image/*"; f.multiple = true;
+  f.type = "file"; f.accept = "image/*,application/pdf"; f.multiple = true;
   f.onchange = () => addImages(f.files);
   f.click();
 }
 document.addEventListener("paste", (e) => {
   if (!chat || !e.clipboardData || !e.target.closest || !e.target.closest("#ccomp")) return;
   const files = Array.from(e.clipboardData.items || []).filter(it => it.kind === "file").map(it => it.getAsFile()).filter(Boolean);
-  if (files.some(f => /^image\//.test(f.type))) { e.preventDefault(); addImages(files); }
+  if (files.length) { e.preventDefault(); addImages(files); }
 });
-document.addEventListener("dragover", (e) => { if (chat && e.target.closest && e.target.closest(".chat, .pchat")) e.preventDefault(); });
+// A file dropped on the dimmed area beside the chat (the Mac's wide window) made Chrome open it
+// and leave Carmen (Nov 3). Any file drop is caught; with a chat open it goes to the chat.
+const isFileDrag = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes("Files");
+document.addEventListener("dragover", (e) => { if (isFileDrag(e)) { e.preventDefault(); e.dataTransfer.dropEffect = chat ? "copy" : "none"; } });
 document.addEventListener("drop", (e) => {
-  if (!chat || !e.dataTransfer || !e.target.closest || !e.target.closest(".chat, .pchat")) return;
-  e.preventDefault(); addImages(e.dataTransfer.files);
+  if (!isFileDrag(e)) return;
+  e.preventDefault();
+  if (chat) addImages(e.dataTransfer.files); else toast("Could not attach: open a chat first");
 });
 
 // iPhone (Oct 31, the owner: "when i try to scroll chat down, instead the window scrolls down"):
@@ -1978,10 +2048,14 @@ function item(r, kind) {
     ? `<div class="acts small">${talkBtn(r)}<button data-a="edit">Edit</button></div>`
     : `${canDo(r)}<div class="acts small">${talkBtn(r)}<button data-a="edit">Edit</button>
         ${kind === "plan" ? "" : '<button data-a="swap" aria-label="Make this the one thing">★ One thing</button>'}</div>`;
+  // A card in the day's selection is an overview (Nov 3): its title and one line per step of
+  // today's chunk; the full Next line and the meditation note wait until the card is opened.
+  const ck = tab === "today" && kind !== "closed" && isSel(r) ? chunkBox(r) : "";
   return `<div class="item" data-id="${esc(r.id)}">
     <div class="top">
       <div class="body"><div class="title">${esc(r.title)}${kind === "pulled" ? ' <span class="by">added by you</span>' : ""}</div>
-        <div class="nx">${r.suggest ? esc(r.suggest) + " · " : ""}${r.est ? esc(r.est) + (r.next ? " · " : "") : ""}${md(stripDue(r.next || ""))}${dueIso(r.next) ? ` <span class="ddue">due ${dueLabel(dueIso(r.next))}</span>` : ""}</div>${mindLine(r)}${tab === "today" && kind !== "closed" && isSel(r) ? chunkBox(r) : ""}</div>
+        ${ck ? ck + `<div class="selmind">${mindLine(r)}</div>`
+          : `<div class="nx">${r.suggest ? esc(r.suggest) + " · " : ""}${r.est ? esc(r.est) + (r.next ? " · " : "") : ""}${md(stripDue(r.next || ""))}${dueIso(r.next) ? ` <span class="ddue">due ${dueLabel(dueIso(r.next))}</span>` : ""}</div>${mindLine(r)}`}</div>
       ${kind === "plan" ? "" : kind === "closed"
         ? `<div class="pair">${r.task ? '<button class="addpill txt ghost" data-a="reopen">Reopen</button>' : ""}</div>`
         : kind === "maybe-done"

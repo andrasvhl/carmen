@@ -51,6 +51,9 @@ IMAGE_MAX_BYTES = 12 * 1024 * 1024  # the page shrinks big photos first; a scree
 IMAGES_MAX = 4                      # per message
 IMAGE_DIR = Path("Attachments") / "Carmen"
 IMAGE_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
+# PDFs too (Nov 3, the owner: "Yes, add PDFs"). Claude reads them with Read; 12 MB is about 16 MB
+# of base64, inside the Agent SDK's 32 MB stream buffer (tg_bridge/agent.py MAX_BUFFER_BYTES).
+ATTACH_TYPES = {**IMAGE_TYPES, "application/pdf": "pdf"}
 VOICE_MAX_BYTES = 20 * 1024 * 1024   # Groq's upload cap is 25 MB; the page stops recording at 5 min
 
 
@@ -135,6 +138,15 @@ def resolve_vault_file(rel: str, vault: Path) -> Path | None:
         if p.is_file() and p.is_relative_to(root):
             return p
     return None
+
+
+def attach_stem(name: str) -> str:
+    """A PDF keeps its own name in the vault (Nov 3), so Claude and Obsidian see what it is: the
+    stem only, no path, no characters a vault path or a link would trip on, at most 80."""
+    stem = Path(str(name).replace("\\", "/")).name
+    stem = stem[:-4] if stem.lower().endswith(".pdf") else stem
+    stem = re.sub(r"[^\w .,()&+-]+", " ", stem).strip(" .")
+    return re.sub(r"\s+", " ", stem)[:80].strip() or "document"
 
 
 def chat_images(body: dict, vault: Path) -> list[str]:
@@ -1135,13 +1147,17 @@ def today_wins(day: dt.date) -> dict:
             mt = p.stat().st_mtime
             if mt < start:
                 break
-            key = (str(p), mt)
+            key = (str(p), mt, "v2")
             if key not in _WINS_LINES:   # read a note again only when it changed
-                _WINS_LINES[key] = [l for l in p.read_text(encoding="utf-8", errors="replace").splitlines()
-                                    if l.startswith("- ") and " · " in l]
-            lines = _WINS_LINES[key]
+                text = p.read_text(encoding="utf-8", errors="replace")
+                head = text.partition("\n---\n")[0]
+                closed = re.search(r"^completedDate:\s*(\d{4}-\d{2}-\d{2})", head, re.M)
+                _WINS_LINES[key] = ([l for l in text.splitlines() if l.startswith("- ") and " · " in l],
+                                    closed.group(1) if closed and re.search(r"^status:\s*done\s*$", head, re.M) else "")
+            lines, closed_on = _WINS_LINES[key]
         except OSError:
             continue
+        n_before = len(wins)
         for line in reversed(lines):
             if not line.startswith(pref):
                 continue
@@ -1164,6 +1180,11 @@ def today_wins(day: dt.date) -> dict:
                     said = said if len(said) <= 160 else said[:158].rsplit(" ", 1)[0] + " …"
                     if said:
                         wins.append({"t": said[:1].upper() + said[1:], "task": p.stem, "chat": True})
+        # Closed today however it was closed (Nov 3: a chat closed the sports medicine task
+        # after 16:00 PT and dated its log line by the box's UTC clock, Nov 4, so Progress
+        # missed it): completedDate is the record.
+        if closed_on == day.isoformat() and not any(w.get("big") and w["task"] == p.stem for w in wins[n_before:]):
+            wins.append({"t": "Finished the task", "task": p.stem, "big": True})
     # Cards with no note that he tapped Done on (do.free_done, Nov 3).
     try:
         from . import do as _dm
@@ -1296,6 +1317,27 @@ def _safe(fn, *args, where: str, default):
     except Exception as exc:
         log_event("error", where=where, detail=repr(exc)[:200])
         return default
+
+
+def attach_shorts(v: dict) -> None:
+    """v["shorts"]: {step as the page shows it: its one-line summary} for every step of the
+    Plan cards (Nov 3, the owner: "a quick overview in Today with one line / one sentence summary
+    of each step"). Same store and background model as Do's titles (shortsteps.py)."""
+    from . import shortsteps
+    store, out, longs = shortsteps._load(), {}, []
+    for r in all_rows(v, with_do=False):
+        for s in [r.get("next") or ""] + list((r.get("detail") or {}).get("steps") or []):
+            k = re.sub(r"\s*\(the owner[^)]*\)\s*$", "", s or "").strip()
+            if not k or k in out:
+                continue
+            body = re.sub(r"\s*\(\d+\s*min\)\s*$", "", re.sub(r"\s*\(due [^)]*\)", "", k)).strip()
+            short, final = shortsteps.short(body, store)
+            if short != body:
+                out[k] = short
+            if not final:
+                longs.append(body)
+    shortsteps.ensure(longs, log_event)
+    v["shorts"] = out
 
 
 def all_rows(view: dict, with_do: bool = True) -> list[dict]:
@@ -2217,6 +2259,10 @@ def make_app():
         v = await asyncio.to_thread(current_view)
         maybe_start_prep(v.get("generated", ""))
         try:
+            attach_shorts(v)
+        except Exception as exc:
+            log_event("error", where="attach_shorts", detail=str(exc)[:200])
+        try:
             attach_prep(v)
         except Exception as exc:
             log_event("error", where="attach_prep", detail=str(exc)[:200])
@@ -2926,7 +2972,10 @@ def make_app():
                                            prompt_text=frame_transcript(text), voice=True), secret))
             if images:
                 from urllib.parse import quote
-                said = "\n".join(f"[the owner attached a screenshot, saved at {rel} (absolute: "
+                said = "\n".join(f"[the owner attached a PDF, saved at {rel} (absolute: {config.VAULT / rel}). "
+                                 "Read it to see it; past 10 pages Read needs a pages range.]"
+                                 if rel.lower().endswith(".pdf") else
+                                 f"[the owner attached a screenshot, saved at {rel} (absolute: "
                                  f"{config.VAULT / rel}). Read it to see it.]" for rel in images)
                 links = ["obsidian://open?vault=<VAULT_NAME>&file=" + quote(rel, safe="") for rel in images]
                 return JSONResponse(link_vault_files(h.send(key, title, text, context=context, test=dry, kind=kind,
@@ -2943,9 +2992,9 @@ def make_app():
         bridge's naming; the message that carries it hands Claude the path, as Telegram does."""
         if not authed(req):
             return JSONResponse({"error": "unauthorised"}, status_code=403)
-        ext = IMAGE_TYPES.get(req.headers.get("content-type", "").split(";")[0].strip().lower())
+        ext = ATTACH_TYPES.get(req.headers.get("content-type", "").split(";")[0].strip().lower())
         if not ext:
-            return JSONResponse({"error": "only images can be attached"}, status_code=415)
+            return JSONResponse({"error": "only images and PDFs can be attached"}, status_code=415)
         data = await req.body()
         if not data:
             return JSONResponse({"error": "empty image"}, status_code=400)
@@ -2955,6 +3004,10 @@ def make_app():
         folder = config.VAULT / IMAGE_DIR / now.strftime("%Y-%m")
         folder.mkdir(parents=True, exist_ok=True)
         base_name = f"{now.strftime('%Y-%m-%d %H%M%S')} screenshot"
+        if ext == "pdf":
+            if not data.startswith(b"%PDF"):
+                return JSONResponse({"error": "not a PDF"}, status_code=415)
+            base_name = f"{now.strftime('%Y-%m-%d %H%M%S')} {attach_stem(req.query_params.get('name', ''))}"
         path, n = folder / f"{base_name}.{ext}", 2
         while path.exists():
             path, n = folder / f"{base_name} {n}.{ext}", n + 1

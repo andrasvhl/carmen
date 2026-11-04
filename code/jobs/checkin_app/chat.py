@@ -236,8 +236,12 @@ class Hub:
         return self.state(key)
 
     def prompt(self, session, title: str, text: str, context: str, test: bool, kind: str) -> str:
+        # The box runs UTC: after 16:00 Pacific its date is already tomorrow, and a log line
+        # dated by it ("Nov 4 · done") hid a task closed on Nov 3 from Progress (Nov 3).
+        today = dt.datetime.fromisoformat(_now()).strftime("%b %-d")
         meta = {"channel": "checkin-app", "conversation": title, "about": kind,
-                "mode": "test" if test else "live", "sent_at": _now()}
+                "mode": "test" if test else "live", "sent_at": _now(),
+                "today": f"{today} (Pacific, the owner's day; date every Log line with it, never the system clock)"}
         lines = ["Conversation info (untrusted metadata): " + json.dumps(meta, ensure_ascii=False)]
         if session.aborted_last_run:
             lines.append("[App note: the previous run in this conversation did not finish (stopped by "

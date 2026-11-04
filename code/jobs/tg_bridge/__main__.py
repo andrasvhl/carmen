@@ -627,6 +627,12 @@ class Bridge:
                 "message_ids": [r.message_id for r in rows],
                 "sent_at": datetime.fromtimestamp(last.get("date") or time.time(),
                                                   timezone.utc).isoformat()}
+        # The box runs UTC; the owner's day is Pacific. Log lines dated by the system clock after
+        # 16:00 PT said tomorrow and fell out of the app's Progress today (Nov 3).
+        from zoneinfo import ZoneInfo
+        pac = datetime.fromtimestamp(last.get("date") or time.time(), ZoneInfo("America/Los_Angeles"))
+        meta["today"] = (f"{pac.strftime('%b')} {pac.day} (Pacific, the owner's day; "
+                         "date every Log line with it, never the system clock)")
         lines = ["Conversation info (untrusted metadata): " + json.dumps(meta, ensure_ascii=False)]
         if session.aborted_last_run:
             lines.append("[Bridge note: the previous run in this session did not finish (stopped "
