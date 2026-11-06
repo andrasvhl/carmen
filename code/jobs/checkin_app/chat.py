@@ -24,6 +24,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import re
 import secrets
 import time
 from pathlib import Path
@@ -70,9 +71,33 @@ your working directory; the MacBook may be off.
   there; what someone else does stays in the body or a `Waiting:` line, and Waiting replaces
   the Next only when nothing of his own is open. A line carrying `(the owner` is his: propose a
   change in the chat, do not rewrite it.
+- Step lines are data (Nov 4, `tools/steps.py`): ONE action per line, never two joined by "; if
+  not" or ", then" (write a second Then line instead). After the words come, in this order: the
+  estimate `(10 min)`, a deadline `📅 YYYY-MM-DD` when the step has its own, and the line's ID
+  `^sxxxx`. Edit a line in place and keep its `📅` and `^sxxxx` exactly; never copy an ID onto a
+  new line (a new line gets none, the app adds it). Never write `(due Nov 12)`. Ticking is
+  `- [x]`; the app adds the `✅` date.
+- To tick or discard one step, prefer `vt step done <task> <sid>` / `vt step discard <task> <sid>`
+  (`vt step list <task>` shows the open steps and their IDs; <task> is the note's name or its
+  task_id). It makes the same change his Done or × makes, and the step history records that you
+  did it. Rewording or adding steps stays a normal edit of the block.
 - Replies are read in a chat sheet on his phone: short, plain, no tables.
 - Claude Code's scheduling tools are unavailable here. Scheduling lives in ~/automation timers.
 - Never print secrets into a reply."""
+
+
+
+def _contract_rules() -> str:
+    """The step contract for the chat (Tasks v2, Nov 6), once its flag is on: one rules source,
+    tasks/contract.py, for the chat, the estimator and the card."""
+    from .adapters import flags
+    if not flags.on("contract"):
+        return ""
+    from .tasks import contract
+    return "\n- The step contract (Carmen checks every step against it):\n  " + contract.RULES.replace("\n", "\n  ")
+
+
+CHANNEL += _contract_rules()
 
 TEST_CHANNEL = CHANNEL + """
 
@@ -146,7 +171,8 @@ def recover() -> int:
 
 def note_state(key: str) -> dict | None:
     """The task note's fields before a live turn (checkin_app._snapshot), or None for a plan."""
-    from . import _snapshot, _task_file
+    from .talk import _snapshot
+    from .adapters.notes import _task_file
     if not key.startswith("task:"):
         return None
     p = _task_file(key.split(":", 1)[1])
@@ -157,15 +183,46 @@ def log_chat_delta(key: str, title: str, before: dict | None, t0: float, n: int)
     """After every live turn (Oct 31): what Claude changed in the task, and which other notes it
     wrote (a new task, a tax record), so each reply is tied to what it did. The one-off
     talk_delta only saw the first change after Talk was opened."""
-    from . import _snapshot, _task_file, log_event
+    from .talk import _snapshot
+    from .adapters.notes import _task_file
+    from .adapters.taplog import log_event
     own = _task_file(key.split(":", 1)[1]) if key.startswith("task:") else None
     delta = {}
     if before is not None:
         after = _snapshot(own) if own else {"status": "missing"}
         delta = {k: [before.get(k), after.get(k)] for k in after if before.get(k) != after.get(k)}
+        # Steps Claude ticked in this turn (Nov 5): Do does not count them as his (do.claude_ticked).
+        try:
+            # by id, else by text: a line a chat wrote has no ^id until the next sweep (Nov 5, runs task)
+            k = lambda x: x.get("id") or " ".join(str(x.get("text", "")).lower().split())
+            was = {k(x): x["state"] for x in before.get("step_states") or []}
+            ticked = [{"id": x.get("id") or "", "text": x["text"]} for x in after.get("step_states") or []
+                      if x["state"] == "done" and was.get(k(x)) == "open"]
+            if ticked and key.startswith("task:"):
+                from .planning import do as dmod
+                dmod.claude_ticked(key.split(":", 1)[1], ticked)
+        except Exception as exc:   # a layer on top; the delta log must not fail on it
+            log_event("error", where="claude ticks", detail=repr(exc)[:200])
     touched = sorted(str(p.relative_to(config.VAULT)) for p in config.VAULT.rglob("*.md")
                      if p.stat().st_mtime >= t0 - 1 and p != own and ".obsidian" not in p.parts
                      and not str(p.relative_to(config.VAULT)).startswith(("_system/claude/memory", ".")))
+    notes = [own] if own else []
+    notes += [config.VAULT / r for r in touched if r.startswith("Inbox/") and r.count("/") == 1]
+    for p in notes:
+        try:
+            from tools import steps as S
+            text = p.read_text(encoding="utf-8")
+            if p != own and not re.search(r"^type:\s*action\s*$", text.partition("\n---\n")[0], re.M):
+                continue
+            # The steps as last seen, before this turn (Tasks v2): the estimator re-estimates what
+            # the chat left open when the chat changed the steps.
+            prev = (S.load_snap(S._task_key(text, p.stem)) or {}).get("steps")
+            S.observe(p, "chat")
+            S.settle(p, "chat", prev)   # compares and swaps itself: changed meanwhile, the 08:00 sweep has it
+        except Exception as exc:   # the history is a layer on top
+            if type(exc).__name__ == "NoteChanged":   # written again meanwhile: the 08:00 sweep adds them
+                continue
+            log_event("error", where="steps after chat", detail=repr(exc)[:200])
     if delta or touched:
         log_event("signal", signal="chat_delta", key=key, id=key.split(":", 1)[1], title=title, delta=delta,
                   touched=touched[:20], turn=n, test=False, claude={})
@@ -173,6 +230,17 @@ def log_chat_delta(key: str, title: str, before: dict | None, t0: float, n: int)
 
 class Busy(Exception):
     pass
+
+
+def auto_allowed(tool_name: str, tool_input: dict) -> bool:
+    """Writes the live chat makes without an Allow once card (owner decision, Nov 4: "i dont want to
+    approve for calendar block creation it should auto approve"): creating a calendar event that
+    invites nobody, so nothing reaches anyone else. Moving or deleting events, and any event with
+    guests, still ask. Only the live pool's approver calls this; test mode refuses every write."""
+    if not tool_name.startswith("mcp__") or tool_name.rsplit("__", 1)[-1] != "create_event":
+        return False
+    guests = (tool_input or {}).get("attendees") or (tool_input or {}).get("attendeeEmails")
+    return not guests
 
 
 class Hub:
@@ -324,7 +392,7 @@ class Hub:
                 task.add_done_callback(self._tasks.discard)
             # Claude's side of the exchange, next to his chat_message signals, so a later read of
             # the log sees what Claude answered and did (the tools it ran), not only his words.
-            from . import log_event
+            from .adapters.taplog import log_event
             log_event("chat", key=key, id=key.split(":", 1)[1], title=title, test=test, ok=ok, role=role,
                       chars=len(reply), reply=reply[:1500], tools=tools[:30])
             if not test:
@@ -346,6 +414,10 @@ class Hub:
         if not key:
             return False, "Denied: no conversation to ask in."
         shown, why = describe(tool_name, tool_input)
+        if auto_allowed(tool_name, tool_input):
+            log(f"checkin_app chat: {tool_name} allowed without a tap (a calendar block, no guests)")
+            self._signal("chat_auto_allowed", key, tool_name, shown, why)
+            return True, ""
         if not shown.strip():
             return False, "Empty request, denied."
         if unsafe_characters(shown):
@@ -382,7 +454,7 @@ class Hub:
 
     def _signal(self, name: str, key: str, tool: str, shown: str, why: str) -> None:
         """An Allow once or Deny on something Claude wanted to do: the clearest agree or disagree."""
-        from . import log_event
+        from .adapters.taplog import log_event
         log_event("signal", signal=name, id=key.split(":", 1)[1], title=load(key).get("title", ""), key=key,
                   tool=tool, shown=shown[:400], why=why[:200], test=False, claude={})
 

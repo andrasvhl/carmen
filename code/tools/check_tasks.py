@@ -53,6 +53,8 @@ NEXT_OPEN = re.compile(r"^- \[ \] Next:", re.M)
 STEP_EST = re.compile(r" \(\d+(?:\.\d+)? (?:min|h)\)\s*$")
 STEP_EST_ANY = re.compile(r"\(\s*~?\d+(?:[.,]\d+)?\s*(?:m|mins?|minutes?|h|hrs?|hours?)\s*\)\s*$", re.I)
 THEN_OPEN = re.compile(r"^- \[ \] Then:", re.M)
+STEP_FIELDS = re.compile(r"(?:\s+(?:📅|✅)\s*\d{4}-\d{2}-\d{2}|\s+\^[A-Za-z0-9-]+)+\s*$")
+STEP_DUE_OLD = re.compile(r"\(due (?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\w*,?\s+)?[A-Z][a-z]{2}\w*\.?\s+\d{1,2}\)")
 WAIT_OPEN = re.compile(r"^- \[ \] Waiting:", re.M)
 LOG_LINE = re.compile(r"^- [A-Z][a-z]{2} \d{1,2} ·")
 DOD = re.compile(r"^DoD( \(Claude's guess\))?: \S.*$")
@@ -173,10 +175,18 @@ def check(text: str, keys: set[str] | None, today: str | None = None,
 
     # Step estimates live inline at the end of a Next or Then line, exactly "(N min)" or "(N h)"
     # (owner decision, 2026-10-12): plan-today reads them for the two-minute page and writes them back.
+    # Since Nov 4 a step's fields follow it (tools/steps.py): `📅 YYYY-MM-DD` (its deadline),
+    # `✅ YYYY-MM-DD` (done), ` ^sxxxx` (its ID). The estimate comes right before them.
     for line in re.findall(r"^- \[ \] (?:Next|Then):.*$", block, re.M):
-        if STEP_EST_ANY.search(line) and not STEP_EST.search(line):
-            errors.append(f"step estimate must read `(N min)` or `(N h)` at the end of the line; "
-                          f"found {line.strip()[:80]!r}")
+        core = STEP_FIELDS.sub("", line)
+        if STEP_EST_ANY.search(core) and not STEP_EST.search(core):
+            errors.append(f"step estimate must read `(N min)` or `(N h)` right after the step, "
+                          f"before any 📅 / ^id; found {line.strip()[:80]!r}")
+            break
+    for line in re.findall(r"^- \[[ x]\] .*$", block, re.M):
+        if STEP_DUE_OLD.search(line):
+            errors.append(f"a step deadline is written `📅 YYYY-MM-DD` after the estimate, not "
+                          f"`(due …)`; found {line.strip()[:80]!r}")
             break
 
     if status not in CLOSED:
@@ -296,6 +306,17 @@ def _hook() -> int:
     text = path.read_text(errors="ignore")
     if not is_task(text):
         return 0
+    # Every step gets its ^sxxxx id right after any Claude edit, whoever made it (owner decision, Nov 5:
+    # "steps should always have IDs, independently from where they are changed from"). Only ids
+    # are added (tools/steps.py normalize, the 08:00 sweep's function); a layer on top, so a
+    # failure never breaks the session.
+    try:
+        from tools import steps as S
+        fixed = text if S.is_template(path) else S.normalize(text)   # a template gets no ids (Nov 6)
+        if fixed != text:
+            text = S.write(path, text, "hook", before=text)
+    except Exception:
+        pass
     errors, questions = check(text, registered_keys(find_vault(path)),
                               edit=_edit_parts(tool_input))
     if errors:

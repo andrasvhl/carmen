@@ -80,6 +80,7 @@ import re
 import secrets
 import sys
 import subprocess
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -588,6 +589,8 @@ Every slot a draft offers also goes into its msg as "slots": [{{"start":
 times in America/Los_Angeles, the length from DURATIONS. The page shows them and
 Claude puts a hold in the calendar for each once he sends the message.
 Never write "(draft ready)" or similar into nx or n: the panel shows the draft.
+A step that needs a click (a form, a payment page, a booking, a document) carries its
+full https:// link in nx, so the panel opens it in one tap; never only the site's name.
 Set ch only where you are confident Claude can do the task alone, per the
 skill's "Let Claude handle this" rule: a list of distinct actions, one per thing,
 each {{"t": what exactly, "k": draft|vault|research|send|rsvp|delete, "msg":
@@ -637,7 +640,15 @@ before he sees the panel, so set them only when you are very certain:
   "Next:", "Then:" or "Waiting:", "new": the corrected line, same kind, without
   the prefix, or "" to strike it, "why": the message that settles it, as
   "Felix, Oct 13 19:01: \\"What about wed?\\""}}. A Next line always gets a new
-  one. A Waiting line whose wait is over gets new "" and gw 0 on the row; Python
+  one. A Waiting line is a step waiting on someone or something (Nov 5): "X · for: Y"
+  is the step Y waiting on X, and its new keeps " · for: Y" unchanged. A wait is over
+  when what it waits for happened, seen in any source, not only a reply: a Venmo,
+  Zelle, PayPal or bank mail that the money arrived, a calendar entry that the meeting
+  took place, a delivery or receipt mail, a signed document. A reply that only answers
+  part of it does not end it. A wait on several people met for some of them: rewrite
+  the line with " ✓" after each name met and the evidence in brackets ("Jose ✓ (Venmo
+  Nov 5), Mathi, Juanita · for: Get the padel money back"), and gw stays 1 until all
+  are met. A Waiting line whose wait is over gets new "" and gw 0 on the row; Python
   only strikes it when the task's waiting is not true, else Submit ends it. When
   you are not sure a message contradicts the line, leave rw out and set lc with
   the reason instead ("Felix may mean Wed Oct 21: check"). The row's nx, wf and
@@ -647,7 +658,10 @@ before he sees the panel, so set them only when you are very certain:
   "until Dec 4"), each {{"step": the line exactly as it stands after "Next:" or
   "Then:" (or after "- [ ] " for a plain step), "due": "YYYY-MM-DD"}}. Only a date the
   line itself states or plainly implies, never a guess; leave out lines that already
-  carry "(due ...)". It writes "(due Nov 13)" into that step line, which planning reads.
+  carry a "📅" date. It writes "📅 2026-11-13" into that step line, which planning reads.
+  Step lines end in fields: "(10 min)", "📅 YYYY-MM-DD" (deadline), "✅ YYYY-MM-DD" (done),
+  "^sxxxx" (the step's ID). Wherever you copy or write a step (nx, rw, td, sd, steps),
+  give its words only, without those fields; one action per step, never two joined.
 - ev: on a row tied to an existing task, the key (the "ev-..." last field of its
   calendar line) of the one event that task is about: the appointment it prepares
   for or happens at, the invite or party it answers ("Book and complete sports
@@ -770,7 +784,8 @@ def _oneline(s) -> str:
 
 
 def _norm(s: str) -> str:
-    s = re.sub(r"^(Next|Then):\s*", "", _oneline(s))
+    from tools.steps import clean   # the step's words only: no estimate, 📅, ✅ or ID (Nov 4)
+    s = clean(re.sub(r"^(Next|Then):\s*", "", _oneline(s)))
     return re.sub(r"[^\w]+", " ", s).strip().lower()
 
 
@@ -848,13 +863,14 @@ def _apply_one(text: str, r: dict, stamp: str) -> tuple[str, list[str]]:
             dd = date.fromisoformat(due)
         except ValueError:
             continue
-        mark = f"(due {dd.strftime('%b')} {dd.day})"
+        from tools import steps as S
         for k, l in enumerate(lines):
             s = STEP_LINE.match(l)
-            if not s or _norm(s.group(1)) != _norm(want) or "(due " in l:
+            st = S.parse_line(l)
+            if not s or not st or st.due or _norm(s.group(1)) != _norm(want):
                 continue
-            m = re.search(r"\s*\(\d+\s*min\)\s*$", l)
-            lines[k] = (l[:m.start()] + f" {mark}" + l[m.start():]) if m else f"{l.rstrip()} {mark}"
+            st.due = dd.isoformat()   # the 📅 field on the step's own line
+            lines[k] = S.format_line(st)
             changes.append(f"step due {due}")
             break
     blk = _next_block(lines, 0)
@@ -966,9 +982,10 @@ def _apply_one(text: str, r: dict, stamp: str) -> tuple[str, list[str]]:
     return out, changes
 
 
-def apply_to_tasks(d: dict, now: datetime, dry_run: bool) -> list[str]:
+def apply_to_tasks(d: dict, now: datetime, dry_run: bool, skip: set | None = None) -> list[str]:
     """Write the Current context block, ticked sub-steps and very certain next
-    steps into the task notes the rows name. Never frontmatter (owner decision, 2026-10-07)."""
+    steps into the task notes the rows name. Never frontmatter (owner decision, 2026-10-07).
+    skip: notes changed while the model was judging (Nov 6): its judgment is about the old text."""
     out = subprocess.run([str(VT), "todos", "--json"], capture_output=True, text=True,
                          timeout=120, check=True).stdout
     paths = {t["name"]: Path(t["path"]) for t in json.loads(out)["all"]}
@@ -988,6 +1005,9 @@ def apply_to_tasks(d: dict, now: datetime, dry_run: bool) -> list[str]:
             if p.parent != inbox or not p.exists():
                 continue
             done.add(key)
+            if skip and p.stem in skip:
+                report.append(f"{key}: skipped, changed during the run")
+                continue
             text = p.read_text(encoding="utf-8")
             new, changes = _apply_one(text, r, stamp)
             if new == text or not changes:
@@ -1000,7 +1020,8 @@ def apply_to_tasks(d: dict, now: datetime, dry_run: bool) -> list[str]:
                 (WORK / "dry-run").mkdir(parents=True, exist_ok=True)
                 (WORK / "dry-run" / p.name).write_text(new, encoding="utf-8")
             else:
-                p.write_text(new, encoding="utf-8")
+                from tools import steps as S   # the step history records what the pre-run changed
+                S.write(p, new, "pre-run", before=text)
     return report
 
 
@@ -1017,6 +1038,13 @@ def main() -> int:
             sources["task_ids_added"] = taskids.sweep()[0]
         except Exception as e:  # noqa: BLE001 - never stops the pre-run
             sources["task_ids_added"] = f"FAILED: {e}"[:120]
+
+        try:   # step lines (Nov 4): fields and IDs on lines a chat or he wrote, changes logged
+            from tools import steps as S
+            res = S.sweep(sorted((config.VAULT / "Inbox").glob("*.md")), today, dry=job.dry_run)
+            sources["steps_normalized"] = res["normalized"]
+        except Exception as e:  # noqa: BLE001 - never stops the pre-run
+            sources["steps_normalized"] = f"FAILED: {e}"[:120]
 
         tasks = panel_tasks(today)
         sources["tasks"] = len(tasks)
@@ -1096,20 +1124,58 @@ def main() -> int:
         job.record("input chars", len(data))
 
         try:
+            ask_start = time.time()
             d = _parse(ask(prompt, timeout=ASK_TIMEOUT, model=MODEL, cwd=WORK, data=data))
+            # Notes he or a chat changed during the model call (up to 20 min): the model judged the
+            # old text, so the run writes nothing into them and closes none of them (Nov 6).
+            changed_meanwhile = {q.stem for q in (config.VAULT / "Inbox").glob("*.md")
+                                 if q.stat().st_mtime > ask_start}
+            job.record("changed during the run", len(changed_meanwhile))
             d["rows"] = [g for g in d["rows"] if g[0] in GROUPS] or d["rows"]
             # Which entry the meditation group was built from, so the check-in app and the
             # Mac panel use these rows only while the entry is unchanged (journal_sig in
             # plan-today's build_panel.py computes the same).
             d["journal"] = {"date": today.isoformat(), "sig": journal_sig(journal)} if journal else {}
+            # Every Carmen card is a task note (owner decision, Nov 4): a new row gets its note now,
+            # through tools.todos so it carries a task_id; Carmen's notes he never touched and
+            # this run no longer carries are cancelled (cardnotes.sweep).
+            try:
+                from jobs.checkin_app.tasks import cardnotes
+                made = cardnotes.attach(d["rows"], "pre-run", dry=job.dry_run, today=today)
+                job.record("card notes", json.dumps(made))
+                carried = {r.get("lk") for _, rows in d["rows"] for r in rows if isinstance(r, dict) and r.get("lk")}
+                busy = set()
+                try:
+                    from jobs.checkin_app.planning import do as _do
+                    dd = _do._load()["days"]
+                    for k in (today.isoformat(), (today - timedelta(days=1)).isoformat()):
+                        e = dd.get(k) or {}
+                        busy |= set(e.get("ids") or []) | set(e.get("carried") or {})
+                except Exception:  # noqa: BLE001 - without it nothing on a Do list is swept
+                    busy = None
+                if busy is not None:
+                    swept = cardnotes.sweep(carried, today, dry=job.dry_run, busy=busy)
+                    job.record("card notes not picked up", len(swept))
+            except Exception as e:  # noqa: BLE001 - the page still gets written; first taps create notes
+                job.record("card notes", f"FAILED: {e}"[:200])
             n_rows = sum(len(g[1]) for g in d["rows"])
             job.record("rows", n_rows)
             try:
-                applied = apply_to_tasks(d, now, job.dry_run)
+                applied = apply_to_tasks(d, now, job.dry_run, skip=changed_meanwhile)
             except Exception as e:  # noqa: BLE001 - the page still gets written
                 applied = [f"task writes failed: {e}"]
             d["applied"] = applied
             job.record("tasks written", len(applied))
+            # Plainly over and done closes by itself, with Undo in Do's Done fold (Nov 4).
+            try:
+                from jobs.checkin_app.tasks import autoclose
+                from jobs.checkin_app.adapters.notes import task_path
+                from jobs.checkin_app.adapters.taplog import log_event
+                closed = autoclose.run(d["rows"], today, "pre-run", task_path, log_event, dry=job.dry_run,
+                                       skip=changed_meanwhile)
+                job.record("auto-closed", len(closed))
+            except Exception as e:  # noqa: BLE001 - a nicety; the page still gets written
+                job.record("auto-closed", f"FAILED: {e}"[:200])
             if applied:
                 d.setdefault("notes", []).append(
                     f"The pre-run wrote to {len(applied)} task notes (context, ticked steps, "
@@ -1124,7 +1190,11 @@ def main() -> int:
                     log(f"  {line}")
             else:
                 PAGE.parent.mkdir(parents=True, exist_ok=True)
-                PAGE.write_text(page, encoding="utf-8")
+                # Atomic (Nov 6): Carmen reads this page on every view, and a half-written one
+                # showed an empty day.
+                tmp_page = PAGE.with_name(PAGE.name + ".tmp")
+                tmp_page.write_text(page, encoding="utf-8")
+                tmp_page.replace(PAGE)
             ok, detail = True, f"{n_rows} rows written"
         except (AskFailed, ValueError, OSError) as e:
             ok, detail = False, (f"model pass failed: {e}. The morning session falls back to "

@@ -1,5 +1,5 @@
 {
- "version": "1.1.4",
+ "version": "1.1.7",
  "released": "2026-10-30",
  "phases": [
   {
@@ -30,10 +30,152 @@
  ],
  "entries": [
   {
+   "date": "2026-11-06",
+   "display_date": "Nov 6, 2026",
+   "title": "Maintenance",
+   "summary": "Every next step on a task is now checked for clarity. Vague ones show \"unclear step · sharpen?\" on the card, and steps are capped at 30 minutes so each one is doable. Time estimates now appear on every step. They learn from how long things actually took you and from your feedback, so they get more accurate the more you use them. Old open tasks get a one-time cleanup. For each one the app suggests a sharper step and asks whether to Keep it, Close it or mark it as Not a task. Nothing changes until you approve. The Do card is redesigned. Today's outcome is the headline, today's steps are bullets, and Start and Continue are back on the main button. Progress, Waiting and Done always show, even at 0. A task that is due today no longer lands in Do unless you put it there. Steps that need sharpening now sit in one review list in the Claude tab, newest first. Task notes no longer overwrite each other when two edits happen at the same time.",
+   "for_you": [
+    "Every next step on a task is now checked for clarity. Vague ones show \"unclear step · sharpen?\" on the card, and steps are capped at 30 minutes so each one is doable.",
+    "Time estimates now appear on every step. They learn from how long things actually took you and from your feedback, so they get more accurate the more you use them.",
+    "Old open tasks get a one-time cleanup. For each one the app suggests a sharper step and asks whether to Keep it, Close it or mark it as Not a task. Nothing changes until you approve.",
+    "The Do card is redesigned. Today's outcome is the headline, today's steps are bullets, and Start and Continue are back on the main button. Progress, Waiting and Done always show, even at 0. A task that is due today no longer lands in Do unless you put it there.",
+    "Steps that need sharpening now sit in one review list in the Claude tab, newest first. Task notes no longer overwrite each other when two edits happen at the same time."
+   ],
+   "system": [
+    "Task notes now use compare-and-swap on every write. If a note changed since it was read, the write is refused, so concurrent edits are never silently lost.",
+    "The step sweep now also compares before it replaces. A note written in the meantime is left alone and picked up by the next sweep.",
+    "A step contract is checked on every write path. Steps must be timeboxed and concrete. Steps that fail are flagged on the card and recorded with how they were found.",
+    "One estimator now serves every write path. Rules give an instant estimate when a note is written, and a small AI model refines it about a minute later.",
+    "Estimates count friction and have a 10 minute floor. The model calibrates on your real minutes, read live from your feedback, and picks examples by similarity from all past answers.",
+    "Actual time is now derived from each step's history. A one-tap check confirms it, and calibration is computed when estimates are read, not stored ahead of time.",
+    "Today's chunk is frozen when you commit to it, with an outcome line. The Do card keeps that plan and never re-ranks tasks on its own.",
+    "At the day turn, left-over tasks are re-estimated and a fresh piece of work is proposed for each.",
+    "A backfill proposes a step cleanup for each open task, which you approve, keep, close or mark as not a task inside the app.",
+    "Two rounds of estimator tuning: German verbs, a needs-context rule, book steps at 15 minutes, a Not a task option, two actions per step only with a separate problem, judging clutter instead of length, and no links or dates inside the step.",
+    "The review list moved to the Claude tab with a Fine option. It shows today's chunks with their feedback and the steps grouped under them, newest first and dated, gives reasons in words, and leaves out templates and empty steps.",
+    "Per-step feedback from the review list now forms a golden set for judging estimate quality. The feedback panel is restored, gets a Close button, and refuses an empty Save.",
+    "Do card layout reworked several times: the task on top, the work as the title, chips and labels at the bottom, the estimate and time left open as plain grey text, and the due date as the one small tag.",
+    "Templates no longer receive ids. The sweep, the edit hook and the task id sweep all skip template files.",
+    "The note cache key now includes feature flags, so switching a flag on takes effect immediately instead of serving stale cards.",
+    "The contract card counts a missing estimate as unclear only while the estimator is switched on.",
+    "The app's internals were split into clear modules. Web plumbing, the app factory and routes, per-module action handlers driven by a card and row table, and estimates were each separated out.",
+    "A new module boundary test suite checks imports, package entry points, dispatcher scope, and that Do never re-ranks. It runs in the deploy gate.",
+    "Release notes moved out of the app to the public site. A deploy check was added that refuses a deploy without release notes.",
+    "Restored the execute permission on the command-line tool. Losing it had made a scheduled morning pre-run fail."
+   ],
+   "changes": 39,
+   "source": "git"
+  },
+  {
+   "date": "2026-11-05",
+   "display_date": "Nov 5, 2026",
+   "title": "Maintenance",
+   "summary": "New Goals tab: see your coming week against your goals, edit it directly, and every change is logged. Steps you tick or finish in a chat with Claude now show up in Do just like your own taps, and a reply no longer closes a task that still has work left. Daily planning is more complete: tasks left open yesterday are pre-selected, nothing gets silently cut, anything left out is named, and the plan is checked against what is scheduled or due today. One clear number for the time you have left today, with the Focus block shown as part of it. More reliable overall: renamed notes keep their history and chat, reworded steps stay linked, errors reach your phone, and links on the page are always clickable.",
+   "for_you": [
+    "New Goals tab: see your coming week against your goals, edit it directly, and every change is logged.",
+    "Steps you tick or finish in a chat with Claude now show up in Do just like your own taps, and a reply no longer closes a task that still has work left.",
+    "Daily planning is more complete: tasks left open yesterday are pre-selected, nothing gets silently cut, anything left out is named, and the plan is checked against what is scheduled or due today.",
+    "One clear number for the time you have left today, with the Focus block shown as part of it.",
+    "More reliable overall: renamed notes keep their history and chat, reworded steps stay linked, errors reach your phone, and links on the page are always clickable."
+   ],
+   "system": [
+    "Every state file now changes under a single lock, and a page load only reads, so concurrent taps and chats can no longer overwrite each other.",
+    "Steps are identified by stable ids everywhere: assigned at task creation, by every writer, by the task hook on each Claude edit, and for notes a chat turn wrote.",
+    "Reading a note never writes it; a step contract test checks that every step can be found by its id.",
+    "A renamed note keeps its state and chat, and reworded steps keep their ids instead of being treated as new steps.",
+    "The server monolith was split in thirteen steps into adapters (clock, state, tap log, notes, calendar) and modules for tasks, signals, planning, direction and outbox.",
+    "A golden characterisation test was captured before the split, pinning server behaviour so each extraction could be checked for unchanged output.",
+    "Taps moved into an action module with an action registry, with an explicit contract between page and server.",
+    "New step command lets a chat tick or discard a step through the same path as a tap, so both leave identical records.",
+    "Chat ticks also match steps without an id by their text; Do shows a Claude did line for every step a chat ticked today.",
+    "A step ticked by chat no longer ends today's part of a task, and chat turns a result step into a review step.",
+    "Messages are now stored as records on a task's steps, and a reply never closes a task that still has open steps.",
+    "Claude and the budget bar now count the same minutes, and the page is smoke-rendered as a check.",
+    "Errors and a failing health check now push an alert to the phone, via a health endpoint and a watch every 15 minutes.",
+    "Fixes from the refactor investigation: a safe deploy gate, a crash in Do, and retry storms during prep.",
+    "Goals tab added: the coming week against goals, editable, with every change logged; its test suite runs in a scratch home and vault like every other suite in the gate.",
+    "Planning prompt and chat cross-check the list against what is scheduled or due that day, never cut the selection to six, and name any task left out.",
+    "Tasks left open join the planning pre-selection as a high signal; the rest goes into a Left open fold.",
+    "Plan budget shows one number for time left, with the Focus block displayed as part of it.",
+    "The Mac copy now follows vault-host by fast-forward only, and Mac-only tools were brought in: the coffee command, the note link server and the free-time name search.",
+    "Links: any raw link the page prints becomes clickable after every repaint, link buttons share one style, and a test covers it; sync docs now point to their owning section."
+   ],
+   "changes": 39,
+   "source": "git"
+  },
+  {
+   "date": "2026-11-04",
+   "display_date": "Nov 4, 2026",
+   "title": "Maintenance",
+   "summary": "Task steps are easier to act on: links to notes open in Obsidian, every link is one tap, and Claude's own part shows as a plain line, not a checkbox for you. Finished tasks now close themselves, with an Undo, and tasks only carried over from before wait in a Left open fold instead of crowding today. Your day list follows the plan you committed to, and the app tells you when a plan is only proposed and not yet in your calendar. You can throw away any step with an x, and rewording a step no longer marks it as done by mistake. The now line in the day view moves with the clock, and calendar blocks without guests no longer ask for permission first.",
+   "for_you": [
+    "Task steps are easier to act on: links to notes open in Obsidian, every link is one tap, and Claude's own part shows as a plain line, not a checkbox for you.",
+    "Finished tasks now close themselves, with an Undo, and tasks only carried over from before wait in a Left open fold instead of crowding today.",
+    "Your day list follows the plan you committed to, and the app tells you when a plan is only proposed and not yet in your calendar.",
+    "You can throw away any step with an x, and rewording a step no longer marks it as done by mistake.",
+    "The now line in the day view moves with the clock, and calendar blocks without guests no longer ask for permission first."
+   ],
+   "system": [
+    "Step lines are now structured data owned by a single steps module, and every write to a task logs its step changes to the step history.",
+    "Test suites can no longer write to the live step history; they are pointed at a separate step directory.",
+    "Every card is now backed by a task note, and the code paths that handled cards without a note were removed.",
+    "Today's work chunk is tracked by stable step ids, so a reworded step is treated as the same step and not counted as done.",
+    "Plainly finished tasks are closed automatically with an Undo option, and the Plan view gains a Left open group for unresolved tasks.",
+    "Once the day is planned, tasks that were only carried over are held in a Left open fold instead of the main list.",
+    "The committed plan now sets the order of the Do list, live on desktop, and Mark as done steps are no longer generated.",
+    "Pressing Done on a step whose wait is over ends the wait, and setting a task to Not waiting puts it on today's list.",
+    "A message step is set to waiting only when the message asks for an answer, not for every message sent.",
+    "A calendar block can slot an item that has no note by matching an exact Item: line.",
+    "Pre-run output gives every step that needs a click its full link, so nothing has to be looked up.",
+    "Each step gets a short workspace listing its links, one tap each, and links to notes open directly in Obsidian.",
+    "Claude's own part of a step, written as then I, renders as a sub-line under the step instead of a checkbox.",
+    "Cards render bare web addresses and markdown links as short clickable links, and descriptions are never cut off in the middle of a link.",
+    "Start panel: an x on each step discards it, logged as a step_discarded event, and a time lead-in stays attached to its step.",
+    "Chat: creating calendar blocks without guests no longer needs an Allow once confirmation.",
+    "Do and Plan both state when the day's plan is proposed but not yet booked.",
+    "Plan day view: the now line follows the clock and updates every minute."
+   ],
+   "changes": 22,
+   "source": "git"
+  },
+  {
    "date": "2026-11-03",
    "display_date": "Nov 3, 2026",
    "title": "One step at a time",
    "summary": "Do now works in steps. Each card's title is a short version of its next step, with the full step one tap away, and Done completes that step: the next one moves up, or, when the step was a message to someone, the task goes into a Waiting fold until they answer and comes back marked Wait over. A Waiting button with a reason you can edit covers the rest, and a task whose date moves leaves a line with Undo instead of vanishing. Tasks carry stable IDs, so calendar blocks and appointments attach to the right task instead of being matched by words, and one block can hold several tasks. A Progress fold collects the small things done today, steps can carry their own deadlines that count when planning, and the Start panel follows the task note. Chat takes screenshots and photos, and taps move cards at once while the app loads a fraction of the data it did. (Carmen)",
+   "for_you": [
+    "Do now works in steps.",
+    "Each card's title is a short version of its next step, with the full step one tap away, and Done completes that step: the next one moves up, or, when the step was a message to someone, the task goes into a Waiting fold until they answer and comes back marked Wait over.",
+    "A Waiting button with a reason you can edit covers the rest, and a task whose date moves leaves a line with Undo instead of vanishing.",
+    "Tasks carry stable IDs, so calendar blocks and appointments attach to the right task instead of being matched by words, and one block can hold several tasks.",
+    "A Progress fold collects the small things done today, steps can carry their own deadlines that count when planning, and the Start panel follows the task note.",
+    "Chat takes screenshots and photos, and taps move cards at once while the app loads a fraction of the data it did. (Carmen)"
+   ],
+   "system": [
+    "Stable task IDs: calendar blocks now join tasks by a task ID instead of matching words, so renaming a task no longer breaks the link.",
+    "Appointments: a task can point at its calendar event through an event key, giving a direct link instead of a guess.",
+    "Do reads a block's task links from its whole description, not just part of it, so fewer links are missed.",
+    "Agent SDK stream buffer raised to 32 MB, so large phone photos no longer overflow and break a chat turn.",
+    "Speed: Do taps update instantly, responses are gzip compressed, and notes are parsed once per change instead of on every request.",
+    "Plan and Do commit to today's chunk of a task's steps; a selected plan card shows one short line per step in that chunk.",
+    "Planning counts steps that have their own deadline, and the pre-run marks that deadline on the step's line.",
+    "Confirming a plan brings a later scheduled date forward to that day, keeping the task and the plan in agreement.",
+    "A dated task that moves away from today leaves a Moved line, so its history stays visible.",
+    "Done on a card is the step itself; Done on a card with no task note removes it from today again.",
+    "Done and Progress today now hold everything finished today, and Progress counts any task closed today.",
+    "Progress today groups wins by task with one short line each, and one event logged in two notes shows only once.",
+    "Waiting became a single toggle with Waiting instead and Waiting on; the reason opens in place, reads as text, edits on tap, and moves the card only on Save.",
+    "Do cards use the next step as a short title, with the full step shown on open.",
+    "Replies: Skip hides a reply for today only and never moves the task.",
+    "Start panel follows the note: rows link by name, the chat writes settled steps back, and the last three done steps show.",
+    "Start panel splits Today (the committed chunk) and Later in the task column, and shows the Next step as a checklist of short parts.",
+    "On desktop the task sits beside the chat and reads as a page, with the Next step as a lead line and bullets.",
+    "Chat: desktop file drops stay in the chat, rejected files explain why, and PDFs can be attached alongside images.",
+    "Chat log lines are dated in a single consistent time zone, so entries near midnight land on the right day.",
+    "Meditation rows show while being filled in and no longer duplicate after a new task is created.",
+    "Public kit: comments, the pre-run example and a test now use neutral placeholder names.",
+    "Small UI fixes: overview lines wrap instead of clipping, deadline warnings fit on one line, card fonts tidied, and pictures no longer flash during replies."
+   ],
    "source": "manual"
   },
   {
@@ -41,6 +183,24 @@
    "display_date": "Nov 2, 2026",
    "title": "Choosing the day, then doing it",
    "summary": "The app now keeps choosing and doing apart. Plan is where you pick the day's tasks and see them on your calendar, and the list no longer reshuffles as you add to it. Do is the list you work from: it keeps your order, carries unfinished tasks to the next day and, after three days, asks whether to keep, move or drop one. Start on a task opens a panel with the next step, the steps after it and a chat in which Claude begins the work. Every task gets a definition of done, which Claude proposes and you confirm with one tap. Free time now follows your week structure: routines like lunch and the commute count as taken, and focus blocks count as room for the work they are meant for. When you plan more than fits, Claude proposes what gives. Refresh updates every tab, answered messages leave Replies, you can keep typing while Claude replies, and finishing the day draws a small ensō. (Carmen)",
+   "for_you": [
+    "The app now keeps choosing and doing apart.",
+    "Plan is where you pick the day's tasks and see them on your calendar, and the list no longer reshuffles as you add to it.",
+    "Do is the list you work from: it keeps your order, carries unfinished tasks to the next day and, after three days, asks whether to keep, move or drop one.",
+    "Start on a task opens a panel with the next step, the steps after it and a chat in which Claude begins the work.",
+    "Every task gets a definition of done, which Claude proposes and you confirm with one tap.",
+    "Free time now follows your week structure: routines like lunch and the commute count as taken, and focus blocks count as room for the work they are meant for.",
+    "When you plan more than fits, Claude proposes what gives.",
+    "Refresh updates every tab, answered messages leave Replies, you can keep typing while Claude replies, and finishing the day draws a small ensō. (Carmen)"
+   ],
+   "system": [
+    "Check-in app: vault files open from chat and task cards through signed file links, so notes load without exposing unsigned paths.",
+    "Chat: messages can carry attached screenshots and photos alongside text.",
+    "Do view: task matching checks for the task's own calendar block before falling back to other matches.",
+    "Check-in app: next step links now live on the cards, and edited card text keeps its obsidian links intact instead of dropping them.",
+    "Do view: card text renders links as clickable, and cards without a next step show the waiting line instead.",
+    "Do view: Start, Continue and Done buttons share one fixed width for a consistent layout."
+   ],
    "source": "manual"
   },
   {
@@ -48,13 +208,74 @@
    "display_date": "Nov 1, 2026",
    "title": "The mobile app",
    "summary": "Carmen now ships as an app for your phone and laptop, in alpha: add it to your home screen or open it inside Telegram. ToDo ranks your day by what matters, with one thing on top. Plan shows your calendars next to the blocks Claude proposes. Replies lists every message you owe, with a draft you can edit and send. The Claude tab shows what Claude can do for you, and Meditate writes your daily journal, which reranks the list. Chat with Claude about any task, by text or voice. It starts in test mode, so nothing is sent until you go live. Setup in modules/checkin-app. (Carmen)",
+   "for_you": [
+    "Carmen now ships as an app for your phone and laptop, in alpha: add it to your home screen or open it inside Telegram.",
+    "ToDo ranks your day by what matters, with one thing on top.",
+    "Plan shows your calendars next to the blocks Claude proposes.",
+    "Replies lists every message you owe, with a draft you can edit and send.",
+    "The Claude tab shows what Claude can do for you, and Meditate writes your daily journal, which reranks the list.",
+    "Chat with Claude about any task, by text or voice.",
+    "It starts in test mode, so nothing is sent until you go live.",
+    "Setup in modules/checkin-app. (Carmen)"
+   ],
+   "system": [
+    "Checkin_app Do tab: a day view of committed tasks in block order, with carry-over prompts after 3 days, a new-items banner, a Done fold, moved lines and a fixed early-morning day boundary.",
+    "ToDo becomes Plan: Create plan commits the chosen tasks to Do, with the day and the chat shown below it.",
+    "Start panel: opens per task with next step, later steps and chat, and sends Claude a hidden kickoff request so only the reply appears.",
+    "Start panel gains a Full details fold showing priority, status, dates, estimates, waiting state, description and where the task stands.",
+    "Start panel rereads the task when Claude's turn ends, so a Definition of Done it just drafted appears immediately.",
+    "Definition of Done line: a hook checks its form and placement, and the pre-run reads it and only proposes edits to the user's own step lines.",
+    "Definition of Done display: shown on top of the Start panel and in the kickoff, marked when guessed by Claude, and removed from the Do card itself.",
+    "Definition of Done logging: tapping it logs the prior version, and prep logs each proposed one separately.",
+    "Two-minute rule: prep checks whether the whole task takes 2 minutes or less, using the task estimate or a single open step, and Claude drafts a Definition of Done only for longer tasks.",
+    "Chat queue: messages sent while Claude is answering are held and run after the reply. Stop discards them, and Send and voice stay available while busy.",
+    "Robustness pass: incoming rows are validated, torn state files are tolerated, calendar reads run in parallel and slow views are guarded, backed by an offline test suite and a restart helper.",
+    "Planner app: a Refresh no longer causes a restart, and replies that have been answered leave the Replies list.",
+    "Plan ranking: rank keys are frozen per day, so adding a task never reorders existing rows.",
+    "Day budget now accounts for fixed, slot and free time, and when the day is over budget the plan decides what gives.",
+    "plan-today module: new panel builder, dropped-task handling and quick mode added, and the mailer updated.",
+    "Task descriptions render cleaner: struck history lines and the Definition of Done are hidden, done steps show as ticks and bullets as dots, and the kickoff no longer repeats the Definition of Done.",
+    "Small UI touches: Done fold shown as a chip, the After that section folded by default, and comments no longer include third-party names."
+   ],
    "source": "manual"
   },
   {
    "date": "2026-10-31",
    "display_date": "Oct 31, 2026",
    "title": "Maintenance",
-   "summary": "The check-in app is now called Carmen, with a new icon, and its Plan page shows your calendars and Claude's proposed blocks side by side. Chatting with Claude, voice included, now happens in the app instead of Telegram, to-dos rank by what your meditation keeps naming, closed tasks can be reopened, plus smaller fixes.",
+   "summary": "Plan your day in one page: see your calendars and Claude's proposed blocks side by side, tap any block for details, chat with Claude about the plan, and book the blocks in one tap. Your to-do list now learns from your meditation: tasks you keep worrying about rise to the top, the card shows how often you mentioned them, and you can raise them or set them aside. Chat with Claude inside the app, including voice messages, instead of being sent to a separate messaging app. You can also send mail and copy or share reply drafts directly from your Replies. Finished tasks no longer vanish: a Done section shows what you closed today or yesterday, with a one-tap Reopen. Tomorrow is now ranked the same way as Today. Refreshing is faster and more reliable. It only fetches what changed since the last update and keeps your previous results if something fails. The app also has a new name and icon.",
+   "for_you": [
+    "Plan your day in one page: see your calendars and Claude's proposed blocks side by side, tap any block for details, chat with Claude about the plan, and book the blocks in one tap.",
+    "Your to-do list now learns from your meditation: tasks you keep worrying about rise to the top, the card shows how often you mentioned them, and you can raise them or set them aside.",
+    "Chat with Claude inside the app, including voice messages, instead of being sent to a separate messaging app. You can also send mail and copy or share reply drafts directly from your Replies.",
+    "Finished tasks no longer vanish: a Done section shows what you closed today or yesterday, with a one-tap Reopen. Tomorrow is now ranked the same way as Today.",
+    "Refreshing is faster and more reliable. It only fetches what changed since the last update and keeps your previous results if something fails. The app also has a new name and icon."
+   ],
+   "system": [
+    "Quick update replaces the full morning pre-run on Refresh: it computes the change since the pre-run, matches the meditation, makes one model call, and overlays the result on the pre-run rows.",
+    "Updates now build on each other: each starts from the last update, fetches only new data, rematches the meditation only for new entries, and keeps old results when a fetch or judgment fails.",
+    "Meditation judging covers every section: anxious bullets count as mentions, recurring or concrete worries become tasks or themes, best-year outcomes become undated tasks, and completed items are proposed as Probably done.",
+    "New 30-day weighted mentions ledger drives ranking, with a log line written into each task note per mention, plus a backfill of a past month's entries.",
+    "ToDo ranks the top six across all tasks by hard due date, the morning call, then anxiety, urgency and priority. Heavily mentioned tasks and quick replies can outrank the morning call.",
+    "The morning pre-run now reads that day's meditation entry and records which version it used, so later updates can tell whether the entry changed after matching.",
+    "The meditation is read live on every load and counts straight away; saving it reloads ToDo immediately and re-ranks the rest of the day.",
+    "Restored three earlier changes that a later commit had overwritten and fixed two misplaced code blocks, so the app module compiles again.",
+    "Finished prep and pre-run child processes are now reaped; a leftover zombie process had looked like a run still in progress and blocked every later start.",
+    "Prep reruns a task only when it is stale: never prepared, answered, note changed, new message, or older than a week. Today's selection goes first.",
+    "Fixed a crash in the overlay caused by non-text task links; every row lookup, chat included, now falls back to the plain pre-run rows.",
+    "The Plan day view merges every calendar enabled in the calendar app, colour-coded, with unaccepted invites shown as tentative; the time budget still counts only blocking events.",
+    "Day view parsing keeps only lines starting with a time range as proposals, drops blocks already on the calendar, and draws calendar and plan in separate tinted lanes.",
+    "The Plan page puts tasks, the day view and the Claude chat in their own sections instead of a sheet; tasks fold behind Update plan once a plan exists.",
+    "Chat actions (Chat, Let Claude, Adjust and send, Plan it with Claude) open an in-app chat sheet; every chat message is treated as a signal, and each reply shows what it did.",
+    "Chat history timestamps use local time instead of server time; fixed a phone scroll issue and made the sheet follow the visible area only while the keyboard is open.",
+    "The Send sheet takes the mailbox from the conversation and shows it, with the two latest thread messages under the draft and other mail at the bottom.",
+    "Done is now a fold read from the task notes, so tasks closed anywhere show up; Done and Replied also work on rows without a task note by hiding them for the day.",
+    "The Edit form gains a Status field: done and cancelled set the completion date, reopening clears it. Date fields no longer overflow on phones.",
+    "Ranking behaviour: tasks pulled up from below keep your order after Claude's picks; One thing schedules the task for that day; demoting the last candidate leaves no one thing.",
+    "Tomorrow uses the same ranking and folds as Today (Waiting, Probably done, Everything else), and each item can be promoted.",
+    "Cards are shorter: the tag line shows only the origin, with update notes and status moved to Details, a See more fold, and a folded summary of the day's updates.",
+    "Small UI changes: Start is a button at the end of the Claude can line, buttons are renamed and never wrap, waiting cards show start times, and the app has a new name and icon."
+   ],
    "changes": 37,
    "source": "git"
   },
@@ -63,6 +284,18 @@
    "display_date": "Oct 30, 2026",
    "title": "The kit catches up with the real setup",
    "summary": "Seven skills join the kit: the daily check-in, travel planning, coffee chats, group planning, sending to Kindle, sending to Speechify and video transcription, with about 50 new or updated guides, each rewritten for a new owner and checked before release. The download now comes in two sizes: Carmen, the complete agent as I use it, and Skeleton, just the wiring (server, automations, connections and the vault architecture) to build your own agent on.",
+   "for_you": [
+    "Seven skills join the kit: the daily check-in, travel planning, coffee chats, group planning, sending to Kindle, sending to Speechify and video transcription, with about 50 new or updated guides, each rewritten for a new owner and checked before release.",
+    "The download now comes in two sizes: Carmen, the complete agent as I use it, and Skeleton, just the wiring (server, automations, connections and the vault architecture) to build your own agent on."
+   ],
+   "system": [
+    "A weekly kit sync rewrites each vault guide and skill for a new owner, gates it, and stages it as a review item; only items ticked in the review are promoted into the kit on the next nightly deploy.",
+    "Every vault item and every code file carries a tier, Skeleton or Carmen; a file without a tier ships in neither download and is reported.",
+    "The Skeleton download is checked to stand on its own: every file compiles, nothing imports a Carmen-only module, and its offline tests pass, or nothing is written.",
+    "Each download is gated on its own, PDF text included, before it is zipped.",
+    "The morning pre-run now proposes up to three steps per task that Claude can take by itself (research, gather, prepare, draft), never sends, payments, bookings or decisions.",
+    "The pre-run rewrites or strikes a task line that a newer message contradicts, so the morning check-in starts from the current state."
+   ],
    "source": "manual"
   },
   {
@@ -70,6 +303,17 @@
    "display_date": "Oct 30, 2026",
    "title": "Carmen goes online",
    "summary": "The kit gets a public home: an always-current download, the Start Here guide and this history. Every night the code is copied, stripped of anything personal, checked by two privacy scanners and only then published.",
+   "for_you": [
+    "The kit gets a public home: an always-current download, the Start Here guide and this history.",
+    "Every night the code is copied, stripped of anything personal, checked by two privacy scanners and only then published."
+   ],
+   "system": [
+    "A nightly deploy on the server copies the committed code, drops excluded paths and replaces personal values with placeholders before anything else runs.",
+    "A privacy gate scans every exported file, the built site and the publish tree for secrets, emails, phone numbers, chat ids and a private denylist, with gitleaks as a second scanner; any finding stops the deploy.",
+    "Two downloads are built from the same export, gated again member by member, and zipped reproducibly, so an unchanged day produces identical files and no commit.",
+    "This history is generated from the commit log every night: noise and private topics are filtered out, and each day gets its own entry.",
+    "The site is published to GitHub Pages only after the last gate passes, and a hold switch keeps the live page unchanged while a change is being reviewed."
+   ],
    "source": "manual",
    "version": "v1.1"
   },
@@ -78,6 +322,10 @@
    "display_date": "Oct 16, 2026",
    "title": "LinkedIn, Messenger, Instagram",
    "summary": "Messages from all three reach Claude, read-only, with a push when someone new writes.",
+   "for_you": [
+    "Messages from all three reach Claude, read-only, with a push when someone new writes."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -85,6 +333,10 @@
    "display_date": "Oct 16, 2026",
    "title": "Meeting recordings",
    "summary": "Recorded meetings and talks are pulled from Wispr Flow and filed next to the project they belong to, readable with the laptop off.",
+   "for_you": [
+    "Recorded meetings and talks are pulled from Wispr Flow and filed next to the project they belong to, readable with the laptop off."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -92,6 +344,10 @@
    "display_date": "Oct 14, 2026",
    "title": "Travel",
    "summary": "Door-to-door search across every nearby airport, trains and ferries, with bags included in every price, and fare watches that push you when a price drops.",
+   "for_you": [
+    "Door-to-door search across every nearby airport, trains and ferries, with bags included in every price, and fare watches that push you when a price drops."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -99,6 +355,10 @@
    "display_date": "Oct 12, 2026",
    "title": "Realistic weeks",
    "summary": "How long recurring things really take, door to door, and the rules for placing work into a day, so a week plan says plainly when it does not fit.",
+   "for_you": [
+    "How long recurring things really take, door to door, and the rules for placing work into a day, so a week plan says plainly when it does not fit."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -106,6 +366,10 @@
    "display_date": "Oct 11, 2026",
    "title": "Listen to your readings",
    "summary": "Documents go to Speechify in one request, to listen to on a walk or a commute.",
+   "for_you": [
+    "Documents go to Speechify in one request, to listen to on a walk or a commute."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -113,6 +377,10 @@
    "display_date": "Oct 7, 2026",
    "title": "Tasks that stay well-formed",
    "summary": "A checker runs after every edit, so every task keeps a clear next step, whoever wrote it.",
+   "for_you": [
+    "A checker runs after every edit, so every task keeps a clear next step, whoever wrote it."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -120,6 +388,10 @@
    "display_date": "Oct 7, 2026",
    "title": "When is the group free?",
    "summary": "Ask when most of a group chat can do dinner, and Claude compares everyone's calendars in one request.",
+   "for_you": [
+    "Ask when most of a group chat can do dinner, and Claude compares everyone's calendars in one request."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -127,6 +399,11 @@
    "display_date": "Oct 5, 2026",
    "title": "The morning check-in",
    "summary": "Overnight the server reads mail, chats and the calendar and guesses where every task stands. After the morning journal you confirm with one click per task, and today goes into the calendar.",
+   "for_you": [
+    "Overnight the server reads mail, chats and the calendar and guesses where every task stands.",
+    "After the morning journal you confirm with one click per task, and today goes into the calendar."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -134,6 +411,10 @@
    "display_date": "Oct 5, 2026",
    "title": "Sessions that remember",
    "summary": "A rolling log of what every Claude session worked on, so the next one picks up where the last stopped.",
+   "for_you": [
+    "A rolling log of what every Claude session worked on, so the next one picks up where the last stopped."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -141,6 +422,10 @@
    "display_date": "Oct 4, 2026",
    "title": "The kit",
    "summary": "The whole setup packaged for friends: a Start Here guide, a walkthrough, a vault template and the code, set up by Claude one approved step at a time.",
+   "for_you": [
+    "The whole setup packaged for friends: a Start Here guide, a walkthrough, a vault template and the code, set up by Claude one approved step at a time."
+   ],
+   "system": [],
    "source": "manual",
    "version": "v1.0"
   },
@@ -149,6 +434,11 @@
    "display_date": "Oct 4, 2026",
    "title": "Telegram, and the vault speaks first",
    "summary": "The vault becomes a Telegram bot: voice notes, files, one thread per topic, and Allow / Deny buttons before anything goes out. For the first time the server messages you, starting with the weekly brief.",
+   "for_you": [
+    "The vault becomes a Telegram bot: voice notes, files, one thread per topic, and Allow / Deny buttons before anything goes out.",
+    "For the first time the server messages you, starting with the weekly brief."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -156,6 +446,10 @@
    "display_date": "Oct 3, 2026",
    "title": "One Monday brief",
    "summary": "Everything that needs you from the maintenance side arrives as one note on Monday, instead of a stream of mail.",
+   "for_you": [
+    "Everything that needs you from the maintenance side arrives as one note on Monday, instead of a stream of mail."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -163,6 +457,10 @@
    "display_date": "Oct 1, 2026",
    "title": "Readings on the Kindle",
    "summary": "Course readings, cases and articles go to the Kindle in one request.",
+   "for_you": [
+    "Course readings, cases and articles go to the Kindle in one request."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -170,6 +468,10 @@
    "display_date": "Sep 30, 2026",
    "title": "Build backlog",
    "summary": "Ideas tagged during the week become one plan on Monday, with each item scoped by its own Claude session.",
+   "for_you": [
+    "Ideas tagged during the week become one plan on Monday, with each item scoped by its own Claude session."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -177,6 +479,11 @@
    "display_date": "Sep 27, 2026",
    "title": "People",
    "summary": "One note per person, with circles from inner to dormant, open loops as fields and nine views. Contacts, class lists and chats can be imported into it.",
+   "for_you": [
+    "One note per person, with circles from inner to dormant, open loops as fields and nine views.",
+    "Contacts, class lists and chats can be imported into it."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -184,6 +491,10 @@
    "display_date": "Sep 27, 2026",
    "title": "Routine reminders",
    "summary": "Morning and evening routine pushes to the phone, with the text kept in the vault so changing a routine means editing a note.",
+   "for_you": [
+    "Morning and evening routine pushes to the phone, with the text kept in the vault so changing a routine means editing a note."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -191,6 +502,10 @@
    "display_date": "Sep 23, 2026",
    "title": "Alerts you actually see",
    "summary": "Urgent things go out as a push to the phone, and only what can wait goes to email.",
+   "for_you": [
+    "Urgent things go out as a push to the phone, and only what can wait goes to email."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -198,6 +513,10 @@
    "display_date": "Sep 17, 2026",
    "title": "WhatsApp bridge",
    "summary": "Message your vault on WhatsApp and Claude answers, files and acts on it, with alerts if the connection drops.",
+   "for_you": [
+    "Message your vault on WhatsApp and Claude answers, files and acts on it, with alerts if the connection drops."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -205,6 +524,10 @@
    "display_date": "Sep 15, 2026",
    "title": "It tests itself",
    "summary": "The server runs its own test suite on a timer and catches jobs that run but were never committed, and tasks sitting where no view can see them.",
+   "for_you": [
+    "The server runs its own test suite on a timer and catches jobs that run but were never committed, and tasks sitting where no view can see them."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -212,6 +535,11 @@
    "display_date": "Sep 14, 2026",
    "title": "A morning journal",
    "summary": "A meditation and journal note is created every morning. It later becomes the start of the morning check-in.",
+   "for_you": [
+    "A meditation and journal note is created every morning.",
+    "It later becomes the start of the morning check-in."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -219,6 +547,10 @@
    "display_date": "Sep 11, 2026",
    "title": "Learnings, consolidated",
    "summary": "Insights captured during the week are distilled into one running notebook, in the language they were written in.",
+   "for_you": [
+    "Insights captured during the week are distilled into one running notebook, in the language they were written in."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -226,6 +558,10 @@
    "display_date": "Sep 2, 2026",
    "title": "Backups and a map",
    "summary": "Encrypted nightly backups to Backblaze B2 with restore tests, and a map of every folder that is rewritten from disk each week.",
+   "for_you": [
+    "Encrypted nightly backups to Backblaze B2 with restore tests, and a map of every folder that is rewritten from disk each week."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -233,6 +569,10 @@
    "display_date": "Sep 2, 2026",
    "title": "Your own wiki",
    "summary": "Claude distils your sources into topic articles, so a question about what you know or think is answered from your own material first.",
+   "for_you": [
+    "Claude distils your sources into topic articles, so a question about what you know or think is answered from your own material first."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -240,6 +580,10 @@
    "display_date": "Sep 2, 2026",
    "title": "Transcription",
    "summary": "Lectures, podcasts and videos are transcribed offline in about 99 languages, straight into the notes.",
+   "for_you": [
+    "Lectures, podcasts and videos are transcribed offline in about 99 languages, straight into the notes."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -247,6 +591,10 @@
    "display_date": "Sep 1, 2026",
    "title": "Course archive",
    "summary": "Every Canvas course, page, file and assignment archived into the vault with the text extracted, so Claude can say what a class covered and which readings are due.",
+   "for_you": [
+    "Every Canvas course, page, file and assignment archived into the vault with the text extracted, so Claude can say what a class covered and which readings are due."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -254,6 +602,11 @@
    "display_date": "Aug 28, 2026",
    "title": "Jobs with a watchdog",
    "summary": "One shared runner for every scheduled job, a heartbeat that watches the others, and a weekly all-green digest. The code gets its own history from here on.",
+   "for_you": [
+    "One shared runner for every scheduled job, a heartbeat that watches the others, and a weekly all-green digest.",
+    "The code gets its own history from here on."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -261,6 +614,11 @@
    "display_date": "Aug 28, 2026",
    "title": "Profiles with a shelf life",
    "summary": "Facts about you live in one Master Profile with sub-profiles, each fact dated so stale ones get questioned rather than trusted. A registry of property names stops two systems claiming the same one.",
+   "for_you": [
+    "Facts about you live in one Master Profile with sub-profiles, each fact dated so stale ones get questioned rather than trusted.",
+    "A registry of property names stops two systems claiming the same one."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -268,6 +626,10 @@
    "display_date": "Aug 21, 2026",
    "title": "Working conditions",
    "summary": "A note of when work can realistically happen, so plans respect energy, classes and commitments instead of assuming an empty week.",
+   "for_you": [
+    "A note of when work can realistically happen, so plans respect energy, classes and commitments instead of assuming an empty week."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -275,6 +637,10 @@
    "display_date": "Aug 7, 2026",
    "title": "Nothing goes stale silently",
    "summary": "A registry of everything that can quietly stop being true, from login tokens to documents, each with how it gets checked.",
+   "for_you": [
+    "A registry of everything that can quietly stop being true, from login tokens to documents, each with how it gets checked."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -282,6 +648,10 @@
    "display_date": "Aug 6, 2026",
    "title": "Fitness data",
    "summary": "Strava and WHOOP sync to the server, so training and recovery sit next to everything else.",
+   "for_you": [
+    "Strava and WHOOP sync to the server, so training and recovery sit next to everything else."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -289,6 +659,10 @@
    "display_date": "Aug 5, 2026",
    "title": "Both mailboxes",
    "summary": "Personal and school Gmail, readable and draftable by Claude from one place.",
+   "for_you": [
+    "Personal and school Gmail, readable and draftable by Claude from one place."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -296,6 +670,10 @@
    "display_date": "Aug 4, 2026",
    "title": "Capture in two seconds",
    "summary": "The iPhone Action Button and a Mac hotkey drop any thought into the Inbox.",
+   "for_you": [
+    "The iPhone Action Button and a Mac hotkey drop any thought into the Inbox."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -303,6 +681,11 @@
    "display_date": "Aug 4, 2026",
    "title": "A task cockpit and a daily loop",
    "summary": "Tasks become notes with a status, priority and next step, reviewed in one Obsidian layout. Dump, commit, prioritise, schedule becomes the rhythm.",
+   "for_you": [
+    "Tasks become notes with a status, priority and next step, reviewed in one Obsidian layout.",
+    "Dump, commit, prioritise, schedule becomes the rhythm."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -310,6 +693,10 @@
    "display_date": "Aug 3, 2026",
    "title": "Chats as a source",
    "summary": "WhatsApp becomes material Claude can read, so plans and promises made in messages stop getting lost.",
+   "for_you": [
+    "WhatsApp becomes material Claude can read, so plans and promises made in messages stop getting lost."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -317,6 +704,10 @@
    "display_date": "Jul 31, 2026",
    "title": "An always-on server",
    "summary": "A small Linux server keeps a synced copy of the vault and runs Claude Code around the clock, reachable only over a private network.",
+   "for_you": [
+    "A small Linux server keeps a synced copy of the vault and runs Claude Code around the clock, reachable only over a private network."
+   ],
+   "system": [],
    "source": "manual"
   },
   {
@@ -324,6 +715,10 @@
    "display_date": "Jul 31, 2026",
    "title": "From Notion to plain files",
    "summary": "Notes, tasks and plans move out of Notion into an Obsidian vault of Markdown files, so an AI agent can search thousands of them locally in milliseconds instead of one API call per page.",
+   "for_you": [
+    "Notes, tasks and plans move out of Notion into an Obsidian vault of Markdown files, so an AI agent can search thousands of them locally in milliseconds instead of one API call per page."
+   ],
+   "system": [],
    "source": "manual"
   }
  ]

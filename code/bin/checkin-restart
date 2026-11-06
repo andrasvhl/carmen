@@ -8,7 +8,7 @@
 #   process keeps serving the old code until it restarts, so the restart is the gate.
 #
 # WHAT IT DOES
-#   Compiles every module of the app, runs its four offline suites (robustness, chat, send,
+#   Compiles every module of the app, runs its offline suites (robustness, chat, send,
 #   the Telegram bridge it shares AgentPool with), then restarts and checks it answers.
 #   Any failure: no restart, exit 1, the running app untouched.
 #   A restart cuts a chat turn in progress, so it also refuses while one is running,
@@ -24,8 +24,8 @@ mode="${1:-}"
 
 fail() { echo "checkin-restart: $1, not restarting" >&2; exit 1; }
 
-$PY -m py_compile jobs/checkin_app/*.py jobs/tg_bridge/*.py || fail "a module does not compile"
-for t in tests.checkin_app_robust tests.checkin_app_chat tests.checkin_app_send tests.tg_bridge; do
+$PY -m py_compile $(find jobs/checkin_app -name "*.py" -not -path "*/__pycache__/*") jobs/tg_bridge/*.py || fail "a module does not compile"
+for t in tests.steps_lines tests.checkin_app_robust tests.checkin_app_chat tests.checkin_app_send tests.tg_bridge tests.checkin_goals tests.checkin_golden tests.checkin_modules tests.checkin_tasks_v2; do
     out=$(timeout 600 $PY -m "$t" 2>&1) || { echo "$out" | grep -E "FAIL|Error" | head -20 >&2; fail "$t failed"; }
     echo "ok  $t"
 done

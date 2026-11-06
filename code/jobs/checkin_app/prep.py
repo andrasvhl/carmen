@@ -28,11 +28,35 @@ from pathlib import Path
 from runner import config
 from runner.ask import RESEARCH_TOOLS, AskFailed, ask
 
-from . import TZ, _label, all_rows, build_view, load_prerun, log_event, read_note, task_path, write_dod
+from .adapters import notes
+
+from .adapters.clock import TZ, _label
+from .planning.read import all_rows, build_view
+from .signals.read import load_prerun
+from .tasks.actions import write_dod
+from .tasks.read import read_note
+from .adapters.notes import task_path
+from .adapters.taplog import log_event
 
 STATE = config.STATE_DIR / "checkin_app" / "prep"
 PER_RUN = 3          # sessions per pre-run: the Claude limit was hit on Oct 30
 TIMEOUT = 900
+# A failed preparation waits before it is tried again, and stops for the day after MAX_FAILS
+# (Nov 6: a pending answer stayed pending after a failure, so every 60 s view restarted it;
+# 328 failures on Nov 1 and 2, one task 116 times).
+MAX_FAILS = 3
+BACKOFF_MIN = (5, 30, 120)
+
+
+def retry_due(st: dict, now: dt.datetime | None = None) -> bool:
+    """False while a failed preparation is backing off."""
+    ra = st.get("retry_after") if isinstance(st, dict) else None
+    if not ra:
+        return True
+    try:
+        return (now or dt.datetime.now(TZ)) >= dt.datetime.fromisoformat(ra)
+    except (TypeError, ValueError):
+        return True
 
 PROMPT = """You prepare one of the owner's tasks so that he only has to decide. The task note,
 the morning pre-run's row for it (context, why, the steps it says you can take) and
@@ -98,11 +122,13 @@ def _note_sig(p: Path | None) -> str:
 def stale_reason(row: dict, st: dict, generated: str) -> str:
     """Why a task needs preparing again, or "" (owner decision, Oct 31: not every run, only when
     it went stale or something touched the task)."""
+    if not retry_due(st):
+        return ""
     if not st.get("result"):
         return "new"
     if st.get("pending"):
         return "answer"
-    if _note_sig(task_path(row["id"]) if row.get("task") else None) != st.get("note_sig"):
+    if _note_sig(task_path(row["id"])) != st.get("note_sig"):
         return "note changed"
     if row.get("group") == NEW_GROUP and st.get("generation") != generated:
         return "new message"
@@ -130,9 +156,8 @@ def load_state_file(p: Path) -> dict | None:
 def save_state(row: dict, st: dict) -> None:
     STATE.mkdir(parents=True, exist_ok=True)
     p = STATE / f"{_key(row)}.json"
-    tmp = p.with_suffix(".tmp")
-    tmp.write_text(json.dumps(st, ensure_ascii=False, indent=1))
-    os.replace(tmp, p)
+    from .adapters import state
+    state.write(p, st)   # locked, a tmp name of its own (Nov 6)
 
 
 def _parse(text: str) -> dict:
@@ -170,9 +195,10 @@ def _section(res: dict, when: dt.datetime) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+@notes.cas
 def write_note(p: Path, res: dict, when: dt.datetime) -> None:
     """Replace the task's Prepared by Claude section (or add it before the Log) and log it."""
-    text = p.read_text(encoding="utf-8")
+    text = notes.read_text(p)
     sec = _section(res, when)
     text = re.sub(r"## Prepared by Claude \(.*?\)\n.*?(?=^## |\Z)", "", text, flags=re.S | re.M).rstrip() + "\n"
     if re.search(r"^## Log\s*$", text, re.M):
@@ -183,9 +209,7 @@ def write_note(p: Path, res: dict, when: dt.datetime) -> None:
     line = (f"- {_label(when.date())} · prepared by Claude: {len(res['done'])} steps done"
             + (f", {n_ask} question{'s' if n_ask != 1 else ''} for you" if n_ask else "") + " · check-in app")
     text = text.rstrip() + "\n" + line + "\n" if re.search(r"^## Log\s*$", text, re.M) else text.rstrip() + "\n\n## Log\n" + line + "\n"
-    tmp = p.with_suffix(".md.tmp")
-    tmp.write_text(text, encoding="utf-8")
-    os.replace(tmp, p)
+    notes._write(p, text, "prep")   # steps it ticked or added go into the step history as prep
 
 
 def raw_row(row: dict) -> dict:
@@ -212,7 +236,7 @@ def two_minute(p: Path | None, raw: dict) -> bool:
 
 
 def prepare(row: dict, generated: str = "") -> dict | None:
-    p = task_path(row["id"]) if row.get("task") else None
+    p = task_path(row["id"])
     prev = load_state(row["id"]) or {}
     raw = raw_row(row)
     data = ("=== TWO-MINUTE TASK (no DoD) ===\n" + ("yes" if two_minute(p, raw) else "no") +
@@ -225,8 +249,21 @@ def prepare(row: dict, generated: str = "") -> dict | None:
     try:
         res = _parse(ask(PROMPT, data=data, tools=RESEARCH_TOOLS, cwd=config.VAULT, timeout=TIMEOUT))
     except (AskFailed, ValueError) as exc:
-        log_event("prep_failed", id=row["id"], detail=str(exc)[:300])
-        save_state(row, {**prev, "id": row["id"], "error": str(exc)[:300], "at": now.isoformat(timespec="minutes")})
+        today = now.date().isoformat()
+        fails = (prev.get("fails", 0) if prev.get("fail_day") == today else 0) + 1
+        give_up = fails >= MAX_FAILS
+        log_event("prep_failed", id=row["id"], detail=str(exc)[:300], fails=fails, gave_up=give_up)
+        if give_up:
+            from . import alerts
+            alerts.alert("prep gave up", f"{row['id']}: {MAX_FAILS} failures today, last: {str(exc)[:200]}")
+        save_state(row, {**prev, "id": row["id"], "error": str(exc)[:300], "at": now.isoformat(timespec="minutes"),
+                         "fails": fails, "fail_day": today,
+                         # An answer still waiting is retried after the backoff, never after MAX_FAILS a day.
+                         "pending": bool(prev.get("pending")) and not give_up,
+                         "retry_after": (now + dt.timedelta(minutes=BACKOFF_MIN[min(fails, len(BACKOFF_MIN)) - 1])
+                                         if not give_up else
+                                         dt.datetime.combine(now.date() + dt.timedelta(days=1), dt.time(0), TZ)
+                                         ).isoformat(timespec="minutes")})
         return None
     if p:
         write_note(p, res, now)

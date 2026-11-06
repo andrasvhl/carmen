@@ -11,22 +11,56 @@ import email
 import json
 import pathlib
 import sys
+import os
 import tempfile
 import urllib.parse
 
+import shutil
+
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
+# A scratch HOME and vault before the app is imported (Nov 6): its state paths are fixed at import.
+# Without this the view below rolled the live do.json, froze live rank keys and could start a real
+# prep run from the deploy gate. Only plan-today's skill folder (mailer.py) is copied in.
+_REAL_SKILL = pathlib.Path.home() / "vault" / "_system" / "skills" / "plan-today"
+if not _REAL_SKILL.is_dir():
+    _REAL_SKILL = pathlib.Path.home() / "Obsidian" / "<VAULT_NAME>" / "_system" / "skills" / "plan-today"
+_SCRATCH = pathlib.Path(tempfile.mkdtemp(prefix="carmen-send-"))
+(_SCRATCH / "home").mkdir()
+(_SCRATCH / "vault" / "_system" / "skills").mkdir(parents=True)
+shutil.copytree(_REAL_SKILL, _SCRATCH / "vault" / "_system" / "skills" / "plan-today",
+                ignore=shutil.ignore_patterns("__pycache__", "dropped.json", "-c"))
+os.environ["HOME"], os.environ["VAULT_PATH"] = str(_SCRATCH / "home"), str(_SCRATCH / "vault")
+
 import jobs.checkin_app as app
+import jobs.checkin_app.web as _web
+import jobs.checkin_app.runs as _runs
+import jobs.checkin_app.outbox.read as _outbox
+import jobs.checkin_app.planning.actions as _plan_actions
+import jobs.checkin_app.signals.journal.meditation as _meditation
+import jobs.checkin_app.signals.read as _signals
+import jobs.checkin_app.adapters.taplog as _taplog
 from tests.tg_bridge._fakes import Checks
+
+assert str(app.config.STATE_DIR).startswith(str(_SCRATCH)) and str(app.config.VAULT).startswith(str(_SCRATCH)), \
+    "send suite is not isolated: refusing to touch live state"
+_runs.maybe_start_prep = lambda generated: None   # never a real prep run from a test
 
 check = Checks("check-in app: send mail")
 tmp = pathlib.Path(tempfile.mkdtemp())
-app.LOG = tmp / "taps.jsonl"
-app.JOURNAL_DIR = tmp / "journal"
+_taplog.LOG = tmp / "taps.jsonl"
+# Every card is a task note (Nov 4): what Carmen creates and drops stays in the scratch folder.
+from jobs.checkin_app.tasks import cardnotes as _cardnotes  # noqa: E402
+_cardnotes.MADE = tmp / "made.json"
+os.environ["PT_DROPPED"] = str(tmp / "dropped.json")
+os.environ["STEPS_DIR"] = str(tmp / "steps")
+_meditation.JOURNAL_DIR = tmp / "journal"
 app.config.INBOX = tmp / "Inbox"
 app.config.INBOX.mkdir()
+import tools.todos as _todos  # noqa: E402
+_todos.INBOX_DIR = str(app.config.INBOX)   # a card note never lands in the real Inbox (Nov 4)
 
-mailer = app._mailer()
+mailer = _outbox._mailer()
 ME, SARAH, GMAIL = "<YOUR_EMAIL>", "sarah@example.com", "<YOUR_PERSONAL_EMAIL>"
 THREAD = {"id": "t1", "messages": [
     {"id": "m1", "internalDate": "1761900000000", "snippet": "Coffee next week?", "payload": {"headers": [
@@ -120,7 +154,7 @@ from starlette.testclient import TestClient
 
 app.config.load_env = lambda: {"CHECKIN_PASSWORD": "pw", "CHECKIN_SECRET": "s3cret"}
 hidden = []
-app.save_override = lambda kind, day, value: hidden.append((kind, value))
+_plan_actions.save_override = lambda kind, day, value: hidden.append((kind, value))
 app._dropped_mod = lambda: type("D", (), {"load": staticmethod(lambda: []), "check": staticmethod(lambda r, g: None),
                                          "record": staticmethod(lambda *a, **k: None)})
 NOTE = app.config.INBOX / "Reply to Quinn.md"
@@ -134,10 +168,10 @@ rows = [{"lk": "Reply to Quinn", "n": "Reply to Quinn", "p": "N", "g": "today", 
                                       "needs_slot": True}}]},
         {"n": "Text Lu", "p": "N", "g": "today", "ne": 2,
          "ch": [{"t": "Send", "msg": {"via": "whatsapp", "to": "Lu", "body": "hey!"}}]}]
-app.load_prerun = lambda path=None, overlay=True: {"rows": [["Today", rows]], "generated": "2026-10-31T08:00-07:00"}
+_signals.load_prerun = lambda path=None, overlay=True: {"rows": [["Today", rows]], "generated": "2026-10-31T08:00-07:00"}
 
 client = TestClient(app.make_app())
-client.cookies.set(app.COOKIE, app.make_cookie("s3cret"))
+client.cookies.set(_web.COOKIE, _web.make_cookie("s3cret"))
 BASE = "/checkin" if any(getattr(r, "path", "").startswith("/checkin") for r in client.app.routes) else ""
 
 
@@ -186,7 +220,7 @@ text = NOTE.read_text()
 check("the task is closed with a sent Log line and its Next ticked",
       "status: done" in text and "- [x] Next: reply to Quinn" in text
       and f"· sent mail to {SARAH} · check-in app" in text, text)
-sig = [json.loads(l) for l in app.LOG.read_text().splitlines()]
+sig = [json.loads(l) for l in _taplog.LOG.read_text().splitlines()]
 sent = [e for e in sig if e.get("signal") == "reply_sent" and not e.get("test")]
 check("reply_sent says he edited, with the edit", sent and sent[-1]["edited"] is True
       and sent[-1]["edit"]["body"] == {"draft": "Tuesday 3pm works.", "sent": "Friday works too."}, sent[-1:])
@@ -195,11 +229,11 @@ dry = [e for e in sig if e.get("signal") == "reply_sent" and e.get("test")]
 check("test-mode send is a signal marked test, unedited", dry and dry[0]["edited"] is False, dry[:1])
 
 code, j = act(id="Text Lu", action="mark", signal="reply_copied", text="hey!! saturday works")
-cp = [json.loads(l) for l in app.LOG.read_text().splitlines() if '"reply_copied"' in l]
+cp = [json.loads(l) for l in _taplog.LOG.read_text().splitlines() if '"reply_copied"' in l]
 check("Copy logs reply_copied with his edit", code == 200 and cp and cp[-1]["edited"] is True
       and cp[-1]["edit"] == {"draft": "hey!", "sent": "hey!! saturday works"} and cp[-1]["via"] == "whatsapp", cp[-1:])
 act(id="Text Lu", action="mark", signal="reply_copied", text="hey!")
-cp = [json.loads(l) for l in app.LOG.read_text().splitlines() if '"reply_copied"' in l]
+cp = [json.loads(l) for l in _taplog.LOG.read_text().splitlines() if '"reply_copied"' in l]
 check("an unedited copy says so", cp[-1]["edited"] is False and "edit" not in cp[-1], cp[-1:])
 
 view = client.get(f"{BASE}/api/view").json()

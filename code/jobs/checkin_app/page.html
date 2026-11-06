@@ -32,6 +32,7 @@
   main { max-width: 560px; margin: 0 auto;
     padding: calc(16px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom)); }
   button { font: inherit; border: 0; cursor: pointer; }
+  button.link { background: none; border: 0; padding: 0; height: auto; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
   /* iPhone: no double-tap zoom on taps, and 16px fields so focusing one never zooms */
   html, button, a, .item { touch-action: manipulation; }
   input, textarea { font-size: 16px !important; }
@@ -370,6 +371,10 @@
   .tp-done .tp-dd { white-space: nowrap; }
   ul.tp-check li { display: flex; gap: 10px; align-items: flex-start; padding: 5px 0; font-size: 15px; line-height: 1.35; color: var(--ink); }
   ul.tp-check li + li { margin-top: 0; }
+  ul.tp-check .tp-x { margin-left: auto; flex: none; width: 24px; height: 24px; border: 0; border-radius: 12px; background: none; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; opacity: 0; }
+  ul.tp-check li:hover .tp-x, ul.tp-check .tp-x:focus-visible { opacity: 1; }
+  ul.tp-check .tp-x:hover { background: var(--soft); color: var(--ink); }
+  @media (hover: none) { ul.tp-check .tp-x { opacity: .45; } }
   .tp-box { flex: none; width: 20px; height: 20px; margin-top: 1px; padding: 0; border-radius: 10px; border: 2px solid var(--muted);
     background: none; color: transparent; font-size: 12px; line-height: 16px; text-align: center; cursor: pointer; }
   .tp-box:hover { border-color: var(--accent); }
@@ -404,10 +409,37 @@
   .dguess { font-size: 10.5px; font-weight: 600; color: var(--amber-ink); background: var(--amber-soft); border-radius: 5px; padding: 1px 5px; text-transform: none; letter-spacing: 0; }
   .tp-sec ol { margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--ink2); line-height: 1.4; }
   .tp-sec li + li { margin-top: 4px; }
+  /* The Do card (Nov 6 redesign): outcome, estimate and task, today's steps; the buttons stay on
+     the right (owner decision, Nov 6: "they took less space there"). */
+  .doitem { padding: 14px 14px 14px 16px; }
   .doitem .pair { display: flex; flex-direction: column; gap: 6px; }
   /* Start, Continue and Done the same width on every card (Nov 2) */
-  .doitem .pair { align-items: stretch; width: 96px; }
-  .doitem .pair .addpill { width: 100% !important; padding: 0 8px; text-align: center; }
+  .doitem .pair { align-items: stretch; width: 76px; align-self: center; }
+  .doitem .pair .addpill { width: 100% !important; height: 34px !important; line-height: 34px !important; border-radius: 10px !important; padding: 0 8px; text-align: center; }
+  .doitem { padding: 11px 12px 11px 14px !important; }
+  .doitem .top { gap: 12px !important; align-items: center; }
+  .deyebrow { font-size: 12px; color: var(--muted); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dhead { font-size: 16.5px; font-weight: 600; line-height: 1.3; color: var(--ink); letter-spacing: -.005em; margin-top: 2px; }
+  .dmeta { font-size: 13.5px; color: var(--muted); margin-top: 3px; line-height: 1.4; overflow-wrap: anywhere; }
+  .dmeta b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dmeta:empty { display: none; }
+  /* Today's steps with progress circles, only when the chunk has several (display, not buttons) */
+  .dsteps { margin: 7px 0 0; padding: 0; list-style: none; font-size: 14.5px; line-height: 1.35; color: var(--ink); }
+  .dsteps li { display: flex; gap: 8px; align-items: flex-start; }
+  .dsteps li + li { margin-top: 5px; }
+  .dsteps li i { flex: none; width: 15px; height: 15px; margin-top: 2px; border-radius: 8px; border: 1.5px solid color-mix(in srgb, var(--muted) 55%, transparent); box-sizing: border-box;
+    font-style: normal; font-size: 9px; font-weight: 700; line-height: 12px; text-align: center; color: var(--onaccent); }
+  .dsteps li.done { color: var(--muted); }
+  .dsteps li.done i { background: var(--accent); border-color: var(--accent); }
+  .dsteps li.dropped span { color: var(--muted); text-decoration: line-through; }
+  .doitem:not(.open) .dstat { display: none; }
+  .doitem .dstat:empty { display: none; }
+  /* The labels sit at the bottom, under the steps; left open is grey, only due stays amber (Nov 6). */
+  .doitem .dtag { margin: 5px 0 0 !important; gap: 0 !important; font-size: 13px !important; line-height: 18px; }
+  .doitem .dtag .dsep { margin: 0 5px; }
+  .doitem .dtag .dnowt { color: var(--accent); font-weight: 600; }
+  .doitem .dtag .ddue { margin-left: 8px; border-radius: 4px !important; padding: 0 5px !important; font-size: 11px !important; line-height: 17px; font-weight: 600; }
+  .doitem .dtag .ddue:first-child { margin-left: 0; }
   /* Do (Nov 1): the day's committed list. */
   .doitem .dtag > span:not([class]) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
   .doitem .dtag { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 3px; font-variant-numeric: tabular-nums; }
@@ -583,11 +615,48 @@
   .item:not(.open) .selmind { display: none; }
   .pchunk ol span { color: var(--muted); font-size: 12px; }
   .pch-a { margin-top: 4px; font-size: 13px; }
+  .dplan { margin: 3px 0 0; padding: 0; list-style: none; font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+  .dplan li.done { color: var(--accent); }
+  .dplan li.dropped { text-decoration: line-through; }
+  .dfound { margin-top: 3px; font-size: 12px; color: var(--muted); font-style: italic; }
+  .cldiff { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 6px; }
+  @media (min-width: 700px) { .cldiff { grid-template-columns: 1fr 1fr; } }
+  .cldiff pre { white-space: pre-wrap; font-size: 12px; margin: 2px 0 0; color: var(--ink); }
+  .cldiff label { font-size: 11px; color: var(--muted); }
+  .dactual { margin: 6px 0; padding: 8px 10px; border-radius: 10px; background: var(--accent-soft); font-size: 13px; }
+  .dunclear { margin-top: 3px; font-size: 12.5px; color: var(--muted); }
+  .fbpanel { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
+  .fbrow { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+  .fbtxt { flex: 1; min-width: 0; }
+  .fbtitle { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+  .fbwhy { font-size: 13px; color: var(--muted); line-height: 1.4; margin-top: 1px; }
+  .votes { display: flex; gap: 6px; flex: none; }
+  .vote { font: inherit; font-size: 13px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink2); }
+  .vote.right.on { background: #E7F3E3; border-color: #9CC98E; color: #2E5E22; }
+  .vote.wrong.on { background: #FBE7E5; border-color: #E6A39C; color: #8A2A20; }
+  .fbmin { width: 64px; font: inherit; font-size: 13px; padding: 3px 6px; margin-left: 4px; border: 1px solid var(--line); border-radius: 8px; }
+  .fbnote { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; resize: vertical; }
+  .fbclose { margin-left: auto; color: var(--muted); }
+  .dsince { color: var(--muted); white-space: nowrap; }
+  .cbul { margin: 6px 0 0; padding-left: 18px; font-size: 14px; color: var(--ink2); }
+  .cbul li { margin: 2px 0; }
+  .cbul li.done { color: var(--muted); text-decoration: line-through; }
+  .cbul li.dropped { color: var(--muted); }
+  .cout { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; padding: 6px 9px; margin-top: 6px; border: 1px solid var(--line); border-radius: 8px; }
+  .cnested { margin-top: 10px; border-left: 2px solid var(--line); padding-left: 10px; }
+  .cnested .dreview { box-shadow: none; border: 1px solid var(--line); margin-top: 8px; }
+  .fberr { margin-top: 6px; font-size: 13px; color: #8A2A20; }
+  .fbacts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
   .dchunk { margin-top: 3px; font-size: 12.5px; color: var(--accent); font-weight: 600; }
   .ddue { display: inline-block; padding: 0 6px; border-radius: 6px; background: #FDEBD3; color: #8A4B08; font-size: 12px; font-weight: 600; }
   .pch-w { margin-top: 4px; font-size: 12.5px; color: var(--muted); }
   .pch-w b { color: #8A4B08; font-weight: 600; }
   ul.tp-check li.later { opacity: .5; }
+  .tp-ws { display: flex; flex-wrap: wrap; gap: 6px; margin: 5px 0 2px 30px; }
+  .tp-txt .tp-ws { margin-left: 0; }
+  .tp-ws span { font-size: 13px; padding: 2px 9px; border-radius: 9px; background: var(--surface); border: 1px solid var(--line); }
+  .tp-ws a { text-decoration: none; }
+  .doitem:not(.open) .tp-ws { display: none; }
   .tp-today { margin: 0 -10px; padding: 8px 10px 6px; border-radius: 10px; background: var(--accent-soft); }
   .tp-today > label { color: var(--accent) !important; }
   .tp-today ul.tp-check + ul.tp-check { margin-top: 0; }
@@ -607,6 +676,7 @@
   .dwin.claude { color: var(--muted); font-size: 13px; }
   .dwin.claude i { background: var(--accent-soft); color: var(--accent); }
   .doitem:not(.open) .dlong { display: none; }
+  .doitem:not(.open) .dclaude { display: none; }   /* only in the opened card (Nov 5: not on the overview) */
   .dlong { margin-top: 8px; font-size: 14px; line-height: 1.4; color: var(--ink2); overflow-wrap: anywhere; }
   .dlong label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
   .dwho { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 13px; color: var(--muted); }
@@ -636,7 +706,11 @@ const initData = tg ? tg.initData : "";
 const inTg = !!initData;   // in Chrome, Safari or Claude's browser the cookie from /login does the auth
 
 function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
-let testMode = store("checkin-live") !== "1";
+// Live by default on a desktop (owner decision, Nov 4); a phone or Telegram starts in test mode. His own
+// switch wins either way: "1" live, "0" test.
+const liveStored = store("checkin-live");
+let testMode = liveStored === "1" ? false : liveStored === "0" ? true
+  : !(!inTg && window.matchMedia && matchMedia("(pointer: fine) and (min-width: 900px)").matches);
 let tab = store("checkin-tab") || "do";
 if (tab === "chat") tab = "today";   // Chat left the bar (Oct 30)
 if (tab === "plan") tab = "today";   // Plan took over ToDo's selection (Nov 1)
@@ -646,7 +720,7 @@ let day = new Date().getHours() >= 19 ? "tomorrow" : "today";
 let polling = null, lastJson = "", lastFrame = "";
 let planDay = null;
 let openSummary = false;
-let openDoneFold = false, openWaitFold = false, openWinsFold = false;
+let openDoneFold = false, openWaitFold = false, openWinsFold = false, openLeftFold = false;
 let editWait = null, editDraft = null;   // the Waiting fold row being edited, and what he typed so far
 // The last step tap on Do (Nov 3), shown with Undo (and Not waiting) for a while.
 let lastStep = null;
@@ -774,7 +848,7 @@ const isSel = r => sel[day].includes(r.id);
 // stops after a message to someone (the answer is theirs) or before a step with its own date.
 // He changes it with + and −; the budget counts the chunk; Create plan commits it.
 const planChunks = {today: {}, tomorrow: {}};
-const stepMin = s => { const m = /\((\d+)\s*min\)\s*$/.exec(s || ""); return m ? +m[1] : null; };
+const stepMin = s => { const m = /\((?:timebox )?(\d+)\s*min\)\s*$/.exec(s || ""); return m ? +m[1] : null; };
 const DATED = /\b(?:by|on|before|until)\s+(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\w*\s+)?(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+\d/i;
 const MSGSTEP = /^(?:reply|answer|respond|email|e-mail|mail|whatsapp|text|message|ask|offer|send|write|ping|dm|nudge|chase|remind)\b/i;
 // A step's own deadline (Nov 3): "(due Nov 13)" on its line, written by Claude.
@@ -791,6 +865,14 @@ const dueLabel = iso => { const d = new Date(iso + "T12:00"); return d.toLocaleD
 const stripDue = s => String(s || "").replace(/\s*\(due [^)]*\)/g, "");
 function planIso(which) { const d = new Date(); if ((which || day) === "tomorrow") d.setDate(d.getDate() + 1); return isoOf(d); }
 function taskSteps(r) { return r && r.next ? [r.next].concat((r.detail || {}).steps || []).map(s => clean(s)).filter(Boolean) : []; }
+// Each step's ^id, in taskSteps' order (refactor step 1, Nov 5): taps and today's chunk name a
+// step by its id, never by its words.
+function taskStepIds(r) {
+  const d = (r && r.detail) || {};
+  if (!r || !r.next) return [];
+  const texts = [r.next].concat(d.steps || []), ids = [d.next_id || ""].concat(d.step_ids || []);
+  return texts.map((s, k) => clean(s) ? (ids[k] || "") : null).filter(x => x !== null);
+}
 function suggestChunk(r) {
   const s = taskSteps(r);
   if (!s.length) return 0;
@@ -802,6 +884,123 @@ function suggestChunk(r) {
     tot += m; n++;
   }
   return n;
+}
+function planList(plan) {
+  // Today's committed steps with their ticks (Tasks v2, Nov 6, the owner: after finishing he wants to see what the chunk was).
+  const step = x => esc(stripDue(clean(x.text || "")).replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, ""));
+  return plan && plan.length > 1 || (plan && plan.length && plan[0].state !== "open")
+    ? `<ul class="dplan">${plan.map(x => `<li class="${x.state}">${x.state === "done" ? "✓" : x.state === "dropped" ? "×" : "○"} ${step(x)}</li>`).join("")}</ul>` : "";
+}
+// The Do card's face (Nov 6, the owner: "only see the result ... the estimate for the entire chunk,
+// what full task this is related to, the substeps ... in bullet points"): the outcome as the
+// headline, the chunk's minutes and the task under it, today's steps as bullets without estimates.
+// Waiting, proposals, the carry question and the long step live in the opened card (.dstat, .dlong).
+const NOMIN = /\s*\((?:timebox )?\d+\s*min\)\s*$/;
+function estText(m) { return m ? (m < 60 ? `${m} min` : fmt(m)) : ""; }
+// Nov 6, second pass (the owner: "it's confusing to have two different titles / next steps if the
+// chunk consists of a single step"): the task as a small line on top, the work as the title (the
+// step itself for one step, the outcome for several), today's steps with progress circles only
+// when there are several, and the estimate as a chip in the label row at the bottom.
+function doEst(r) {
+  const c = r.chunk || {};
+  // "+" only when the chunk's own minutes leave steps unestimated, not on the card's fallback estimate.
+  const cm = c.planned_min || c.min, m = cm || mins(r.est);
+  return estText(m) + (cm && c.unest ? "+" : "");
+}
+function doHead(r, step) {
+  const c = r.chunk || {};
+  const plan = (c.plan && c.plan.length ? c.plan : (c.steps || []).map(t => ({text: t, state: "open"})))
+    .map(x => ({...x, line: x.short || stripDue(clean(x.text || "")).replace(NOMIN, "")}));
+  const many = plan.length > 1;
+  const head = many ? (c.outcome || step) : (step || r.title);
+  const steps = many
+    ? `<ul class="dsteps">${plan.map(x => `<li class="${x.state}"><i>${x.state === "done" ? "✓" : ""}</i><span>${esc(x.line)}</span></li>`).join("")}</ul>` : "";
+  return `${step ? `<div class="deyebrow">${esc(r.title)}</div>` : ""}<div class="dhead">${esc(head)}</div>${steps}`;
+}
+function foundToday(r) {
+  const found = (r.found_today || []).map(x => esc(stripDue(clean(x.text)).replace(NOMIN, "")));
+  return found.length ? `<div class="dfound">Found today (not planned): ${found.join(" · ")}</div>` : "";
+}
+function estLabel(r) {
+  // Known or not known yet (Tasks v2, Nov 6): a timeboxed step reads "up to 30 min"; with the flag
+  // on, a tap on it switches the Next step between an estimate and a timebox.
+  const box = (/\(timebox (\d+)\s*min\)\s*$/.exec(r.next || "") || [])[1];
+  const txt = r.est_note || (box ? `up to ${box} min` : r.est ? r.est : "");
+  if (!txt) return "";
+  const sid = (r.detail || {}).next_id;
+  return (view.flags || {}).timebox && sid
+    ? `<button class="link dbox" data-box="${esc(sid)}" title="${box ? "Known now: estimate it" : "Not known yet: timebox it"}">${esc(txt)}</button> · `
+    : esc(txt) + " · ";
+}
+let reviewAll = false, fbOpen = "", fbDraft = {};
+// The feedback panel (Nov 6, the owner: say why, let him write what is wrong, the estimate too). The
+// draft lives here so a re-render (a refresh, a vote) never loses what he typed.
+function fbKey(c) { return c.task + "|" + c.sid; }
+function fbPanel(c) {
+  const k = fbKey(c), d = fbDraft[k] || (fbDraft[k] = {votes: {}, est: {}, note: ""});
+  const vote = (code, v, on) => `<button class="vote ${v}${on ? " on" : ""}" data-vote="${v}" data-code="${esc(code)}" aria-pressed="${on ? "true" : "false"}">${v === "right" ? "Right" : "Wrong"}</button>`;
+  const pair = (code, cur) => `<div class="votes">${vote(code, "right", cur === "right")}${vote(code, "wrong", cur === "wrong")}</div>`;
+  const reasons = (c.explain || []).map(e => `<div class="fbrow"><div class="fbtxt"><div class="fbtitle">${esc(e.title)}</div><div class="fbwhy">${esc(e.why)}</div></div>${pair(e.code, d.votes[e.code])}</div>`).join("");
+  const est = `<div class="fbrow"><div class="fbtxt"><div class="fbtitle">${c.est ? "Estimate: " + fmt(c.est) : "No estimate yet"}</div>
+      <div class="fbwhy">${c.est ? "Right, or how long would it take you?" : "How long would it take you, friction included?"}
+      <input class="fbmin" type="number" inputmode="numeric" min="1" max="600" placeholder="min" value="${esc(d.est.min || "")}"> min</div></div>${c.est ? pair("_est", d.est.vote) : ""}</div>`;
+  return `<div class="fbpanel">${reasons}${est}
+    <textarea class="fbnote" rows="2" placeholder="What's actually wrong, or how should it read?">${esc(d.note)}</textarea>
+    <div class="fbacts"><button class="addpill txt on" data-fb="save">Save</button><button class="addpill txt ghost" data-fb="rewrite">Rewrite with Claude</button><button class="link" data-fb="fine">Fine as is</button><button class="link" data-fb="notatask">Not a task</button><button class="link fbclose" data-fb="close">Close</button></div>
+    <div class="fberr" hidden>Vote on a reason, give your minutes or write a note first.</div></div>`;
+}
+function sinceLabel(iso) {
+  const d = new Date(iso + "T12:00:00"), days = Math.round((Date.now() - d) / 864e5);
+  return days <= 0 ? "today" : days === 1 ? "yesterday" : d.toLocaleDateString("en-US", {month: "short", day: "numeric"});
+}
+function reviewCard(c) {
+  return `<div class="item dreview" data-id="${esc(c.task)}" data-sid="${esc(c.sid)}"><div class="top"><div class="body">
+      <div class="title">${esc(stripDue(clean(c.next)))}</div><div class="nx">${esc(c.task)}${c.since ? ` · <span class="dsince">${c.since_by === "step" ? "written" : "task from"} ${esc(sinceLabel(c.since))}</span>` : ""}</div><div class="dunclear">${esc((c.why || []).join(" · "))}</div></div>
+      ${fbOpen === fbKey(c) ? "" : `<div class="pair"><button class="addpill txt on" data-sharpen="1">Sharpen</button><button class="addpill txt ghost" data-fine="1">Fine</button></div>`}</div>
+      ${fbOpen === fbKey(c) ? fbPanel(c) : ""}</div>`;
+}
+// Today's chunks (Nov 6, the owner: "evaluate chunk titles as well ... group substeps below chunk
+// titles"): each chunk's outcome, estimate and steps, with feedback on the outcome and the estimate;
+// a flagged step of that chunk sits under it with its own feedback.
+let cOpen = "", cDraft = {};
+function chunkPanel(c) {
+  const d = cDraft[c.task] || (cDraft[c.task] = {votes: {}, outcome: "", min: "", note: ""});
+  const vote = (code, v) => `<button class="vote ${v}${d.votes[code] === v ? " on" : ""}" data-cvote="${v}" data-ccode="${code}" aria-pressed="${d.votes[code] === v ? "true" : "false"}">${v === "right" ? "Right" : "Wrong"}</button>`;
+  return `<div class="fbpanel">
+    <div class="fbrow"><div class="fbtxt"><div class="fbtitle">Today's result</div><div class="fbwhy">Is "${esc(c.outcome)}" what today should achieve?</div>
+      <input class="cout" type="text" maxlength="140" placeholder="What should today's result be?" value="${esc(d.outcome)}"></div><div class="votes">${vote("outcome", "right")}${vote("outcome", "wrong")}</div></div>
+    <div class="fbrow"><div class="fbtxt"><div class="fbtitle">${c.min ? "Estimate: " + fmt(c.min) + (c.unest ? "+" : "") : "No estimate yet"}</div>
+      <div class="fbwhy">${c.min ? "Right, or how long would today's steps take you?" : "How long would today's steps take you?"}
+      <input class="cmin fbmin" type="number" inputmode="numeric" min="1" max="1440" placeholder="min" value="${esc(d.min)}"> min</div></div>${c.min ? `<div class="votes">${vote("est", "right")}${vote("est", "wrong")}</div>` : ""}</div>
+    <textarea class="cnote fbnote" rows="2" placeholder="Anything else about this chunk?">${esc(d.note)}</textarea>
+    <div class="fbacts"><button class="addpill txt on" data-cfb="save">Save</button><button class="link" data-cfb="fine">Fine as is</button><button class="link" data-cfb="notatask">Not a task</button><button class="link fbclose" data-cfb="close">Close</button></div>
+    <div class="fberr" hidden>Vote, write the result, give your minutes or write a note first.</div></div>`;
+}
+function chunkList(grouped) {
+  const cr = view.chunk_review || [];
+  if (!cr.length) return "";
+  const byTask = {};
+  (view.review || []).forEach(x => { (byTask[x.task] = byTask[x.task] || []).push(x); });
+  return `<h2>Today's chunks <span>${cr.length}</span></h2>` + cr.map(c => {
+    const ids = new Set(c.steps.map(x => x.id)), nested = (byTask[c.task] || []).filter(x => ids.has(x.sid));
+    nested.forEach(x => grouped.add(fbKey(x)));
+    return `<div class="item dchunkrev" data-cid="${esc(c.task)}"><div class="top"><div class="body">
+      <div class="title">${esc(c.outcome || "No outcome yet")}</div><div class="nx">${c.min ? fmt(c.min) + (c.unest ? "+" : "") + " · " : ""}${esc(c.title)}</div>
+      <ul class="cbul">${c.steps.map(x => `<li class="${esc(x.state)}">${esc(x.short || stripDue(clean(x.text)).replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, ""))}</li>`).join("")}</ul></div>
+      ${cOpen === c.task ? "" : `<div class="pair"><button class="addpill txt on" data-crate="1">Rate</button><button class="addpill txt ghost" data-cfb="fine">Fine</button></div>`}</div>
+      ${cOpen === c.task ? chunkPanel(c) : ""}
+      ${nested.length ? `<div class="cnested">${nested.map(reviewCard).join("")}</div>` : ""}</div>`;
+  }).join("");
+}
+function reviewList(grouped) {
+  // The steps to sharpen (Nov 6, the owner: feedback off the Do page): unclear Next steps, today's
+  // Do tasks first, five shown until he asks for all. Steps grouped under a chunk are not repeated.
+  const doIds = new Set(((view.do || {}).rows || []).map(r => r.id));
+  const rv = (view.review || []).filter(c => !(grouped && grouped.has(fbKey(c))));   // newest first, from the server
+  if (!rv.length) return "";
+  const shown = reviewAll ? rv : rv.slice(0, 5);
+  return `<h2>${grouped && grouped.size !== undefined && (view.chunk_review || []).length ? "Other steps to sharpen" : "Steps to sharpen"} <span>${rv.length}</span></h2>` + shown.map(reviewCard).join("")
+    + (rv.length > shown.length ? `<button class="link" data-reviewall="1">Show all ${rv.length}</button>` : "");
 }
 function chunkN(r, which) {
   const s = taskSteps(r), v = (planChunks[which || day] || {})[r.id];
@@ -819,7 +1018,7 @@ function chunkMin(r, which) {
 // step without its markers; the full step is in the tooltip and in Start.
 function shortOf(x) {
   const s = (view && view.shorts || {})[x];
-  return s || stripDue(x).replace(/\s*\(\d+\s*min\)\s*$/, "");
+  return s || stripDue(x).replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, "");
 }
 function chunkBox(r) {
   const s = taskSteps(r), n = chunkN(r);
@@ -847,10 +1046,17 @@ function dayStart(which, b) {
 function freeMin(which) {
   const b = view[which].budget;
   if (!b || b.free_min === null) return null;
+  // Every gap counts unless the server sets a min_gap (Nov 5: he wants short gaps kept).
   const start = dayStart(which, b), spans = b.busy.concat((b.slots || []).map(x => [x.s, x.f])).sort((x, y) => x[0] - y[0]);
-  let free = Math.max(0, b.day_end - start), end = -1;
-  for (const [s, f] of spans) { const a = Math.max(s, end); if (f > a) free -= inWin(b, start, a, f); end = Math.max(end, f); }
-  return Math.max(0, free);
+  const gapMin = b.min_gap || 0;
+  let free = 0, at = start;
+  for (const [s, f] of spans.concat([[b.day_end, b.day_end]])) {
+    const gap = Math.min(s, b.day_end) - at;
+    if (gap >= gapMin) free += gap;
+    at = Math.max(at, Math.min(f, b.day_end));
+    if (at >= b.day_end) break;
+  }
+  return free;
 }
 function slotMins(which) {
   const b = view[which].budget, by = {};
@@ -867,7 +1073,7 @@ function budgetBar() {
   const pct = free ? Math.min(100, Math.round(planned / free * 100)) : (planned ? 100 : 0);
   const over = free !== null && planned > free;
   const cap = free0 === null ? "calendar not readable"
-    : fmt(free0) + " free" + slots.map(([t, m]) => ` + ${fmt(m)} ${esc(t)}`).join("") + (day === "today" ? " from now" : " tomorrow");
+    : fmt(free) + (day === "today" ? " left today" : " tomorrow") + (slots.length ? " · " + slots.map(([t, m]) => `${fmt(m)} ${esc(t)}`).join(", ") : "");
   return `<div class="bwrap"><div class="budget${over ? " over" : ""}">
     <div class="brow"><b>${fmt(planned)} planned</b><span>${cap}</span></div>
     <div class="bar"><i style="width:${pct}%"></i></div>
@@ -898,11 +1104,12 @@ const ICONS = {
   claude: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',
   plan: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   chat: '<path d="M4 5h16v11H9l-5 4z"/>',
+  goals: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>',   // Goals tab (Nov 5)
   meditate: '<path d="M12 20c-4 0-7-2-8-5 3 0 5 1 8 3 3-2 5-3 8-3-1 3-4 5-8 5z"/><path d="M12 18c-2-2-3-5-3-8 1.5.8 2.5 2 3 3.5.5-1.5 1.5-2.7 3-3.5 0 3-1 6-3 8z"/><circle cx="12" cy="5" r="1.6"/>',
 };
 // Nov 1, the owner: "split ToDo into Select and then the actual to do from where you execute".
 // Do is the day's committed list; Plan (the old ToDo tab, key "today") is selecting and planning.
-const TABS = [["do", "Do"], ["today", "Plan"], ["replies", "Replies"], ["claude", "Claude"], ["meditate", "Meditate"]];   // Plan beside ToDo; Meditate replaces Chat until chat is built (Oct 30)
+const TABS = [["do", "Do"], ["today", "Plan"], ["goals", "Goals"], ["replies", "Replies"], ["claude", "Claude"], ["meditate", "Meditate"]];   // Plan beside ToDo; Meditate replaces Chat until chat is built (Oct 30)
 
 async function api(path, body) {
   const r = await fetch(base + path, {
@@ -921,7 +1128,9 @@ const initials = s => (s || "?").split(/[\s,@.]+/).filter(Boolean).slice(0, 2).m
 let toastTimer;
 function toast(msg) {
   // Only what the screen does not already show: errors, sends, updates (Oct 30).
-  if (!/fail|sent|would send|copied|telegram|updat|claude|plan|over|could not/i.test(msg || "")) return;
+  // Test mode says what it would have done (Nov 6: "Test mode, nothing written" matched no keyword,
+  // so test-mode taps showed nothing at all).
+  if (!/fail|sent|would send|copied|telegram|updat|claude|plan|over|could not|test mode/i.test(msg || "")) return;
   const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on");
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 2400);
 }
@@ -1077,7 +1286,7 @@ function detailBlock(r, inPanel) {
       <div class="tp-acts">${d.dod_guess ? '<button class="link" data-tp="dodok">Confirm</button> · ' : ""}<button class="link" data-tp="dodedit">Edit</button></div></div>` : ""}
     ${r.next && !inPanel ? `<div class="dsec dnext"><label>Next step</label>${md(r.next)}</div>` : ""}
     ${r.waiting ? `<div class="dsec"><label>Waiting for</label>${esc(r.waiting)}</div>` : ""}
-    ${d.description ? `<div class="dsec"><label>Description</label><div class="desc">${esc(d.description)}</div></div>` : ""}
+    ${d.description ? `<div class="dsec"><label>Description</label><div class="desc">${md(d.description)}</div></div>` : ""}
     ${r.update ? `<div class="dsec"><label>Latest update</label>${esc(r.update)}</div>` : ""}
     ${r.why ? `<div class="dsec"><label>Where it stands</label>${esc(r.why)}</div>` : ""}
     ${r.prep && r.prep.length && r.tab !== "claude" ? `<div class="dsec"><label>Claude can do</label>
@@ -1093,18 +1302,17 @@ function findRow(id) {
   return (view.replies || []).concat(view.claude || [], (view.do && view.do.rows) || [], (view.do && view.do.done) || []).find(x => x.id === id) || null;
 }
 function editForm(r) {
-  const d = r.detail || {}, nextMin = (/\((\d+)\s*min\)\s*$/.exec(r.next || "") || [])[1] || (mins(d.next_est || r.est) || "");
-  const nextText = (r.next || "").replace(/\s*\(\d+\s*min\)\s*$/, "");
+  const d = r.detail || {}, nextMin = (/\((?:timebox )?(\d+)\s*min\)\s*$/.exec(r.next || "") || [])[1] || (mins(d.next_est || r.est) || "");
+  const nextText = (r.next || "").replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, "");
   const prio = ["4-high", "3-normal", "2-low", "1-none"].map(p =>
     `<button data-prio="${p}" class="${d.priority === p ? "on" : ""}">${PRIO[p]}</button>`).join("");
-  const dis = r.task ? "" : "disabled";
+  const dis = "";   // every card is a task note; the first tap creates one (Nov 4)
   const cur = d.status_raw || "open";
   const status = [["open", "Open"], ["in-progress", "In progress"], ["done", "Done"], ["cancelled", "Cancelled"]]
     .concat(cur === "inbox" ? [["inbox", "Inbox"]] : []).map(([v, l]) =>
     `<button data-status="${v}" class="${cur === v ? "on" : ""}" ${dis}>${l}</button>`).join("");
   return `<div class="removebox editform">
     <div class="whyhead">${esc(r.title)}</div>
-    ${r.task ? "" : '<div class="why">No task note yet, so only a note to Claude is possible.</div>'}
     <label>Next step</label><textarea class="f-next" rows="2" ${dis}>${esc(nextText)}</textarea>
     <div class="frow">
       <div><label>Next step (min)</label><input class="f-nextmin" inputmode="numeric" value="${esc(String(nextMin))}" ${dis}></div>
@@ -1143,11 +1351,11 @@ function openEdit(card) {
 async function saveEdit(send) {
   const pop = document.getElementById("pop"), r = editRow, d = r.detail || {}, q = s => pop.querySelector(s);
   const fields = {};
-  const nextText = (r.next || "").replace(/\s*\(\d+\s*min\)\s*$/, "");
+  const nextText = (r.next || "").replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, "");
   const prioOn = pop.querySelector(".fprio .on");
-  if (r.task) {
+  {
     if (q(".f-next").value.trim() !== nextText) fields.next = q(".f-next").value;
-    const nm = (/\((\d+)\s*min\)\s*$/.exec(r.next || "") || [])[1] || String(mins(d.next_est || r.est) || "");
+    const nm = (/\((?:timebox )?(\d+)\s*min\)\s*$/.exec(r.next || "") || [])[1] || String(mins(d.next_est || r.est) || "");
     if (q(".f-nextmin").value.trim() !== nm) fields.next_min = q(".f-nextmin").value.trim();
     if (q(".f-test").value.trim() !== String(mins(d.task_est) || "")) fields.time_est = q(".f-test").value.trim();
     if (prioOn && prioOn.dataset.prio !== d.priority) fields.priority = prioOn.dataset.prio;
@@ -1162,7 +1370,7 @@ async function saveEdit(send) {
     const msgs = [];
     if (Object.keys(fields).length) msgs.push((await api("api/act", {id: card.dataset.id, action: "update", fields})).msg);
     if (note && send) { if (msgs.length) toast(msgs.join(" · ")); openChat({kind: "task", id: card.dataset.id, title: r.title, row: r, send: note, from: "adjust"}); return; }
-    else if (note && r.task) msgs.push((await api("api/act", {id: card.dataset.id, action: "note", text: note})).msg);
+    else if (note) msgs.push((await api("api/act", {id: card.dataset.id, action: "note", text: note})).msg);
     haptic(); toast(msgs.join(" · ") || "Nothing changed");
     if (!testMode) load();
   } catch (e) { toast("Failed: " + e.message); }
@@ -1291,6 +1499,22 @@ async function doSend() {
   setTimeout(load, 380);
 }
 document.addEventListener("input", e => { if (e.target.closest && e.target.closest(".sendform")) sendCheck(); });
+document.addEventListener("input", e => {
+  const cbox = e.target.closest && e.target.closest(".dchunkrev[data-cid]");
+  if (cbox && !e.target.closest(".dreview")) {
+    const d = cDraft[cbox.dataset.cid];
+    if (d && e.target.classList.contains("cout")) d.outcome = e.target.value;
+    if (d && e.target.classList.contains("cmin")) d.min = e.target.value;
+    if (d && e.target.classList.contains("cnote")) d.note = e.target.value;
+    return;
+  }
+  const box = e.target.closest && e.target.closest(".dreview[data-sid]");
+  if (!box) return;
+  const d = fbDraft[box.dataset.id + "|" + box.dataset.sid];
+  if (!d) return;
+  if (e.target.classList.contains("fbnote")) d.note = e.target.value;
+  if (e.target.classList.contains("fbmin")) d.est.min = e.target.value;
+});
 
 // The daily meditation in the app (Oct 30): same note in Obsidian, the questions read
 // from the journal template, so a question changed there shows up here.
@@ -1352,7 +1576,9 @@ function md(s) {
   h = h.replace(/\[([^\]]+)\]\((file\?[^)\s]+)\)/g, '<a class="vfile" href="$2" target="_blank" rel="noopener">📄 $1</a>');
   h = h.replace(/^#{1,4}\s*(.+)$/gm, "<b>$1</b>");
   h = h.replace(/^(\s*)[-*] /gm, "$1• ");
-  return h;
+  // Every bare web address becomes a short link named by its host (Nov 4, the owner: "use proper /
+  // shortened links that are clickable"); links already made above are left alone.
+  return linkBare(h);
 }
 function chatQuery(c) { return `kind=${c.kind}&id=${encodeURIComponent(c.id || "")}&day=${c.day || day}`; }
 function chatShell(c) {
@@ -1478,7 +1704,7 @@ function paintDay() {
   const prop = (chat.proposal || []).filter(b => !evs.some(e => e.s < b.f && b.s < e.f
     && ((e.s === b.s && e.f === b.f) || [...words(b.title)].some(w => words(e.title).has(w)))));
   const mins = prop.reduce((a, b) => a + b.f - b.s, 0);
-  n.textContent = (prop.length ? `${prop.length} proposed · ${mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? " " + mins % 60 : "") : mins + "m"}` : "No proposal yet")
+  n.textContent = (prop.length ? `${prop.length} proposed, not booked yet · ${mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? " " + mins % 60 : "") : mins + "m"}` : "No proposal yet")
     + (d.ok === false ? " · calendar unreadable" : "");
   const all = evs.concat(prop);
   let lo = Math.min(d.day_start || 540, ...all.map(x => x.s)), hi = Math.max(d.day_end || 1260, ...all.map(x => x.f));
@@ -1495,7 +1721,10 @@ function paintDay() {
   const on = k => chat.sel === k ? " on" : "";
   h += evs.map((e, i) => `<div data-blk="e${i}" class="ev k-${e.kind || "main"}${e.tentative ? " tent" : ""}${short(e.s, e.f)}${on("e" + i)}" style="top:${y(e.s)}px;height:${Math.max(16, y(e.f) - y(e.s) - 2)}px;left:calc(${e.col} * (50% - 6px) / ${ncol});width:calc((50% - 6px) / ${ncol} - 2px)"><span class="t">${esc(e.title)}</span> <span class="tm">${hhmm(e.s)}-${hhmm(e.f)}</span></div>`).join("");
   h += prop.map((b, i) => `<div data-blk="p${i}" class="pr${short(b.s, b.f)}${on("p" + i)}" style="top:${y(b.s)}px;height:${Math.max(16, y(b.f) - y(b.s) - 2)}px"><span class="t">${esc(b.title)}</span> <span class="tm">${hhmm(b.s)}-${hhmm(b.f)}</span></div>`).join("");
-  if (d.now != null && d.now >= lo && d.now <= hi) h += `<div class="nowl" style="top:${y(d.now)}px"></div>`;
+  // The now line follows the phone's clock at every paint (Nov 4: it stayed where the day was
+  // first loaded, 9:17, while he planned at 10:43). d.now only says the day is today.
+  const nowAt = new Date(), nowL = d.now != null ? nowAt.getHours() * 60 + nowAt.getMinutes() : null;
+  if (nowL != null && nowL >= lo && nowL <= hi) h += `<div class="nowl" style="top:${y(nowL)}px"></div>`;
   box.innerHTML = h + "</div>";
   blockDetail();
   const book = document.getElementById("pbook");
@@ -1603,7 +1832,7 @@ function kickoffText(r) {
   const steps = ((r.detail || {}).steps || []);
   // Two-minute tasks get no DoD (SYSTEM.md): the whole task, not its next step. The task's
   // estimate when there is one, else a single open step marked (2 min) or less.
-  const det = r.detail || {}, te = mins(det.task_est), one = /\((\d+)\s*min\)\s*$/.exec(r.next || "");
+  const det = r.detail || {}, te = mins(det.task_est), one = /\((?:timebox )?(\d+)\s*min\)\s*$/.exec(r.next || "");
   const dod = det.dod, small = te != null ? te <= 2 : (!(det.steps || []).length && !!one && +one[1] <= 2);
   return [`Start working on this task now: ${r.title}.`,
     dod ? `Work toward this Definition of Done${(r.detail || {}).dod_guess ? " (your earlier guess, not confirmed by me)" : ""}: ${dod}.`
@@ -1621,24 +1850,72 @@ function kickoffText(r) {
 function doRow(id) { return ((view.do && view.do.rows) || []).find(x => x.id === id) || findRow(id); }
 function openTaskPanel(id) {
   const r = doRow(id); if (!r) { toast("Refresh, this task changed"); return; }
+  // Start is the step's start, for its actual time (Tasks v2, Nov 6).
+  if ((view.flags || {}).actuals && !testMode) api("api/act", {id, action: "step_start", sid: (r.detail || {}).next_id || "", tab: "do"}).catch(() => {});
   const has = !!(view.chats && view.chats["task:" + id]);
   openChat({kind: "task", id, title: r.title, row: r, tab: "do", from: "start", panel: true,
             send: has ? undefined : kickoffText(r), hidden: !has});
 }
 function linkBare(s) {
   // esc()'d text: a bare URL becomes a short link named by its host
-  return s.replace(/(?<![="\w\/])\(?(https?:\/\/[^\s)<"]+)\)?/g, (m, u) => {
+  s = s.replace(/(?<![="\w\/])\(?(https?:\/\/[^\s)<"]+)\)?/g, (m, u) => {
     let host = u; try { host = new URL(u.replace(/&amp;/g, "&")).host.replace(/^www\./, ""); } catch (e) {}
     return ` <a href="${u}" target="_blank" rel="noopener">${host}</a>`;
   });
+  // A web address written without https:// ("elcruce.com.ar/hoteles") is a link too (Nov 4,
+  // the owner: "always use clickable links if i have to click sth"). Not an email, a file name,
+  // or text already inside a link.
+  return s.replace(/(?<![@\w.\/>"=-])((?:[a-z0-9-]+\.)+(?:com|org|net|edu|gov|io|ai|app|dev|co|me|ar|de|at|ch|uk|es|fr|it|nl|ca|in|us)(?:\.[a-z]{2})?(?:\/[^\s)<"]*)?)(?![\w@-])/gi,
+    (m, d) => /\.(md|pdf|py|js|json|txt|csv|png|jpe?g)$/i.test(d) ? m
+      : `<a href="https://${d.replace(/[.,;:]+$/, "")}" target="_blank" rel="noopener">${d}</a>`);
 }
+// Links everywhere (Nov 5, the owner: "links are still super unstable across the app ... across the
+// entire PWA"). md() makes links in what it renders, but many places print text with esc() only,
+// so a [label](link) or a bare web address showed raw. After every change to the page, fixLinks
+// turns any such text into a link, whichever code printed it: new screens are covered without
+// remembering. Never inside a link, a field, code or a script.
+const RAW_LINK = /\[[^\]\n]+\]\((?:https?:\/\/|file\?|obsidian:\/\/)[^)\s]+\)|https?:\/\/[^\s)<"]+|(?:^|[\s(])(?:[a-z0-9-]+\.)+(?:com|org|net|edu|gov|io|ai|app|dev|co|me|ar|de|at|ch|uk|es|fr|it|nl|ca|in|us)(?:\/[^\s)<"]*)?(?=[\s).,;:!?]|$)/i;
+function linkText(s) {   // plain text in, HTML out
+  let h = esc(s);
+  h = h.replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  h = h.replace(/\[([^\]\n]+)\]\((file\?[^)\s]+)\)/g, '<a class="vfile" href="$2" target="_blank" rel="noopener">📄 $1</a>');
+  h = h.replace(/\[([^\]\n]+)\]\((obsidian:\/\/[^)\s]+)\)/g, (m, l, u) => inTg ? l : `<a href="${u}">📓 ${l}</a>`);
+  return linkBare(h);
+}
+function fixLinks(root) {
+  if (!root || !document.createTreeWalker) return;
+  const skip = "a,textarea,input,select,pre,code,script,style,[contenteditable],.nolink";
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {acceptNode: n =>
+    n.parentElement && RAW_LINK.test(n.nodeValue) && !n.parentElement.closest(skip)
+      ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT});
+  const found = [];
+  while (w.nextNode()) found.push(w.currentNode);
+  for (const n of found) {
+    const html = linkText(n.nodeValue);
+    if (html === esc(n.nodeValue)) continue;   // nothing to link after all
+    const box = document.createElement("span");
+    box.innerHTML = html;
+    n.replaceWith(...box.childNodes);
+  }
+}
+(function watchLinks() {
+  let queued = false;
+  const run = () => { queued = false; try { fixLinks(document.body); } catch (e) {} };
+  const start = () => {
+    run();
+    new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(run); } })
+      .observe(document.body, {childList: true, subtree: true, characterData: true});
+  };
+  if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
+})();
 // A step's parts (Nov 3, the owner: "one sentence short ... with like empty bullet on the left"):
 // split at "; ", ", then", ", and" and at ", <verb>", never inside brackets; what is in brackets
 // moves to a small line below. Display only: the note keeps the step as written.
 const STEP_VERBS = new Set("take handwrite bring have send email mail check book pay ask call write open print scan upload fill reply text add confirm pick go buy pack get find read sign submit tell offer review draft move set put cancel order register drop collect share forward attach update message whatsapp".split(" "));
+const TIME_LEAD = /^(?:by|on|before|after|until|till|from|at|around)\s/i;   // a lead-in, not a step: "By Nov 12", "Before the call with the bank"
 function stepParts(text) {
   const due = dueIso(text);
-  const t = stripDue(clean(text || "")).replace(/\s*\(\d+\s*min\)\s*$/, "").trim();
+  const t = stripDue(clean(text || "")).replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, "").trim();
   const parts = []; let cur = "", depth = 0, tail = "";
   for (let i = 0; i < t.length; i++) {
     const ch = t[i];
@@ -1657,12 +1934,14 @@ function stepParts(text) {
     cur += ch;
   }
   parts.push(cur);
-  // A fragment of one or two words ("While there") belongs to the part after it.
-  const merged = [];
+  // A fragment of one or two words ("While there") belongs to the part after it, and so does a
+  // short time phrase ("By Nov 12", "On Friday morning"; Nov 4, a flight refund step split into
+  // "By Nov 12" and "Confirm the refund landed").
+  const merged = [], joined = [];   // a lead-in joins one part, never a chain of them
   parts.map(s => s.trim()).filter(Boolean).forEach(s => {
-    const last = merged[merged.length - 1];
-    if (last !== undefined && last.split(/\s+/).length < 3) merged[merged.length - 1] = last + ", " + s;
-    else merged.push(s);
+    const k = merged.length - 1, last = merged[k], n = k < 0 ? 0 : last.split(/\s+/).length;
+    if (k >= 0 && !joined[k] && (n < 3 || (n <= 7 && TIME_LEAD.test(last)))) { merged[k] = last + ", " + s; joined[k] = true; }
+    else { merged.push(s); joined.push(false); }
   });
   const out = merged.map(s => {
     const det = [];
@@ -1683,8 +1962,16 @@ function todayWins(dayIso) {
   });
   // A step whose parts are listed is not listed again as a whole
   const seen = new Set(Object.values(view.subticks || {}).filter(e => e && e.at === dayIso)
-    .map(e => clean(e.next).replace(/\s*\(\d+\s*min\)\s*$/, "").trim()));
-  const items = parts.concat((w.items || []).filter(x => !seen.has(x.t)));
+    .map(e => clean(e.next).replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, "").trim()));
+  // One event logged in two notes is one win, already here, so the chip's count is the list's
+  // length (Nov 6: "Progress today 5" listed 4, the count was taken before winsHtml's dedupe).
+  const kept = [];
+  const items = parts.concat((w.items || []).filter(x => !seen.has(x.t))).filter(x => {
+    const k = winKey(x.t);
+    const dup = k.nums.size && kept.some(o => [...k.nums].some(n => o.nums.has(n)) && [...k.names].some(n => o.names.has(n)));
+    if (!dup) kept.push(k);
+    return !dup;
+  });
   return {items, n: items.length, claude: w.claude_steps || 0, tasks: w.claude_tasks || 0};
 }
 // Progress today grouped by task (Nov 3, the owner: "so substeps stay grouped by task"): the task
@@ -1712,13 +1999,23 @@ function winsHtml(wins) {
     ${ws.map(w => `<div class="dwin${w.big ? " big" : ""}"><i>✓</i><span>${linkBare(md(short(w.t)))}</span></div>`).join("")}</div>`).join("")}${wins.claude
     ? `<div class="dwin claude"><i>✦</i><span>Claude also did ${wins.claude} prep step${wins.claude === 1 ? "" : "s"} on ${wins.tasks} task${wins.tasks === 1 ? "" : "s"}</span></div>` : ""}</div>`;
 }
-function checkItem(x, on, attrs) {
+function checkItem(x, on, attrs, discard, extra) {
   return `<li class="${on ? "on" : ""}"><button class="tp-box" ${attrs} aria-label="${on ? "Not done" : "Mark done"}">✓</button>
-    <span class="tp-txt">${linkBare(md(x.main))}${x.detail ? `<small>${linkBare(md(x.detail))}</small>` : ""}</span></li>`;
+    <span class="tp-txt">${linkBare(md(x.main))}${x.detail ? `<small>${linkBare(md(x.detail))}</small>` : ""}${extra || ""}</span>${discard ? `<button class="tp-x" data-tp="discard" ${discard} aria-label="Discard this step" title="Discard this step">×</button>` : ""}</li>`;
+}
+// A step's workspace (Nov 4, the owner: "the small workspace for the substep where relevant
+// information is contained"): its few links, one tap each, for the Next step and today's steps.
+function stepWs(r, step, sid) {
+  const ws = ((r && r.detail) || {}).ws || {}, items = (sid && ws[sid]) || ws[step] || ws[clean(step)] || [];
+  // A note link opens Obsidian, where he can edit (Nov 4, the owner: "i would prefer it to open in
+  // obsidian"); inside Telegram, where obsidian:// is dead, the app's read-only page instead.
+  const one = x => typeof x === "string" ? linkBare(md(x))
+    : (x.obs && !inTg ? `<a href="${esc(x.obs)}">📓 ${esc(x.label)}</a>` : linkBare(md(x.md)));
+  return items.length ? `<div class="tp-ws">${items.map(x => `<span>${one(x)}</span>`).join("")}</div>` : "";
 }
 function subDone(r) {
-  const e = (view.subticks || {})[r.id];
-  return new Set(e && e.next === r.next ? e.done : []);
+  const e = (view.subticks || {})[r.id], sid = (r.detail || {}).next_id;
+  return new Set(e && (e.sid && sid ? e.sid === sid : e.next === r.next) ? e.done : []);
 }
 // The last steps he finished, under Next (owner decision, Nov 3: "history of past 3 steps that were
 // accomplished would be nice to see below next steps"). Muted, newest first, with their date;
@@ -1735,21 +2032,23 @@ function doneStepsHtml(list) {
 // other steps of today's chunk, with their total; then Later, the rest. A task without a
 // chunk (opened outside Do) keeps Next step and After that.
 function stepSections(r, steps) {
-  const norm = s => stripDue(clean(s)).replace(/\s*\(\d+\s*min\)\s*$/, "").trim();
-  const inChunk = s => !!(r.chunk && r.chunk.steps.some(c => norm(c) === norm(s)));
+  const norm = s => stripDue(clean(s)).replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, "").trim();
+  const sids = (r.detail || {}).step_ids || [];
+  const inChunk = (s, n) => !!(r.chunk && ((r.chunk.ids || []).some(Boolean) && sids[n]
+    ? r.chunk.ids.includes(sids[n]) : r.chunk.steps.some(c => norm(c) === norm(s))));
   const lineItem = (s, n, later) => {
     const ps = stepParts(s), x = {main: ps[0] ? ps[0].main : clean(s), detail: ps.slice(1).map(q => q.main).concat(ps[0] && ps[0].detail ? [ps[0].detail] : []).join(" · ")};
-    return checkItem(x, false, `data-tp="line" data-n="${n}"`).replace("<li class=\"", later ? "<li class=\"later " : "<li class=\"");
+    return checkItem(x, false, `data-tp="line" data-n="${n}"`, `data-n="${n}"`, later ? "" : stepWs(r, s, ((r.detail || {}).step_ids || [])[n])).replace("<li class=\"", later ? "<li class=\"later " : "<li class=\"");
   };
   const nextList = r.next
-    ? `<ul class="tp-check">${stepParts(r.next).map((x, n) => checkItem(x, subDone(r).has(n), `data-tp="sub" data-n="${n}"`)).join("")}</ul>`
+    ? `<ul class="tp-check">${stepParts(r.next).map((x, n) => checkItem(x, subDone(r).has(n), `data-tp="sub" data-n="${n}"`, n === 0 ? 'data-next="1"' : "")).join("")}</ul>${stepWs(r, r.next, (r.detail || {}).next_id)}`
     : '<div class="tp-next">No next step written yet</div>';
   const idx = steps.map((s, n) => [s, n]);
   if (!r.chunk) {
     return `<label>Next step</label>${nextList}
       ${steps.length ? `<details class="tp-after"${chat && chat.split ? " open" : ""}><summary>After that · ${steps.length} step${steps.length > 1 ? "s" : ""}</summary><ul class="tp-check">${idx.map(([s, n]) => lineItem(s, n, false)).join("")}</ul></details>` : ""}`;
   }
-  const today = idx.filter(([s]) => inChunk(s)), later = idx.filter(([s]) => !inChunk(s));
+  const today = idx.filter(([s, n]) => inChunk(s, n)), later = idx.filter(([s, n]) => !inChunk(s, n));
   const total = r.chunk.min ? ` · ${fmt(r.chunk.min)}${r.chunk.unest ? "+" : ""}` : "";
   return `<div class="tp-today"><label>Today · ${r.chunk.total} step${r.chunk.total > 1 ? "s" : ""}${total}</label>${nextList}
       ${today.length ? `<ul class="tp-check">${today.map(([s, n]) => lineItem(s, n, false)).join("")}</ul>` : ""}</div>
@@ -1764,7 +2063,7 @@ function panelHead(r) {
         : `<div class="tp-dod muted">None yet. Claude proposes one when it starts.</div><div class="tp-acts"><button class="link" data-tp="dodedit">Write one</button></div>`}</div>
     ${propLines(r)}
     <div class="tp-sec tp-stepsec">${stepSections(r, steps)}
-      ${r.task ? '<div class="tp-acts"><button class="link" data-tp="stepsedit">Edit steps</button></div>' : ""}</div>
+      <div class="tp-acts"><button class="link" data-tp="stepsedit">Edit steps</button></div></div>
     ${doneStepsHtml(d.done_steps)}
     <details class="tp-after tp-full"${fullOpen ? " open" : ""}><summary>Full details</summary>${detailBlock(r, true)}</details>
   </div>`;
@@ -2020,8 +2319,10 @@ function mindLine(r) {
   const fill = !r.med_pending ? "" : view && view.prerun && view.prerun.running
     ? '<div class="mfill on"><i></i>Claude is filling this in from your meditation…</div>'
     : '<div class="mfill">A rough match from your meditation. Refresh fills it in.</div>';
-  if (!r.mind || r.mind < 2) return fill;
-  return fill + `<div class="mind">In your meditation on ${r.mind} days this month${r.raise
+  // Pre-selected because an earlier day left it open (Nov 5).
+  const left = tab === "today" && r.left_from ? `<div class="mind">Left open since ${esc(r.left_from)}</div>` : "";
+  if (!r.mind || r.mind < 2) return fill + left;
+  return fill + left + `<div class="mind">In your meditation on ${r.mind} days this month${r.raise
     ? ' · <button class="link" data-a="raise">Raise priority</button> · <button class="link" data-a="noraise">Not now</button>' : ""}</div>`;
 }
 function hero(r) {
@@ -2055,9 +2356,11 @@ function item(r, kind) {
     <div class="top">
       <div class="body"><div class="title">${esc(r.title)}${kind === "pulled" ? ' <span class="by">added by you</span>' : ""}</div>
         ${ck ? ck + `<div class="selmind">${mindLine(r)}</div>`
+          : r.auto_closed ? `<div class="nx">Closed for you: ${md(r.auto_closed)}</div>`
           : `<div class="nx">${r.suggest ? esc(r.suggest) + " · " : ""}${r.est ? esc(r.est) + (r.next ? " · " : "") : ""}${md(stripDue(r.next || ""))}${dueIso(r.next) ? ` <span class="ddue">due ${dueLabel(dueIso(r.next))}</span>` : ""}</div>${mindLine(r)}`}</div>
       ${kind === "plan" ? "" : kind === "closed"
-        ? `<div class="pair">${r.task ? '<button class="addpill txt ghost" data-a="reopen">Reopen</button>' : ""}</div>`
+        ? `<div class="pair">${r.auto_closed ? '<button class="addpill txt ghost" data-a="auto_close_undo">Undo</button>'
+            : r.task ? '<button class="addpill txt ghost" data-a="reopen">Reopen</button>' : ""}</div>`
         : kind === "maybe-done"
         ? `<div class="pair"><button class="addpill txt on" data-a="done">Done</button><button class="addpill txt ghost" data-a="notdone">Not done</button></div>`
         : `<div class="pair">${addBtn(r)}${removeBtn()}</div>`}
@@ -2073,35 +2376,39 @@ function item(r, kind) {
 // A card on Do (Nov 1): when it is booked, Done on the row, what a refresh found ("looks done"),
 // the Keep, Move or Drop question after 3 days carried, and Take off today.
 function doItem(r) {
-  const tag = [r.do_now ? '<span class="dnow">Now</span>' : r.do_next ? '<span class="dnext">Next</span>' : "",
-    r.blk ? `<span>${hhmm(r.blk.s)}-${hhmm(r.blk.f)}${r.blk.title && r.blk.title !== r.title ? " · " + esc(r.blk.title) : ""}</span>` : "",
-    r.carried_from ? `<span class="dfrom">from ${esc(r.carried_from)}</span>` : "",
-    r.wait_back ? '<span class="dback">Wait over</span>' : "",
-    dueIso(r.next) ? `<span class="ddue">due ${dueLabel(dueIso(r.next))}</span>` : ""].filter(Boolean).join(" ");
-  const longStep = r.next ? stripDue(clean(r.next)).replace(/\s*\(\d+\s*min\)\s*$/, "") : "";
+  const est = doEst(r);
+  // The bottom line (Nov 6, the owner: "estimates are not a label any more and only due dates"): plain
+  // grey text joined by dots, and the due date the one small tag at its end.
+  const tag = [r.do_now ? '<b class="dnowt">Now</b>' : r.do_next ? '<b class="dnowt">Next</b>' : "",
+    r.blk ? `<span class="dblk">${hhmm(r.blk.s)}-${hhmm(r.blk.f)}${r.blk.title && r.blk.title !== r.title ? " · " + esc(r.blk.title) : ""}</span>` : "",
+    est ? `<span>${esc(est)}</span>` : "",
+    r.carried_from ? "<span>left open</span>" : "",
+    r.wait_back ? "<span>wait over</span>" : ""].filter(Boolean).join('<span class="dsep">·</span>')
+    + (dueIso(r.next) ? `<span class="ddue">due ${dueLabel(dueIso(r.next))}</span>` : "");
+  const longStep = r.next ? stripDue(clean(r.next)).replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, "") : "";
   // Short title, long step in the opened card (owner decision, Nov 3: "so we have a short and long next").
   const step = longStep ? (r.next_short || longStep) : "";
   const pw = pendingWait && pendingWait.id === r.id ? pendingWait : null;
-  const longBox = longStep && step !== longStep ? `<div class="dlong"><label>Next step</label>${md(longStep)}</div>` : "";
+  const longBox = (longStep ? `<div class="dlong"><label>Next step</label>${estLabel(r)}${md(longStep)}</div>` : "") + (r.next ? stepWs(r, r.next, (r.detail || {}).next_id) : "");
 
   return `<div class="item doitem${r.do_now ? " isnow" : ""}" data-id="${esc(r.id)}">
     <div class="top">
-      <div class="body">${tag ? `<div class="dtag">${tag}</div>` : ""}${step
-        // The next step is the card's title and the task its subtitle (owner decision, Nov 3): Done
-        // completes that step. A task without steps keeps its own title.
-        ? `<div class="title">${esc(step)}</div>
-        <div class="nx">${r.est ? esc(r.est) + " · " : ""}${esc(r.title)}</div>
-        ${r.chunk && r.chunk.total > 1 ? `<div class="dchunk">Today: ${r.chunk.left} of ${r.chunk.total} steps left${r.chunk.min ? " · " + fmt(r.chunk.min) + (r.chunk.unest ? "+" : "") : ""}</div>` : ""}`
-        : `<div class="title">${esc(r.title)}</div>
-        <div class="nx">${r.est ? esc(r.est) + (r.waiting ? " · " : "") : ""}${r.waiting ? "Waiting · " + esc(r.waiting) : ""}</div>`}
+      <div class="body">
+        ${doHead(r, step)}
+        ${tag ? `<div class="dtag">${tag}</div>` : ""}
+        <div class="dstat">
+        ${r.waiting ? `<div class="nx dwline">Waiting on ${esc(r.waiting.replace(" · for: ", ": "))}</div>` : ""}
+        ${foundToday(r)}
         ${propLines(r)}
         ${r.guess === "done" ? `<div class="dlooks">Looks done${r.why ? ": " + esc(r.why.slice(0, 120)) : ""} · <button class="link" data-a="notdone">Not done</button></div>` : ""}
-        ${longBox}
-        ${r.carry_ask ? `<div class="dask">On your list since ${esc(r.carried_from)}. <button class="link" data-do="keep">Keep</button> · <button class="link" data-do="move">Move</button> · <button class="link" data-do="drop">Drop</button></div>` : ""}</div>
+        ${(r.claude_did || []).length ? `<div class="dask dclaude">Claude did: ${esc(stripDue(clean(r.claude_did[0])).replace(/\s*\((?:timebox )?\d+\s*min\)\s*$/, ""))}${r.claude_did.length > 1 ? ` +${r.claude_did.length - 1}` : ""} · <button class="link" data-a="start">Review</button></div>` : ""}
+        ${r.carry_ask ? `<div class="dask">On your list since ${esc(r.carried_from)}. <button class="link" data-do="keep">Keep</button> · <button class="link" data-do="move">Move</button> · <button class="link" data-do="drop">Drop</button></div>` : ""}
+        </div>
+        ${longBox}</div>
       <div class="pair"><button class="addpill txt on" data-a="start">${view.chats && view.chats["task:" + r.id] ? "Continue" : "Start"}</button><button class="addpill txt ghost" data-a="stepdone">Done</button></div>
     </div>
     <div class="more">
-      <div class="acts small"><button data-a="edit">Edit</button><button data-step="waittoggle" data-guess="${esc(guessWho(r.next))}" aria-pressed="${pw ? "true" : "false"}"${pw ? ' class="on"' : ""}>Waiting</button><button data-do="drop">Take off today</button></div>
+      <div class="acts small"><button data-a="edit">Edit</button>${r.chunk && r.chunk.outcome ? `<button data-outcome="${esc(r.chunk.outcome)}">Edit outcome</button>` : ""}<button data-step="waittoggle" data-guess="${esc(guessWho(r.next))}" aria-pressed="${pw ? "true" : "false"}"${pw ? ' class="on"' : ""}>Waiting</button><button data-do="drop">Take off today</button></div>
       ${pw ? `<label class="dwho">Waiting on <input class="in-wait-new" value="${esc(pw.text)}" placeholder="who, and for what" autocomplete="off" enterkeyhint="done"><button class="addpill txt on" data-step="waitsave">Save</button></label>` : ""}
       ${detailBlock(r)}
     </div></div>`;
@@ -2138,7 +2445,7 @@ function replyCard(r) {
       : `<textarea class="draft in-draft" rows="${Math.min(10, (d.body || "").split("\n").length + 1)}" autocomplete="off">${esc(d.body)}</textarea>`}
     <div class="acts">${d.via === "mail" ? '<button class="primary" data-a="sendopen">Send</button>'
       : '<button class="primary" data-a="copy">Copy</button>' + (waNumber(d.to) ? '<button data-a="wa">WhatsApp</button>' : "")}
-      ${talkBtn(r)}<button data-a="done">Replied</button>
+      ${talkBtn(r)}<button data-a="replied">Sent</button>
       <button data-a="skipreply">Skip</button></div>
   </div>`;
 }
@@ -2179,7 +2486,7 @@ function claudeCard(r) {
     ${body}
     <div class="acts">${res || (pr && pr.pending) ? "" : '<button class="primary" data-a="prepare">Prepare now</button>'}
       ${talkBtn(r)}
-      <button data-a="edit">Adjust</button><button data-a="tomorrow" ${r.task ? "" : "disabled"}>Not now</button></div>
+      <button data-a="edit">Adjust</button><button data-a="tomorrow">Not now</button></div>
   </div>`;
 }
 
@@ -2261,7 +2568,14 @@ function render() {
     // box (owner decision, Oct 30); the top group is Claude's pre-selection plus his pulls.
     const topIds = new Set([t.one && t.one.id, ...t.needs.map(r => r.id)]);
     const pulled = selection(day).filter(r => !topIds.has(r.id));
-    const notPulled = rows => rows.filter(r => !sel[day].includes(r.id));
+    // Left open (Nov 4): an earlier day's unfinished tasks, decided here first: Add keeps it for
+    // today, Drop takes it off Do (the task stays open). Not deciding leaves it in Do's Left open.
+    // One list (owner decision, Nov 5): what an earlier day left open competes in the pre-selection as
+    // high signal (the server ranks it with the meditation rows); the rest of it waits in the
+    // Left open fold below, like Waiting and Everything else, with Add or Drop.
+    const leftRows = day === "today" ? (t.left_open || []).filter(r => !sel[day].includes(r.id) && !topIds.has(r.id)) : [];
+    const leftIds = new Set(leftRows.map(r => r.id));
+    const notPulled = rows => rows.filter(r => !sel[day].includes(r.id) && !leftIds.has(r.id));
     const top = t.needs.concat(pulled);
     // + Task lives with the pre-selection (Oct 30): a task added here is his pick for the day.
     h += `<h2>Pre-selected <span>${t.needs.length} from Claude${pulled.length ? ` + ${pulled.length} by you` : ""}</span>
@@ -2269,7 +2583,12 @@ function render() {
       <div class="addbar" id="addbar"><input id="new-task" placeholder="New task for ${day}…"><button id="add-btn">Add</button></div>`;
     if (top.length) h += `<div class="list" data-sec="needs">${top.map(r => item(r, pulled.includes(r) ? "pulled" : "")).join("")}</div>`;
     const folds = [["waiting", "Waiting"], ["done", "Probably done"], ["more", "Everything else"], ["closed", "Done"]].filter(([k]) => notPulled(t[k] || []).length);
-    if (folds.length) h += `<div class="chips">${folds.map(([k, l]) => `<button data-fold="${k}" class="${fold === k ? "on" : ""}">${l} ${notPulled(t[k]).length}</button>`).join("")}</div>`;
+    const chipLeft = leftRows.length ? `<button data-fold="left" class="${fold === "left" ? "on" : ""}">Left open ${leftRows.length}</button>` : "";
+    if (folds.length || chipLeft) h += `<div class="chips">${chipLeft}${folds.map(([k, l]) => `<button data-fold="${k}" class="${fold === k ? "on" : ""}">${l} ${notPulled(t[k]).length}</button>`).join("")}</div>`;
+    if (fold === "left" && leftRows.length) h += `<div class="list" data-sec="left" style="margin-top:10px">${leftRows.map(r => `<div class="item dleft" data-id="${esc(r.id)}"><div class="top"><div class="body">
+        <div class="title">${esc(r.title)}</div>
+        <div class="nx">${r.est ? esc(r.est) + " · " : ""}${esc(r.next_short || stripDue(clean(r.next || "")))} · since ${esc(r.carried_from)}</div></div>
+        <div class="pair">${addBtn(r)}<button class="addpill txt ghost" data-do="drop">Drop</button></div></div></div>`).join("")}</div>`;
     if (fold && t[fold] && notPulled(t[fold]).length) h += `<div class="list" data-sec="${fold}" style="margin-top:10px">${notPulled(t[fold]).map(r => item(r, fold === "done" ? "maybe-done" : fold === "closed" ? "closed" : "")).join("")}</div>`;
     if (day === "tomorrow" && t.suggest && notPulled(t.suggest).length) {
       h += `<h2>Suggested <span>Add moves it up into tomorrow</span></h2><div class="list" data-sec="suggest">${notPulled(t.suggest).map(suggestItem).join("")}</div>`;
@@ -2288,6 +2607,10 @@ function render() {
       d.rows.forEach(r => { if (r.blk && !seenNow && r.blk.s <= nowM && nowM < r.blk.f) { r.do_now = seenNow = true; } });
       d.rows.forEach(r => { if (r.blk && !r.do_now && !seenNext && r.blk.s > nowM) { r.do_next = seenNext = true; } });
       h += head(`${esc(dayName("today"))} · ${d.rows.length ? d.rows.length + " to do" : "nothing open"} · ${refreshLink()}`, "Do");
+      // The day's plan was proposed but not booked (Nov 4, the owner: "i didn't see that the plan is
+      // unconfirmed yet"): its blocks order nothing until they are in the calendar.
+      const pp = view.plan_pending;
+      if (pp && pp.n) h += `<div class="dstep dplan">${pp.busy ? "Booking the plan…" : `<b>Plan not booked yet</b> · ${pp.n} block${pp.n > 1 ? "s" : ""}, ${fmt(pp.min)} · <button class="link" data-planbook>Book ${pp.n > 1 ? "them" : "it"}</button> · <button class="link" data-tab="today">Open plan</button>`}</div>`;
       if (d.suggest.length) h += `<div class="dsug"><div class="dsug-h">New for today</div>${d.suggest.map(r => `<div class="dsrow" data-id="${esc(r.id)}">
           <div class="dsb"><b>${esc(r.title)}</b><span>${esc(r.suggest_why || "")}</span></div>
           <button class="addpill txt on" data-do="add">Add</button><button class="addpill txt ghost" data-do="dismiss">Not today</button></div>`).join("")}</div>`;
@@ -2299,7 +2622,13 @@ function render() {
         h += `<div class="dstep" data-id="${esc(s.id)}">${what}${s.state === "closed" ? "" : ' · <button class="link" data-step="undo">Undo</button>'}</div>`;
       }
       h += d.moved.map(m => `<div class="dmoved" data-id="${esc(m.id)}">Moved to ${esc(m.to)}: ${esc(m.title)} · <button class="link" data-do="unmove">Undo</button></div>`).join("");
+      // Declared before the empty-state test that reads it (Nov 6: read before its const, it threw
+      // and the empty and all-done Do screens never drew).
+      const parts = d.part_done || [], doneN = d.done.length + parts.length;
+      // The actual check (Tasks v2, Nov 6): a step far off its estimate asks once.
+      h += (d.actual_asks || []).map(a => `<div class="dactual" data-id="${esc(a.task)}" data-sid="${esc(a.step)}">${esc(stripDue(clean(a.text)))} took ${fmt(a.actual)}, estimated ${fmt(a.est)}. It really took: <button class="link" data-actual="shorter">shorter</button> · <button class="link" data-actual="right">about that</button> · <button class="link" data-actual="longer">longer</button></div>`).join("");
       if (d.rows.length) h += `<div class="list" data-sec="do">${d.rows.map(r => item(r, "do")).join("")}</div>`;
+      else if ((d.left_open || []).length) h += `<div class="empty">Nothing planned left. Some tasks are still left open below.</div>`;
       else if ((d.waiting || []).length && !d.done.length) h += `<div class="empty">Nothing left for you today: the rest waits on others.</div>`;
       else if (!doneN) {
         h += `<div class="empty">Nothing committed for today yet.</div><button class="cta" data-tab="today" style="background:var(--accent);color:var(--onaccent)">Plan today</button>`;
@@ -2310,26 +2639,53 @@ function render() {
       const wt = d.waiting || [];
       // Today (Nov 3): the small things already done, for the "ah, I did all this" moment.
       const wins = todayWins(d.date);
-      const parts = d.part_done || [], doneN = d.done.length + parts.length;
-      if (doneN || wt.length || wins.n) h += `<div class="chips" style="margin-top:16px">${wins.n ? `<button data-winsfold class="${openWinsFold ? "on" : ""}">Progress today ${wins.n}</button>` : ""}${wt.length ? `<button data-waitfold class="${openWaitFold ? "on" : ""}">Waiting ${wt.length}</button>` : ""}${doneN ? `<button data-dofold class="${openDoneFold ? "on" : ""}">Done ${doneN}</button>` : ""}</div>`;
+      const lo = d.left_open || [];
+      // Progress, Waiting and Done always show, with 0 when empty (Nov 6, the owner: "What happened to
+      // progress waiting and done in the bottom?"); Left open only when something is left open.
+      h += `<div class="chips" style="margin-top:16px">${lo.length ? `<button data-leftfold class="${openLeftFold ? "on" : ""}">Left open ${lo.length}</button>` : ""}<button data-winsfold class="${openWinsFold ? "on" : ""}">Progress today ${wins.n}</button><button data-waitfold class="${openWaitFold ? "on" : ""}">Waiting ${wt.length}</button><button data-dofold class="${openDoneFold ? "on" : ""}">Done ${doneN}</button></div>`;
+      const nothing = t => `<div class="empty" style="margin-top:10px">${t}</div>`;
+      if (openWinsFold && !wins.n) h += nothing("No progress logged today yet.");
+      if (openWaitFold && !wt.length) h += nothing("Nothing on today's list is waiting on someone.");
+      if (openDoneFold && !doneN) h += nothing("Nothing done today yet.");
+      // Left open (Nov 4): carried over, not in today's plan. Add puts it on today's list, Drop takes it off Do.
+      if (openLeftFold && lo.length) h += `<div class="list" style="margin-top:10px">${lo.map(r => `<div class="item dleft" data-id="${esc(r.id)}"><div class="top"><div class="body">
+          <div class="title">${esc(r.next_short || stripDue(clean(r.next || "")) || r.title)}</div>
+          <div class="nx">${r.est ? esc(r.est) + " · " : ""}${esc(r.title)}${r.carry_ask ? ` · since ${esc(r.carried_from)}` : ""}</div></div>
+          <div class="pair"><button class="addpill txt on" data-do="add">Add to today</button><button class="addpill txt ghost" data-do="drop">Drop</button></div></div></div>`).join("")}</div>`;
       if (openWinsFold && wins.n) h += winsHtml(wins);
       if (openWaitFold && wt.length) h += `<div class="list" style="margin-top:10px">${wt.map(w => `<div class="item dwait" data-id="${esc(w.id)}"><div class="top"><div class="body">
           <div class="title">${esc(w.title)}</div>
           ${editWait === w.id
             ? `<textarea class="in-wait" rows="2" autocomplete="off" enterkeyhint="done" aria-label="Waiting on">${esc(editDraft ?? w.who)}</textarea>`
-            : `<div class="wwhy" data-step="wedit">Waiting on ${esc(w.who || "someone")}</div>`}
+            : `<div class="wwhy" data-step="wedit">Waiting on ${esc((w.who || "someone").replace(" · for: ", ": "))}</div>`}
           <div class="wmeta">${w.since ? `Since ${esc(w.since)} · ` : ""}<button class="link" data-step="wedit">Edit</button></div>
           ${w.nudge ? `<div class="dask">No answer yet. <button class="link" data-step="nudge">Nudge?</button></div>` : ""}</div>
           <div class="pair"><button class="addpill txt ghost" data-step="notwait">Not waiting</button></div></div></div>`).join("")}</div>`;
       if (openDoneFold && doneN) h += `<div class="list" style="margin-top:10px">${parts.map(r => `<div class="item dpart" data-id="${esc(r.id)}"><div class="top"><div class="body">
-          <div class="title">${esc(r.title)}</div><div class="nx">Today's part done · Next time: ${esc(r.part_next)}${r.part_next_est ? " (" + fmt(r.part_next_est) + ")" : ""}</div></div>
+          <div class="title">${esc(r.title)}</div><div class="nx">${r.outcome ? "Done today: " + esc(r.outcome) : r.part_changed ? "Today's steps changed" : "Today's part done"} · Next time: ${esc(r.part_next)}${r.part_next_est ? " (" + fmt(r.part_next_est) + ")" : ""}</div>${planList(r.plan)}</div>
           <div class="pair"><button class="addpill txt ghost" data-do="more">Keep going</button></div></div></div>`).join("")}${d.done.map(r => item(r, "closed")).join("")}</div>`;
     }
+  } else if (tab === "goals") {   // goals.js (Nov 5): the week against his goals
+    h += window.goalsHtml ? goalsHtml() : head("Loading…", "Goals");
   } else if (tab === "replies") {
     h += head(`${view.replies.length} people waiting on you · ${refreshLink()}`, "Replies");
     h += view.replies.length ? view.replies.map(replyCard).join("") : `<div class="empty">No replies owed.</div>`;
   } else if (tab === "claude") {
     h += head(`Claude can take these further · you approve each · ${refreshLink()}`, "Claude");
+    // The step cleanup (Tasks v2 slice 7): the backfill's proposal per task, his to apply or skip.
+    const olds = (view.cleanup || []).filter(c => c.old), cl = (view.cleanup || []).filter(c => !c.old);
+    if (olds.length) h += `<h2>Old tasks: still relevant? <span>${olds.length}</span></h2>` + olds.map(c => `<div class="item dclean" data-id="${esc(c.task)}"><div class="top"><div class="body">
+      <div class="title">${esc(c.task)}</div><div class="nx">${c.captured ? "captured " + esc(sinceLabel(c.captured)) + " · " : ""}nothing done on it since</div>
+      ${c.before ? `<div class="dunclear">${esc(stripDue(clean((c.before.split("\n").find(l => /Next:/.test(l)) || c.before.split("\n")[0]).replace(/^\s*- \[ \] (?:Next|Then): /, ""))))}</div>` : ""}</div>
+      <div class="pair"><button class="addpill txt on" data-old="keep">Keep</button><button class="addpill txt ghost" data-old="done">Close</button></div></div>
+      <div class="fbacts"><button class="link" data-old="notatask">Not a task</button></div></div>`).join("");
+    if (cl.length) h += `<h2>Step cleanup · ${cl.length} task${cl.length > 1 ? "s" : ""}</h2>` + cl.map(c => `<div class="item dclean" data-id="${esc(c.task)}"><div class="top"><div class="body">
+      <div class="title">${esc(c.task)}</div>${(c.why || []).length ? `<div class="nx">${esc(c.why.join(" · "))}</div>` : ""}
+      <div class="cldiff"><div><label>Now</label><pre>${esc(c.before)}</pre></div><div><label>Proposed</label><pre>${esc(c.after)}</pre></div></div></div>
+      <div class="pair"><button class="addpill txt on" data-clean="apply">Apply</button><button class="addpill txt ghost" data-clean="skip">Skip</button></div></div></div>`).join("");
+    const grouped = new Set();
+    h += chunkList(grouped);
+    h += reviewList(grouped);
     const t = view.today, todayIds = new Set([t.one && t.one.id, ...t.needs.map(r => r.id), ...sel.today]);
     const mineToday = view.claude.filter(r => todayIds.has(r.id)), others = view.claude.filter(r => !todayIds.has(r.id));
     if (mineToday.length) h += `<h2>In today's selection <span>${mineToday.length}</span></h2>` + mineToday.map(claudeCard).join("");
@@ -2471,7 +2827,13 @@ document.addEventListener("touchend", () => {
   }, 200);
 });
 
-document.addEventListener("visibilitychange", () => { if (!document.hidden && !busy()) load(); });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  if (!busy()) load();
+  if (chat && chat.dayData) loadDay();   // back in the app: the day's calendar may have moved on
+});
+// The day view's now line moves with the clock while it is open (Nov 4).
+setInterval(() => { if (!document.hidden && chat && chat.dayData) paintDay(); }, 60000);
 setInterval(() => { if (!document.hidden && !busy()) load(); }, 60000);
 // Free time counts down with the clock between refreshes.
 setInterval(() => {
@@ -2521,10 +2883,11 @@ async function taskOp(el) {
     const n = +el.dataset.n, parts = stepParts(r.next).length, done = subDone(r), on = !done.has(n);
     on ? done.add(n) : done.delete(n);
     view.subticks = view.subticks || {};
-    view.subticks[r.id] = {next: r.next, done: [...done]};
+    const sid = (r.detail || {}).next_id || "";
+    view.subticks[r.id] = {sid, next: r.next, done: [...done]};
     refreshTask(); haptic();
     try {
-      await api("api/act", {id, action: "subtick", next: r.next, n, on});
+      await api("api/act", {id, action: "subtick", next: r.next, sid, n, on});
       if (on && done.size >= parts) {
         const res = await api("api/act", {id, action: "step_done", tab: "panel"});
         lastStep = {id, title: r.title, state: res.state, who: res.who || "", next: res.next || "", until: Date.now() + STEP_SHOW_MS};
@@ -2533,11 +2896,21 @@ async function taskOp(el) {
     } catch (e) { toast("Failed: " + e.message); }
     return;
   }
+  if (op === "discard") {
+    // The × on a step (Nov 4): struck in the note, never deleted; a discarded Next brings up the next one.
+    const s = el.dataset.next ? r.next : (d.steps || [])[+el.dataset.n];
+    const sid = (el.dataset.next ? d.next_id : (d.step_ids || [])[+el.dataset.n]) || "";
+    if (!s) return;
+    el.disabled = true; const li = el.closest("li"); if (li) li.style.opacity = ".3";
+    try { const res = await api("api/act", {id, action: "step_discard", text: s, sid}); if (testMode) toast(res.msg); haptic(); await load(); refreshTask(); }
+    catch (e) { el.disabled = false; if (li) li.style.opacity = ""; toast("Failed: " + e.message); }
+    return;
+  }
   if (op === "line") {
-    const s = (d.steps || [])[+el.dataset.n];
+    const s = (d.steps || [])[+el.dataset.n], sid = (d.step_ids || [])[+el.dataset.n] || "";
     if (!s) return;
     el.disabled = true;
-    try { await api("api/act", {id, action: "tick_line", text: s}); haptic(); await load(); refreshTask(); }
+    try { await api("api/act", {id, action: "tick_line", text: s, sid}); haptic(); await load(); refreshTask(); }
     catch (e) { el.disabled = false; toast("Failed: " + e.message); }
     return;
   }
@@ -2647,7 +3020,8 @@ document.addEventListener("click", async (ev) => {
     if (op === "move") { openEdit(card); return; }
     if (op === "drop" || op === "dismiss") {
       const id = card.dataset.id;
-      const undo = doLocal(d => { d.rows = d.rows.filter(r => r.id !== id); d.suggest = (d.suggest || []).filter(r => r.id !== id); });
+      const undo = doLocal(d => { d.rows = d.rows.filter(r => r.id !== id); d.suggest = (d.suggest || []).filter(r => r.id !== id); d.left_open = (d.left_open || []).filter(r => r.id !== id); });
+      if (view.today && view.today.left_open) { view.today.left_open = view.today.left_open.filter(r => r.id !== id); render(); }
       haptic(); doTap({id, action: "do_" + op, from: "do"}, undo);
       return;
     }
@@ -2661,6 +3035,14 @@ document.addEventListener("click", async (ev) => {
   if (t.closest(".pday [data-blk-close]") && chat) { chat.sel = null; paintDay(); return; }
   const icBtn = t.closest(".pchat [data-chat], .pday [data-chat]");   // the Plan page's own chat
   if (icBtn && chat && chat.inline) { await chatOp(icBtn, t); return; }
+  if (t.closest("[data-planbook]")) {
+    // Book from Do: the same message Plan's Book button sends into today's Plan chat.
+    view.plan_pending.busy = true; render();
+    try { await api("api/chat", {op: "send", kind: "plan", id: "", day: "today", text: "OK, book these blocks.", first: false, tab: "do", from: "do"}); toast(testMode ? "Test mode: Claude can read, not book" : "Booking the plan…"); }
+    catch (e) { view.plan_pending.busy = false; render(); toast("Failed: " + e.message); }
+    setTimeout(load, 60000);
+    return;
+  }
   const tb = t.closest("[data-tab]");
   if (tb && tb.dataset.tab === "meditate") { openJournal(); return; }
   if (tb) { tab = tb.dataset.tab; store("checkin-tab", tab); fold = null; render(); window.scrollTo(0, 0); return; }
@@ -2683,10 +3065,14 @@ document.addEventListener("click", async (ev) => {
     pu.folded = true; pu.started = true;
     // What he plans is what he does that day (Nov 1): the list goes to Do in this order.
     const chunks = {};
-    selection(pd).forEach(r => { const s = taskSteps(r), n = chunkN(r, pd); if (n) chunks[r.id] = s.slice(0, n); });
-    api("api/act", {action: "do_commit", ids, day: pd, chunks}).catch(e => toast("Failed to update Do: " + e.message));
-    if (!was) api("api/act", {action: "confirm", ids, day: pd}).catch(() => {});
+    const chunk_ids = {};
+    selection(pd).forEach(r => { const s = taskSteps(r), n = chunkN(r, pd); if (n) { chunks[r.id] = s.slice(0, n); const ci = taskStepIds(r).slice(0, n).filter(Boolean); if (ci.length) chunk_ids[r.id] = ci; } });
+    // The commit lands before the plan goes to Claude (Nov 6): Claude counts the committed chunks,
+    // and a plan Do never received is not sent at all.
     render();
+    try { await api("api/act", {action: "do_commit", ids, day: pd, chunks, chunk_ids}); }
+    catch (e) { pu.folded = false; pu.started = was; render(); toast("Failed to update Do, the plan was not sent: " + e.message); return; }
+    if (!was) api("api/act", {action: "confirm", ids, day: pd}).catch(e => toast("Failed to log the confirm: " + e.message));
     if (!chat || !chat.inline) return;
     if (!was) { chat.ids = ids; chat.first = true; }
     sendChat(text); pu.sent = ids.slice();
@@ -2695,6 +3081,7 @@ document.addEventListener("click", async (ev) => {
   }
   if (t.closest("[data-dofold]")) { openDoneFold = !openDoneFold; render(); return; }
   if (t.closest("[data-waitfold]")) { openWaitFold = !openWaitFold; render(); return; }
+  if (t.closest("[data-leftfold]")) { openLeftFold = !openLeftFold; render(); return; }
   if (t.closest("[data-winsfold]")) { openWinsFold = !openWinsFold; render(); return; }
   const stepBtn = t.closest("[data-step]");
   if (stepBtn) {
@@ -2724,8 +3111,10 @@ document.addEventListener("click", async (ev) => {
     if (op === "waitsave") {
       const el = holder.querySelector(".in-wait-new"), text = el ? el.value.trim() : "";
       if (!text) { if (el) el.focus(); return; }
-      pendingWait = null; openWaitFold = true;
-      const undo = doLocal(d => doWaitRow(d, id, text));
+      pendingWait = null;
+      const wr = findRow(id), more = wr && wr.detail && (wr.detail.steps || []).length;
+      if (!more) openWaitFold = true;
+      const undo = doLocal(d => { if (!more) doWaitRow(d, id, text); });
       haptic(); doTap({id, action: "set_waiting", text}, undo);
       return;
     }
@@ -2750,7 +3139,7 @@ document.addEventListener("click", async (ev) => {
     else if (confirm("Go live? Taps will change your real tasks.")) go();
     return;
   }
-  if (t.id === "go-test") { ev.preventDefault(); testMode = true; store("checkin-live", null); render(); return; }
+  if (t.id === "go-test") { ev.preventDefault(); testMode = true; store("checkin-live", "0"); render(); return; }
   if (t.id === "go-live" || t.id === "go-test") sel._init = false;
   if (t.id === "add-open") { document.getElementById("addbar").classList.toggle("on"); document.getElementById("new-task").focus(); return; }
   if (t.id === "add-btn") {
@@ -2773,11 +3162,133 @@ document.addEventListener("click", async (ev) => {
     catch (e) { ansBtn.disabled = false; toast("Failed: " + e.message); }
     return;
   }
+  const olb = t.closest("button[data-old]");
+  if (olb && olb.closest("[data-id]")) {
+    const card = olb.closest("[data-id]"), how = olb.dataset.old, id = card.dataset.id;
+    olb.disabled = true;
+    try {
+      const res = await api("api/act", how === "keep" ? {id, action: "cleanup_keep", tab} : {id, action: "cleanup_close", how, tab});
+      if (res.msg) toast(res.msg);
+      view.cleanup = (view.cleanup || []).map(c => c.task !== id ? c : (res.state === "cleanup" ? Object.assign({}, c, {old: false}) : null)).filter(Boolean);
+      render();
+    } catch (e) { olb.disabled = false; toast("Failed: " + e.message); }
+    return;
+  }
+  const clb = t.closest("button[data-clean]");
+  if (clb && clb.closest("[data-id]")) {
+    const card = clb.closest("[data-id]");
+    clb.disabled = true;
+    try { const res = await api("api/act", {id: card.dataset.id, action: clb.dataset.clean === "apply" ? "cleanup_apply" : "cleanup_skip", tab}); if (res.msg) toast(res.msg); view.cleanup = (view.cleanup || []).filter(c => c.task !== card.dataset.id); render(); }
+    catch (e) { clb.disabled = false; toast("Failed: " + e.message); }
+    return;
+  }
+  const acb = t.closest("button[data-actual]");
+  if (acb && acb.closest("[data-sid]")) {
+    const box = acb.closest("[data-sid]");
+    try { await api("api/act", {id: box.dataset.id, action: "actual_check", sid: box.dataset.sid, answer: acb.dataset.actual, tab}); box.remove(); }
+    catch (e) { toast("Failed: " + e.message); }
+    return;
+  }
+  const ocb = t.closest("button[data-outcome]");
+  if (ocb && ocb.closest("[data-id]")) {
+    const card = ocb.closest("[data-id]"), txt = window.prompt("Today's outcome", ocb.dataset.outcome);
+    if (txt === null) return;
+    try { await api("api/act", {id: card.dataset.id, action: "do_outcome", text: txt, tab}); load(); }
+    catch (e) { toast("Failed: " + e.message); }
+    return;
+  }
+  const bxb = t.closest("button[data-box]");
+  if (bxb && bxb.closest("[data-id]")) {
+    const card = bxb.closest("[data-id]");
+    bxb.disabled = true;
+    try { const res = await api("api/act", {id: card.dataset.id, action: "step_box", sid: bxb.dataset.box, tab}); if (res.msg) toast(res.msg); load(); }
+    catch (e) { bxb.disabled = false; toast("Failed: " + e.message); }
+    return;
+  }
+  const shb = t.closest("button[data-sharpen]");
+  if (shb && shb.closest("[data-id]")) {
+    const card = shb.closest("[data-id]");
+    // The step contract (Tasks v2, Nov 6): an unclear step goes to the task chat to be sharpened.
+    fbOpen = card.dataset.id + "|" + card.dataset.sid; render();
+    return;
+  }
+  const vtb = t.closest("button[data-vote]");
+  if (vtb && vtb.closest("[data-sid]")) {
+    const box = vtb.closest("[data-sid]"), k = box.dataset.id + "|" + box.dataset.sid, d = fbDraft[k], code = vtb.dataset.code, v = vtb.dataset.vote;
+    if (code === "_est") d.est.vote = d.est.vote === v ? "" : v; else d.votes[code] = d.votes[code] === v ? "" : v;
+    render();
+    return;
+  }
+  const fbb = t.closest("button[data-fb]");
+  if (fbb && fbb.closest("[data-sid]")) {
+    const box = fbb.closest("[data-sid]"), id = box.dataset.id, sid = box.dataset.sid, k = id + "|" + sid, d = fbDraft[k] || {votes: {}, est: {}, note: ""};
+    const c = (view.review || []).find(x => x.task === id && x.sid === sid) || {}, how = fbb.dataset.fb;
+    if (how === "close") { fbOpen = ""; render(); return; }   // the draft stays for next time
+    const votes = Object.fromEntries(Object.entries(d.votes).filter(([, v]) => v));
+    if (how === "fine") (c.explain || []).forEach(e => { votes[e.code] = "wrong"; });
+    const est = {vote: d.est.vote || "", min: d.est.min ? Number(d.est.min) : null};
+    if (how !== "fine" && how !== "notatask" && !Object.keys(votes).length && !est.vote && !est.min && !(d.note || "").trim()) {
+      const err = box.querySelector(".fberr"); if (err) err.hidden = false;
+      return;
+    }
+    fbb.disabled = true;
+    try {
+      await api("api/act", {id, action: "step_feedback", sid, votes, est, note: d.note || "", verdict: how, tab});
+      view.review = (view.review || []).filter(x => !(x.task === id && x.sid === sid)); delete fbDraft[k]; fbOpen = ""; render();
+      toast(how === "fine" ? "Marked fine" : how === "notatask" ? "Step removed" : "Feedback saved");
+      if (how === "notatask") { await api("api/act", {id, action: "step_discard", sid, text: c.next || "", tab}); load(); }
+      if (how === "rewrite") {
+        const r = findRow(id), wrong = (c.explain || []).filter(e => votes[e.code] !== "wrong").map(e => e.title);
+        openChat({kind: "task", id, title: r ? r.title : id, row: r, tab, from: "sharpen",
+                  send: "Sharpen the Next step so it keeps the step contract" + (wrong.length ? " (" + wrong.join("; ") + ")" : "") + ": "
+                        + stripDue(clean(c.next || "")) + (d.note ? "\nMy note: " + d.note : "") + (est.min ? "\nIt takes me about " + est.min + " min." : "")});
+      }
+    } catch (e) { fbb.disabled = false; toast("Failed: " + e.message); }
+    return;
+  }
+  const fnb = t.closest("button[data-fine]");
+  if (fnb && fnb.closest("[data-sid]")) {
+    const box = fnb.closest("[data-sid]");
+    fnb.disabled = true;
+    try { await api("api/act", {id: box.dataset.id, action: "step_fine", sid: box.dataset.sid, tab}); toast("Marked fine");
+          view.review = (view.review || []).filter(c => !(c.task === box.dataset.id && c.sid === box.dataset.sid)); render(); }
+    catch (e) { fnb.disabled = false; toast("Failed: " + e.message); }
+    return;
+  }
+  if (t.closest("button[data-reviewall]")) { reviewAll = true; render(); return; }
+  const crb = t.closest("button[data-crate]");
+  if (crb && crb.closest("[data-cid]")) { cOpen = crb.closest("[data-cid]").dataset.cid; render(); return; }
+  const cvb = t.closest("button[data-cvote]");
+  if (cvb && cvb.closest("[data-cid]")) {
+    const d = cDraft[cvb.closest("[data-cid]").dataset.cid], code = cvb.dataset.ccode, v = cvb.dataset.cvote;
+    d.votes[code] = d.votes[code] === v ? "" : v; render();
+    return;
+  }
+  const cfb = t.closest("button[data-cfb]");
+  if (cfb && cfb.closest("[data-cid]")) {
+    const box = cfb.closest("[data-cid]"), task = box.dataset.cid, how = cfb.dataset.cfb;
+    if (how === "close") { cOpen = ""; render(); return; }
+    const c = (view.chunk_review || []).find(x => x.task === task) || {}, d = cDraft[task] || {votes: {}, outcome: "", min: "", note: ""};
+    const votes = Object.fromEntries(Object.entries(d.votes).filter(([, v]) => v));
+    if (how !== "fine" && how !== "notatask" && !Object.keys(votes).length && !d.outcome.trim() && !d.min && !d.note.trim()) {
+      const err = box.querySelector(".fberr"); if (err) err.hidden = false;
+      return;
+    }
+    cfb.disabled = true;
+    try {
+      await api("api/act", {id: task, action: "do_chunk_feedback", verdict: how, votes, outcome: d.outcome || "", min: d.min ? Number(d.min) : null,
+                            note: d.note || "", shown: {outcome: c.outcome, his: c.his, min: c.min, steps: (c.steps || []).map(x => x.text)}, tab});
+      view.chunk_review = (view.chunk_review || []).filter(x => x.task !== task); delete cDraft[task]; cOpen = ""; render();
+      toast(how === "fine" ? "Marked fine" : how === "notatask" ? "Taken off today" : "Feedback saved");
+      if (how === "notatask") { await api("api/act", {id: task, action: "do_drop", tab}); load(); }
+    } catch (e) { cfb.disabled = false; toast("Failed: " + e.message); }
+    return;
+  }
   const btn = t.closest("button[data-a]");
   const card = t.closest("[data-id]");
   if (!card) return;
   if (!btn) {
-    if (card.classList.contains("item") && !t.closest(".edit") && !t.closest(".removebox") && !t.closest(".dwho") && !t.closest(".in-wait")) setOpen(card, !card.classList.contains("open"));
+    if (card.classList.contains("item") && !t.closest(".edit") && !t.closest(".fbpanel") && !t.closest(".removebox") && !t.closest(".dwho") && !t.closest(".in-wait")) setOpen(card, !card.classList.contains("open"));
     return;
   }
   let action = btn.dataset.a, text = "", extra = {};
@@ -2792,7 +3303,7 @@ document.addEventListener("click", async (ev) => {
     const r = findRow(card.dataset.id), id = card.dataset.id;
     btn.disabled = true; card.classList.add("pending"); haptic();
     try {
-      const res = await api("api/act", {id, action: "step_done", tab});
+      const res = await api("api/act", {id, action: "step_done", tab, over: r && r.wait_back ? 1 : 0});
       if (testMode) { btn.disabled = false; card.classList.remove("pending"); toast(res.msg); return; }
       lastStep = {id, title: r ? r.title : id, state: res.state, who: res.who || "",
                   next: res.next || "", guess: res.guess || "", until: Date.now() + STEP_SHOW_MS};
@@ -2845,6 +3356,7 @@ document.addEventListener("click", async (ev) => {
     catch (e) { sel[day] = before; render(); toast("Failed: " + e.message); }
     return;
   }
+  if (action === "replied") text = (card.querySelector(".in-draft") || {}).value || "";
   if (action === "next") text = card.querySelector(".in-next").value;
   if (action === "note" || action === "talknote") text = card.querySelector(".in-note").value;
   if (["next", "note", "talknote"].includes(action) && !text.trim()) return;
@@ -2871,6 +3383,8 @@ document.addEventListener("click", async (ev) => {
 
 render();
 load(true);
+// The Goals tab lives in its own file (Nov 5): jobs/checkin_app/goals.js.
+(function () { const s = document.createElement("script"); s.src = base + "goals.js"; document.body.appendChild(s); })();
 </script>
 </body>
 </html>

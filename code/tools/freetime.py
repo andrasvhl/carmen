@@ -254,7 +254,9 @@ def gmail_lookup(tok, name):
     try:
         ids = [m["id"] for m in _api(tok, base + "?" + urllib.parse.urlencode(
             {"q": " OR ".join(f'"{v}"' for v in dict.fromkeys(
-                [f"{first} {last}", fold(name), name, f"{name.split()[0]} {name.split()[-1]}"])),
+                [f"{first} {last}", fold(name), name, f"{name.split()[0]} {name.split()[-1]}"]))
+                 # unquoted too: "Eitan Darwish" misses headers that read "Eitan Ziv Darwish"
+                 + f" OR ({first} {last})",
              "maxResults": 6})).get("messages", [])]
     except (Exception, SystemExit):
         return None

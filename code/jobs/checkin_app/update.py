@@ -8,8 +8,9 @@ agents (`agents/delta.md`, `agents/q4.md`), answering in `update_panel.py`'s cha
 format. The full pre-run takes 10+ minutes; this takes about one.
 
 Writes `checkin_app/update.json`: the pre-run's rows with those changes applied, which
-the app shows while the pre-run it was built on is the current one. Never writes a task
-note, never sends anything.
+the app shows while the pre-run it was built on is the current one. Never sends anything.
+Task notes it writes: the meditation's creates and mentions, and since Nov 4 a note for every
+new row (cardnotes.attach: every Carmen card is a task note).
 
     PYTHONPATH=. .venv/bin/python -m jobs.checkin_app.update
 """
@@ -26,8 +27,12 @@ from pathlib import Path
 from runner import config
 from runner.ask import AskFailed, ask
 
-from . import JOURNAL_DIR, MED, TZ, _plan_today_mod, clean_rows, load_prerun, log_event
-from . import mentions
+from .signals.journal.meditation import JOURNAL_DIR, MED
+from .signals.read import _plan_today_mod, clean_rows, load_prerun
+from .adapters.notes import note_name
+from .adapters.taplog import log_event
+from .adapters.clock import TZ
+from .signals.journal import mentions
 
 STATE = config.STATE_DIR / "checkin_app"
 OUT = STATE / "update.json"
@@ -62,7 +67,7 @@ section against OPEN TASKS (every open task, exact titles) and HISTORY (the last
 of what his meditations named). Create as few tasks as possible (owner decision, Oct 31): match by
 meaning first, and never two tasks for one thing. A match is the same outcome or a step
 towards it, not the same topic: "book a physio for the knee" is not "the sports medicine
-exam for the race certificate", and "run El Cruce strong" is not "buy the remaining gear".
+exam for the race certificate", and "run the race strong" is not "buy the remaining gear".
 Something MESSAGES or the rows show already done is never created; if a task for it
 exists, it goes in "done".
   "meditation": {{
@@ -242,7 +247,8 @@ def apply_meditation(m: dict, groups: dict, today: dt.date) -> dict:
     """Carry out the meditation judgment: create the few tasks it calls for, write each
     mention to its task note and the ledger, keep themes, and propose Probably done."""
     from tools.todos import add_task
-    from . import save_override, task_path
+    from .planning.actions import save_override
+    from .adapters.notes import task_path
 
     label = today.strftime("%b %-d")
     ledger, made = [], []
@@ -253,8 +259,8 @@ def apply_meditation(m: dict, groups: dict, today: dt.date) -> dict:
         src = c.get("from") if c.get("from") in sec_name else "anxious"
         if not title:
             continue
-        if task_path(title):   # it exists after all: count it, never duplicate
-            m.setdefault("mentions", []).append({"task": title, "section": src, "words": c.get("words", "")})
+        if note_name(title):   # it exists after all: count it, never duplicate
+            m.setdefault("mentions", []).append({"task": note_name(title), "section": src, "words": c.get("words", "")})
             continue
         words = str(c.get("words", ""))[:400]
         mm = re.search(r"\d+", str(c.get("ne") or ""))
@@ -282,6 +288,7 @@ def apply_meditation(m: dict, groups: dict, today: dt.date) -> dict:
 
     for x in m.get("mentions") or []:
         task, sec = str(x.get("task", "")), x.get("section") if x.get("section") in sec_name else "anxious"
+        task = note_name(task) or task
         p = task_path(task)
         if not p:
             continue
@@ -300,6 +307,7 @@ def apply_meditation(m: dict, groups: dict, today: dt.date) -> dict:
     done = []
     for d in m.get("done") or []:
         task = str(d.get("task", ""))
+        task = note_name(task) or task
         if not task_path(task):
             continue
         hit = next((r for rows in groups.values() for r in rows if task in (r.get("n"), r.get("lk"))), None)
@@ -406,10 +414,29 @@ def main() -> int:
     for rows in groups.values():
         for r in rows:
             if "lk" in r and not isinstance(r["lk"], str):
-                if r["lk"] and isinstance(r.get("n"), str) and (config.INBOX / f"{r['n']}.md").is_file():
-                    r["lk"] = r["n"]
+                if r["lk"] and isinstance(r.get("n"), str) and note_name(r["n"]):
+                    r["lk"] = note_name(r["n"])
                 else:
                     r.pop("lk")
+            elif r.get("lk") and note_name(r["lk"]):
+                r["lk"] = note_name(r["lk"])   # the note's file name, not a long title
+    # Every card is a task note (Nov 4): a new row from this update, or a meditation item it
+    # judged, gets its note now, through tools.todos so it has a task_id.
+    try:
+        from .tasks import cardnotes
+        pairs = [[g, groups[g]] for g in groups]
+        made = cardnotes.attach(pairs, "update", today=today)
+        groups = {g: rows for g, rows in pairs}
+    except Exception as exc:   # the rows still go out; a card without a note gets one on its first tap
+        made = {"error": repr(exc)[:200]}
+        log_event("update_failed", where="cardnotes", detail=repr(exc)[:300])
+
+    try:   # plainly over and done closes by itself (Nov 4), as in the pre-run
+        from .tasks import autoclose
+        from .adapters.notes import task_path
+        autoclose.run([[g, groups[g]] for g in groups], today, "Refresh", task_path, log_event)
+    except Exception as exc:
+        log_event("update_failed", where="autoclose", detail=repr(exc)[:300])
 
     order = [MED] + [g for g, _ in data.get("rows", []) if g != MED] + [g for g in groups if g not in dict(data.get("rows", []))]
     # A failed fetch or judgment keeps the old mark, so the next update reads those messages again.
@@ -427,7 +454,7 @@ def main() -> int:
     os.replace(tmp, OUT)
     log_event("updated", since=since, meditation_result=med, messages=n_msgs, meditation=len(recs),
               changes=len(payload.get("changes") or []) if isinstance(payload.get("changes"), list) else 0,
-              new=sum(len(r[1]) for r in new_rows_of(payload)), error=err)
+              new=sum(len(r[1]) for r in new_rows_of(payload)), notes=made, error=err)
     return 1 if err else 0
 
 

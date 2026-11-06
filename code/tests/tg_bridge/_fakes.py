@@ -8,6 +8,9 @@ import asyncio
 import pathlib
 import sys
 import tempfile
+import os as _os
+# Notes the suites write must never reach the live step history (tools/steps.py, Nov 4).
+_os.environ.setdefault("STEPS_DIR", tempfile.mkdtemp(prefix="steps-test-"))
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
 

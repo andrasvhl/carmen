@@ -126,9 +126,8 @@ def _edit_task(path: Path, *, status: str, next_line: str | None, section: str) 
         body = (_NEXT_OPEN.sub(lambda m: next_line, body, count=1) if _NEXT_OPEN.search(body)
                 else _NEXT_DONE.sub(lambda m: next_line, body, count=1))
     out = f"{head}{sep}{body.rstrip()}\n\n{section.strip()}\n"
-    tmp = path.with_suffix(".md.tmp")
-    tmp.write_text(out, encoding="utf-8")
-    os.replace(tmp, path)
+    from tools import steps as S   # one form for step lines, changes in the step history (Nov 4)
+    S.write(path, out, "telegram", before=text)
 
 
 def _today() -> str:

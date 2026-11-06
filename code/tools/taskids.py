@@ -57,7 +57,8 @@ def read_id(text: str) -> str:
 
 
 def notes(inbox: Path | None = None) -> list[Path]:
-    return sorted((inbox or config.INBOX).glob("*.md"))
+    # A "_" file is a template, not a task (Nov 6): it gets no task_id and no step ids.
+    return sorted(p for p in (inbox or config.INBOX).glob("*.md") if not p.name.startswith("_"))
 
 
 def index(inbox: Path | None = None) -> dict[str, str]:

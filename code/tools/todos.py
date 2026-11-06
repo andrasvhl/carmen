@@ -288,7 +288,10 @@ def add_task(text, urgent, due, scheduled, priority, project, next_action="", bo
     `priority` explicitly (1-none normally); Urgent writes urgent: true,
     priority: 4-high AND scheduled: <today> — the date is what actually gets
     it into the cockpit's ToDo view, priority is not a membership trigger."""
-    now = dt.datetime.now()
+    # Pacific, never the box clock (Nov 4: on vault-host, which runs UTC, a note made after 16:00 PT
+    # was captured as the next day, and Urgent scheduled it for tomorrow).
+    from zoneinfo import ZoneInfo
+    now = dt.datetime.now(ZoneInfo("America/Los_Angeles")).replace(tzinfo=None)
     today = now.date().isoformat()
     if urgent:
         priority = priority or URGENT_PRIORITY
@@ -320,9 +323,20 @@ def add_task(text, urgent, due, scheduled, priority, project, next_action="", bo
     if body.strip():
         content += "\n" + body.strip() + "\n"
 
+    try:   # step ids from the start (tools/steps.py); a layer on top, never blocks the capture
+        from tools import steps as S
+        content = S.normalize(content)
+    except Exception:
+        pass
     path = unique_path(sanitize_filename(text))
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
+    try:
+        from tools import steps as S
+        import pathlib
+        S.observe(pathlib.Path(path), "create")
+    except Exception:
+        pass
     return path
 
 

@@ -14,6 +14,7 @@
 #   vt transcribe run manifest.json  video -> German text -> vault notes
 #   vt docs                       check component docs against the template
 #   vt tasks                      check task notes against the capture schema
+#   vt coffee "Jane Doe"      2-3 coffee-chat slots that fit both calendars and the week
 #   vt freetime "<GROUP_NAME>"   which weekday evenings most of a WhatsApp group is free
 #   vt flights search BOS,PVD LHR 2027-03-02..2027-03-04   fares across airports and days
 #   vt flights calendar BOS LHR 2027-03-04                 cheapest fare per day
@@ -44,16 +45,18 @@ case "${1:-}" in
     profiles)  shift; exec "$PYTHON" -m tools.check_profiles "$@" ;;
     todos)     shift; exec "$PYTHON" -m tools.todos "$@" ;;
     taskids)   shift; exec "$PYTHON" -m tools.taskids "$@" ;;
+    step)      shift; exec "$PYTHON" -m tools.step "$@" ;;
     move)      shift; exec "$PYTHON" -m tools.move "$@" ;;
     canvas)    shift; exec "$PYTHON" -m tools.canvas "$@" ;;
     transcribe) shift; exec "$PYTHON" -m tools.transcribe "$@" ;;
     docs)      shift; exec "$PYTHON" -m tools.check_docs "$@" ;;
     tasks)     shift; exec "$PYTHON" -m tools.check_tasks "$@" ;;
+    coffee)    shift; exec "$PYTHON" -m tools.coffee "$@" ;;
     freetime)  shift; exec "$PYTHON" -m tools.freetime "$@" ;;
     flights)   shift; exec "$PYTHON" -m tools.flights "$@" ;;
     trains)    shift; exec "$PYTHON" -m tools.trains "$@" ;;
     ferries)   shift; exec "$PYTHON" -m tools.ferries "$@" ;;
     wispr)     shift; exec "$PYTHON" -m tools.wispr "$@" ;;
-    "")        echo "usage: vt {backlinks|canvas|docs|ferries|flights|freetime|move|people|profiles|taskids|tasks|todos|trains|transcribe|wispr} [args...]" >&2; exit 2 ;;
-    *)         echo "vt: unknown tool '$1' (expected: backlinks, canvas, docs, ferries, flights, freetime, move, people, profiles, taskids, tasks, todos, trains, transcribe, wispr)" >&2; exit 2 ;;
+    "")        echo "usage: vt {backlinks|canvas|coffee|docs|ferries|flights|freetime|move|people|profiles|step|taskids|tasks|todos|trains|transcribe|wispr} [args...]" >&2; exit 2 ;;
+    *)         echo "vt: unknown tool '$1' (expected: backlinks, canvas, coffee, docs, ferries, flights, freetime, move, people, profiles, step, taskids, tasks, todos, trains, transcribe, wispr)" >&2; exit 2 ;;
 esac

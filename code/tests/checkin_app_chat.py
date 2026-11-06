@@ -8,11 +8,23 @@ import asyncio
 import json
 import pathlib
 import sys
+import os
 import tempfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
+# A scratch HOME and vault before the app is imported (Nov 6): live turns run log_chat_delta, which
+# scans the vault and writes do.json; without this they touched the real vault and state.
+_SCRATCH = pathlib.Path(tempfile.mkdtemp(prefix="carmen-chat-"))
+for _d in ("home", "vault/Inbox", "vault/_system"):
+    (_SCRATCH / _d).mkdir(parents=True)
+os.environ["HOME"], os.environ["VAULT_PATH"] = str(_SCRATCH / "home"), str(_SCRATCH / "vault")
+
 from jobs.checkin_app import chat
+import jobs.checkin_app.adapters.taplog as _taplog
+from runner import config as _config
+assert str(_config.STATE_DIR).startswith(str(_SCRATCH)) and str(_config.VAULT).startswith(str(_SCRATCH)), \
+    "chat suite is not isolated: refusing to touch live state"
 from jobs.tg_bridge.agent import Event
 from tests.tg_bridge._fakes import FAST_LIMITS, Checks, FakeAgent
 
@@ -20,7 +32,12 @@ check = Checks("check-in app chat")
 tmp = pathlib.Path(tempfile.mkdtemp())
 chat.DIR, chat.DB = tmp / "chat", tmp / "chat.sqlite"
 import jobs.checkin_app as app
-app.LOG = tmp / "taps.jsonl"
+_taplog.LOG = tmp / "taps.jsonl"
+# Every card is a task note (Nov 4): what Carmen creates and drops stays in the scratch folder.
+from jobs.checkin_app.tasks import cardnotes as _cardnotes  # noqa: E402
+_cardnotes.MADE = tmp / "made.json"
+os.environ["PT_DROPPED"] = str(tmp / "dropped.json")
+os.environ["STEPS_DIR"] = str(tmp / "steps")
 
 
 async def wait_idle(hub, key, secs=5):
@@ -144,7 +161,7 @@ async def main():
     make(FakeAgent())
     check("restart: noted only once", len(chat.load("task:Other")["messages"]) == 2)
     check("summaries list conversations", set(chat.summaries()) >= {"task:Call Quinn", "plan:2026-10-31"})
-    logged = [json.loads(l) for l in app.LOG.read_text().splitlines()]
+    logged = [json.loads(l) for l in _taplog.LOG.read_text().splitlines()]
     turns = [e for e in logged if e["kind"] == "chat"]
     check("every turn is logged", len(turns) >= 6)
     check("a turn log carries the reply and the task", any(e.get("reply", "").startswith("answer to") and e["id"] == "Call Quinn"

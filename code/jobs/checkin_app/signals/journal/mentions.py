@@ -157,6 +157,6 @@ def backfill(today: dt.date) -> dict:
 
 if __name__ == "__main__":
     import sys
-    from . import TZ
+    from ...adapters.clock import TZ
     if "--backfill" in sys.argv:
         print(json.dumps(backfill(dt.datetime.now(TZ).date())))
