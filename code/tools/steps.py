@@ -404,7 +404,11 @@ def on_write(prev: list[dict] | None, text: str, source: str, today: dt.date | N
     """Tasks' check on every write (Tasks v2, Nov 6): the step contract and the estimator, in the
     Tasks module (jobs/checkin_app/tasks/contract.py). Text unchanged and no events when the
     app's code is not importable or its flags are off."""
-    return text, []
+    try:
+        from jobs.checkin_app.tasks import contract
+    except Exception:   # noqa: BLE001 - tools/steps works without the app
+        return text, []
+    return contract.on_write(prev, text, source, today, stem)
 
 
 def append(key: str, stem: str, source: str, event: dict) -> None:
