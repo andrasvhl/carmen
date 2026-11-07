@@ -474,6 +474,12 @@ def settle(p: Path, source: str, prev: list[dict] | None, today: dt.date | None 
     return extra
 
 
+def is_task(text: str) -> bool:
+    """A task note: `type: action` in its frontmatter (Nov 6: learnings and ideas carry
+    status: inbox too, so status alone took 65 of them for tasks)."""
+    return bool(re.search(r"^type:\s*action\s*$", text.partition("\n---\n")[0], re.M))
+
+
 def is_template(p) -> bool:
     """A template ("_Inbox Template"), not a task: no writer gives it ids (Nov 6: its status: inbox
     let normalize stamp "^s14e0 ^s9434" into it, ids every task made from it would inherit)."""
@@ -492,7 +498,7 @@ def sweep(paths, today: dt.date | None = None, dry: bool = False) -> dict:
             text = p.read_text(encoding="utf-8")
         except OSError:
             continue
-        if not re.search(r"^status:\s*(inbox|open|in-progress)\s*$", text.partition("\n---\n")[0], re.M):
+        if not is_task(text) or not re.search(r"^status:\s*(inbox|open|in-progress)\s*$", text.partition("\n---\n")[0], re.M):
             continue
         n += 1
         prev = (load_snap(_task_key(text, p.stem)) or {}).get("steps")

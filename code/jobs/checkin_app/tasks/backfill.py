@@ -190,7 +190,7 @@ def is_old(text: str, stem: str, today: dt.date | None = None, touched: set | No
     """Too old to sharpen step by step (Nov 6, the owner: old steps are "hard to evaluate"): captured
     over OLD_DAYS ago, no event in the step history, nothing scheduled or due from today on. The
     question for it is Keep, Close or Not a task."""
-    today = today or dt.date.today()
+    today = today or dt.datetime.now(S.TZ).date()   # his day, Pacific
     head = text.partition("\n---\n")[0]
     cap = re.search(r"^captured:\s*(\d{4}-\d{2}-\d{2})", head, re.M)
     if not cap or cap.group(1) >= (today - dt.timedelta(days=OLD_DAYS)).isoformat():
@@ -217,7 +217,7 @@ def run(paths, use_model: bool = False, limit: int | None = None, log=print) -> 
             text = p.read_text(encoding="utf-8")
         except OSError:
             continue
-        if p.name.startswith("_") or not re.search(r"^status:\s*(inbox|open|in-progress)\s*$", text.partition("\n---\n")[0], re.M):
+        if p.name.startswith("_") or not S.is_task(text) or not re.search(r"^status:\s*(inbox|open|in-progress)\s*$", text.partition("\n---\n")[0], re.M):
             continue
         todo.append((p, text))
     seen = len(todo)

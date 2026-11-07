@@ -410,7 +410,7 @@ def on_write(prev: list[dict] | None, text: str, source: str, today=None, force:
             lines[i] = S.format_line(s)
             events.append({"step": s.id, "text": s.text, "event": "estimated", "old": old, "new": new, "by": by,
                            "again": bool(again and old)})
-    if MODEL and not force:
+    if not force:   # every writer queues, the 08:00 sweep too (its process never asks the model); the server refines
         _enqueue(stem, [(s.id, s.text, _cur(s)) for (_, s), (kind, m, by) in zip(todo, res) if s.id and by == "rules"])
     return head + sep + "\n".join(lines), events
 

@@ -66,6 +66,14 @@ def _step_dates() -> dict:
     return _DATES["d"]
 
 
+def _is_task(p) -> bool:
+    from tools import steps as S
+    try:
+        return S.is_task(p.read_text(encoding="utf-8"))
+    except OSError:
+        return False
+
+
 def _captured(p) -> str:
     try:
         head = p.read_text(encoding="utf-8").partition("\n---\n")[0]
@@ -89,7 +97,7 @@ def pending(paths=None) -> list[dict]:
             live = read_note(p)
         except Exception:   # noqa: BLE001 - one bad note never hides the rest
             continue
-        if p.stem.startswith("_"):   # a template ("_Inbox Template"), not a task (Nov 6)
+        if p.stem.startswith("_") or not _is_task(p):   # a template, a learning or an idea: not a task (Nov 6)
             continue
         sid = live.get("next_id")
         why = (live.get("unclear") or {}).get(sid) if sid else None
@@ -103,7 +111,8 @@ def pending(paths=None) -> list[dict]:
                     "explain": (live.get("unclear_x") or {}).get(sid, []),
                     "est": x.get("min") if x.get("min") is not None else _minutes(p, sid),
                     "since": since or _captured(p), "since_by": "step" if since else "task"})
-    cut = (dt.date.today() - dt.timedelta(days=STALE_DAYS)).isoformat()
+    from tools import steps as S
+    cut = (dt.datetime.now(S.TZ).date() - dt.timedelta(days=STALE_DAYS)).isoformat()   # his day, Pacific
     out = [r for r in out if r["since_by"] == "step" or not r["since"] or r["since"] >= cut]
     out.sort(key=lambda r: r["since"] or "", reverse=True)
     return out

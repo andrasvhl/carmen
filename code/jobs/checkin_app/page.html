@@ -2673,7 +2673,7 @@ function render() {
   } else if (tab === "claude") {
     h += head(`Claude can take these further · you approve each · ${refreshLink()}`, "Claude");
     // The step cleanup (Tasks v2 slice 7): the backfill's proposal per task, his to apply or skip.
-    const olds = (view.cleanup || []).filter(c => c.old), cl = (view.cleanup || []).filter(c => !c.old);
+    const olds = (view.cleanup || []).filter(c => c.old).sort((a, b) => (b.captured || "").localeCompare(a.captured || "")), cl = (view.cleanup || []).filter(c => !c.old);
     if (olds.length) h += `<h2>Old tasks: still relevant? <span>${olds.length}</span></h2>` + olds.map(c => `<div class="item dclean" data-id="${esc(c.task)}"><div class="top"><div class="body">
       <div class="title">${esc(c.task)}</div><div class="nx">${c.captured ? "captured " + esc(sinceLabel(c.captured)) + " · " : ""}nothing done on it since</div>
       ${c.before ? `<div class="dunclear">${esc(stripDue(clean((c.before.split("\n").find(l => /Next:/.test(l)) || c.before.split("\n")[0]).replace(/^\s*- \[ \] (?:Next|Then): /, ""))))}</div>` : ""}</div>
