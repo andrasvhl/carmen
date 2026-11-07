@@ -45,7 +45,7 @@
    ],
    "system": [
     "Compare-and-swap on every task-note write: a change is computed from the note as read and written only if the note is still that, else recomputed once on the current note.",
-    "The step contract: every write checks each open step against a short set of rules (one action, a verb, ready to start, no links or dates in the line, understandable on its own) and records the verdict; the rules are tuned from his Right and Wrong votes, two rounds so far.",
+    "The step contract: every write checks each open step against a short set of rules (one action, a verb, ready to start, no links or dates in the line, understandable on its own) and records the verdict; the rules are tuned from your Right and Wrong votes.",
     "Feedback is a golden set: every vote, estimate and note is stored, and a test holds the rules and the estimator to at least the agreement with those labels they had when last tuned.",
     "Estimates: the rules on the write, so nothing waits; the step is queued and the server's minute tick asks the model in a background thread, writing only where the step still reads as queued.",
     "The model's prompt carries the 25 answers most like the steps being estimated, picked from all stored answers by verb, rare shared words, task and kind; measured on 25 answers, the model lands within half to double of the real minutes 21 times, the rules 17.",
