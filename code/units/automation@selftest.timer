@@ -1,0 +1,20 @@
+[Unit]
+Description=Schedule for automation job selftest
+
+[Timer]
+# Earliest of the daily jobs, deliberately. selftest checks the preconditions
+# every other job depends on -- state dir writable, Inbox reachable,
+# credentials present, mail configured, heartbeat configured -- so it should
+# answer before the jobs that assume all five.
+#
+# It had no timer until 2026-09-15. Its five checks therefore rendered
+# **healthy** on the status page for thirteen days off a single manual run on
+# 2026-09-02, and would have done so indefinitely: nothing was going to
+# re-evaluate them. See [stale-green-checks] in _system/maintenance/maintenance.md.
+OnCalendar=*-*-* 07:10:00
+Persistent=true
+RandomizedDelaySec=120
+Unit=automation@selftest.service
+
+[Install]
+WantedBy=timers.target

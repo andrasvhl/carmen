@@ -1,0 +1,15 @@
+[Unit]
+Description=Schedule for automation job maintenance_brief
+
+[Timer]
+# Monday 14:05 Pacific, five minutes after build_brief (owner decision, 2026-10-03:
+# same time as the build brief). The job also waits for build_brief's model
+# turn to finish before starting its own, so two claude -p runs never overlap
+# on this box. Pacific, not UTC, so DST cannot move it.
+OnCalendar=Mon *-*-* 14:05:00 America/Los_Angeles
+Persistent=true
+RandomizedDelaySec=60
+Unit=automation@maintenance_brief.service
+
+[Install]
+WantedBy=timers.target

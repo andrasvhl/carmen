@@ -1,0 +1,19 @@
+# Beeper Server, headless: the Desktop API that runner/beeper.py reads
+# (LinkedIn, Messenger via Beeper Cloud). _system/beeper-bridge.md.
+# The command line is the one `beeper setup --server` started by hand; the
+# CLI's own `targets enable` only starts it at login, and this box has no login.
+
+[Unit]
+Description=Beeper Server (headless Desktop API on 127.0.0.1:23374)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=<user>
+Environment=HOME=/home/<user>
+ExecStart=/home/<user>/.beeper/bin/beeper-server --host=127.0.0.1 --port=23374 --data-dir=/home/<user>/.beeper/profiles/server/server --server-env=production
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

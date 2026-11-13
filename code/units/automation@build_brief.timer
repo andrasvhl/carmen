@@ -1,0 +1,14 @@
+[Unit]
+Description=Schedule for automation job build_brief
+
+[Timer]
+# Monday 14:00 Pacific. The brief has to be waiting by 15:00 (the owner,
+# 2026-09-30) for the 17:00 build block; the model pass can take up to 25 min,
+# so an hour of margin. Pacific, not UTC, so DST cannot move it.
+OnCalendar=Mon *-*-* 14:00:00 America/Los_Angeles
+Persistent=true
+RandomizedDelaySec=120
+Unit=automation@build_brief.service
+
+[Install]
+WantedBy=timers.target

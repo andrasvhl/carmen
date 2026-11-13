@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Land a worktree branch on master in ~/automation (Nov 11): the one way master moves.
+#
+#   bin/land <branch>
+#
+# Refuses unless master fast-forwards to the branch, every commit on it passed the commit hooks
+# (stamped), the decision gate passes for the whole range (a changed decision named with its new
+# reason and its row), and the fast suites pass on the branch. Then fast-forwards master. Deploying
+# Carmen is still bin/checkin-restart; this only moves the code every timer runs.
+set -uo pipefail
+BR="${1:?usage: bin/land <branch>}"
+cd "$HOME/automation" || exit 1
+STAMPS="${XDG_STATE_HOME:-$HOME/.local/state}/automation/gate_stamps"
+PY=.venv/bin/python
+fail() { echo "land: $1" >&2; exit 1; }
+[ "$(git symbolic-ref --short -q HEAD)" = master ] || fail "~/automation is not on master"
+[ -z "$(git status --porcelain --untracked-files=no)" ] || fail "the live tree has uncommitted changes"
+git merge-base --is-ancestor master "$BR" || fail "master does not fast-forward to $BR: rebase it on master first"
+for c in $(git rev-list master.."$BR"); do
+  grep -q "^$c " "$STAMPS" 2>/dev/null || fail "$(git log -1 --format='%h %s' "$c") has no gate stamp (made with --no-verify, or before the hooks): recommit it on the branch"
+done
+"$PY" -m tools.decision_gate range master "$BR" || fail "the decision gate refused (above)"
+LAND=1 git merge -q --ff-only "$BR" || fail "the fast-forward failed"
+"$PY" -m tools.decision_gate stamp >/dev/null || echo "land: the decision rows could not be recorded (the next row-updated check compares with older rows)" >&2
+echo "landed $BR: master is $(git log -1 --format='%h %s')"

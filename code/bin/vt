@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Interactive vault tools. Same entry point on the Mac and on vault-host.
+#
+#   vt backlinks "North Star"        which notes link here
+#   vt backlinks fitness-data-sync --context
+#   vt people --circle inner close   the people who change his week
+#   vt people --cold 60
+#   vt profiles --strict          enforce profile conventions
+#   vt todos                      ToDo / Triage / Unscheduled views
+#   vt move OLD NEW               move a note and rewrite inbound links
+#   vt canvas courses             every Canvas enrolment, concluded included
+#   vt canvas pull --course 900104   archive one course into the vault
+#   vt transcribe doctor          is the whisper.cpp toolchain ready
+#   vt transcribe run manifest.json  video -> German text -> vault notes
+#   vt docs                       check component docs against the template
+#   vt tasks                      check task notes against the capture schema
+#   vt coffee "Jane Doe"      2-3 coffee-chat slots that fit both calendars and the week
+#   vt freetime "<GROUP_NAME>"   which weekday evenings most of a WhatsApp group is free
+#   vt flights search BOS,PVD LHR 2027-03-02..2027-03-04   fares across airports and days
+#   vt flights calendar BOS LHR 2027-03-04                 cheapest fare per day
+#   vt trains journeys "Chantilly" "Lille-Europe" --date 2027-03-15 --time 14:00 --arrive
+#   vt ferries search Split Hvar 2027-06-12 --tz Europe/Zagreb
+#   vt wispr auth                 one-time Wispr Flow sign-in (browser, loopback 8771)
+#   vt wispr tools                what the Wispr MCP server exposes
+#   vt browser use speechify      the agent's Kernel browser on a saved profile (agent-browser.md)
+#
+# Scripts live here rather than in the vault because Obsidian Sync carries
+# markdown but not .py, which is how two different check_backlinks.py came to
+# exist on two machines with neither aware of the other.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+# Same interpreter choice bin/run-job makes, for the same reason: `vt canvas
+# extract` needs third-party parsers, and a second entry point with its own
+# rule would be the split architecture this repo keeps avoiding.
+if [ -x ".venv/bin/python" ]; then
+    PYTHON=".venv/bin/python"
+else
+    PYTHON="$(command -v python3)"
+fi
+
+case "${1:-}" in
+    backlinks) shift; exec "$PYTHON" -m tools.check_backlinks "$@" ;;
+    people)    shift; exec "$PYTHON" -m tools.people "$@" ;;
+    profiles)  shift; exec "$PYTHON" -m tools.check_profiles "$@" ;;
+    todos)     shift; exec "$PYTHON" -m tools.todos "$@" ;;
+    taskids)   shift; exec "$PYTHON" -m tools.taskids "$@" ;;
+    step)      shift; exec "$PYTHON" -m tools.step "$@" ;;
+    move)      shift; exec "$PYTHON" -m tools.move "$@" ;;
+    canvas)    shift; exec "$PYTHON" -m tools.canvas "$@" ;;
+    transcribe) shift; exec "$PYTHON" -m tools.transcribe "$@" ;;
+    docs)      shift; exec "$PYTHON" -m tools.check_docs "$@" ;;
+    tasks)     shift; exec "$PYTHON" -m tools.check_tasks "$@" ;;
+    coffee)    shift; exec "$PYTHON" -m tools.coffee "$@" ;;
+    freetime)  shift; exec "$PYTHON" -m tools.freetime "$@" ;;
+    flights)   shift; exec "$PYTHON" -m tools.flights "$@" ;;
+    trains)    shift; exec "$PYTHON" -m tools.trains "$@" ;;
+    ferries)   shift; exec "$PYTHON" -m tools.ferries "$@" ;;
+    wispr)     shift; exec "$PYTHON" -m tools.wispr "$@" ;;
+    browser)   shift; exec "$PYTHON" -m tools.browser "$@" ;;
+    guard)     shift; exec "$PYTHON" -m tools.vault_guard "$@" ;;
+    decision)  shift; exec "$PYTHON" -m tools.decision_gate "$@" ;;   # vt decision new D|S, audit, stamp
+    decisions) shift; exec "$PYTHON" -m tools.decision_gate list ;;
+    "")        echo "usage: vt {backlinks|browser|canvas|coffee|decision|decisions|docs|ferries|flights|freetime|guard|move|people|profiles|step|taskids|tasks|todos|trains|transcribe|wispr} [args...]" >&2; exit 2 ;;
+    *)         echo "vt: unknown tool '$1' (expected: backlinks, canvas, coffee, decision, decisions, docs, ferries, flights, freetime, guard, move, people, profiles, step, taskids, tasks, todos, trains, transcribe, wispr)" >&2; exit 2 ;;
+esac

@@ -1,0 +1,12 @@
+[Unit]
+Description=Schedule for automation job inventory
+
+[Timer]
+# Monday, alongside tripwires and before the digest.
+OnCalendar=Mon *-*-* 07:47:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=automation@inventory.service
+
+[Install]
+WantedBy=timers.target

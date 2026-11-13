@@ -1,0 +1,7776 @@
+{
+ "agents": [
+  {
+   "body": {
+    "keep": true,
+    "msg": "Claude is on it, back here in 5 to 15 min",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "answer",
+    "id": "Pay rent",
+    "q": "Which account?",
+    "text": "Chase"
+   }
+  },
+  {
+   "body": {
+    "error": "empty answer"
+   },
+   "status": 400,
+   "tap": {
+    "action": "answer",
+    "id": "Pay rent",
+    "q": "x",
+    "text": ""
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Claude is on it, back here in 5 to 15 min",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "prepare",
+    "id": "File taxes"
+   }
+  },
+  {
+   "body": {
+    "close": true,
+    "msg": "Sent to the chat",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "talk",
+    "id": "Call Quinn",
+    "tab": "claude",
+    "text": "ask about Thursday"
+   }
+  }
+ ],
+ "agents.started": [
+  [
+   "update"
+  ],
+  [
+   "prep",
+   "Pay rent"
+  ],
+  [
+   "prep",
+   "File taxes"
+  ],
+  [
+   "update"
+  ]
+ ],
+ "agents.telegram": [
+  "🗓 Plan Wednesday, Nov 4\nPut these into the calendar with the schedule-work rules (Week Structure, working conditions, buffers). Propose the blocks first; the owner books them with the app's Book button (Nov 10): his chat messages are changes to the proposal, never an OK to book:\n1. Pay rent [t-00000a] (10 min): next, Save the receipt\n   Steps by id: [s0a02] Save the receipt\nTime (10:30-21:00): 10 min planned; 9h 10 available, of it 2h Big rocks. Use this available time as the room, the same number his budget bar shows (Nov 10): do not take off buffers of your own; a buffer you add comes out of it and you say how much. Fixed time (accepted events, the Week Structure routines on Focus) is already taken out; slots are where tasks of that kind go: big-rock and Best Year work into Big rocks and focus blocks, admin into Admin backup.\nReply \"go\" to have me plan it.\nBefore proposing, check this list against what is scheduled or due that day in the vault and in the pre-run notes above. If such a task is missing here, name it in one line and ask whether to add it.\n\nNot every selected task is listed above (selected but not found in the view: File taxes, Gone task). Find them in the vault by ID or name and plan them too, or tell him which ones you could not place.",
+  "💬 Call Quinn\n\nYour note: ask about Thursday\n\nNext: Draft the reply to Quinn (10 min)\n\nlunch this week\n\nTask note: Inbox/Call Quinn.md\n\nSteps: one short goal per line. A link a step needs (a page, a form, a section of a note) goes on an indented line right under that step, at most three, only for the Next step and today's steps: \"    - [label](https://...)\" or \"    - [[Note#Section|label]]\". Whenever a step becomes the Next or a today step, give it its links in the same edit: where he acts (form, portal, booking) and where its instructions came from (the mail, doc or note section). A step that needs an earlier step's result (pick up what a visit prescribes, pack it, send the certificate) carries `(after: ^<that step's id>)` when you write it.\n\nTicking steps: a step whose result he has to see (research, list, compare, check, draft) is not done when you have done your part. Do not tick it: reword it in place, same ^id, as the review he still has to do (\"Review Claude's list of what is open and confirm it (5 min)\"), with what you prepared in the note. Tick a step only when nothing in it is left for him to read or decide, or when he says it is done.\n\nProof that a step happened: when a message, mail or file shows a step done (someone confirms it, a receipt, a submission), tick it and write the proof at the end of the line, before its ^id: \"(proof: Matt, WhatsApp Nov 7: 'submitted sir')\". When nothing is left open, close the task (status: done, completedDate). A step that is moot but was not done is never ticked: strike it, \"- ~~Next: ...~~ (left open when closed, Nov 8) ^id\". If you are not sure it happened, ask him instead.\n\nReply \"go\" to have me apply your note to the task, or reply to talk it through."
+ ],
+ "alerts.pushed": [
+  [
+   "Carmen: plan ids (act)",
+   -1
+  ]
+ ],
+ "calendar.day": {
+  "body": {
+   "date": "2026-11-04",
+   "day_end": 1260,
+   "day_start": 540,
+   "events": [
+    {
+     "allday": true,
+     "busy": false,
+     "cal": "Stanford",
+     "desc": "",
+     "f": 1440,
+     "key": "ev-allday",
+     "kind": "main",
+     "loc": "",
+     "s": 0,
+     "task_ids": [],
+     "tasks": [],
+     "title": "Election day"
+    },
+    {
+     "allday": false,
+     "busy": true,
+     "cal": "Stanford",
+     "desc": "",
+     "f": 740,
+     "key": "ev-class",
+     "kind": "main",
+     "loc": "GSB",
+     "s": 660,
+     "slot": false,
+     "task_ids": [],
+     "tasks": [],
+     "tentative": false,
+     "title": "STRAMGT 211"
+    },
+    {
+     "allday": false,
+     "busy": false,
+     "cal": "Focus",
+     "desc": "",
+     "f": 960,
+     "key": "ev-rocks",
+     "kind": "focus",
+     "loc": "",
+     "s": 840,
+     "slot": true,
+     "task_ids": [],
+     "tasks": [],
+     "tentative": false,
+     "title": "❗ Big rocks"
+    },
+    {
+     "allday": false,
+     "busy": false,
+     "cal": "Focus",
+     "desc": "Task: obsidian://open?vault=<VAULT_NAME>&file=Inbox%2FPay%20rent (t-00000a)",
+     "f": 1020,
+     "key": "ev-batch",
+     "kind": "focus",
+     "loc": "",
+     "s": 990,
+     "slot": false,
+     "task_ids": [
+      "t-00000a"
+     ],
+     "tasks": [
+      "Pay rent"
+     ],
+     "tentative": false,
+     "title": "Batch: Pay rent"
+    },
+    {
+     "allday": false,
+     "busy": false,
+     "cal": "Stanford",
+     "desc": "",
+     "f": 1110,
+     "key": "ev-coffee",
+     "kind": "main",
+     "loc": "",
+     "s": 1080,
+     "slot": false,
+     "task_ids": [],
+     "tasks": [],
+     "tentative": true,
+     "title": "Coffee with Ana"
+    }
+   ],
+   "now": 630,
+   "ok": true
+  },
+  "status": 200
+ },
+ "direction": [
+  {
+   "body": {
+    "keep": true,
+    "msg": "Priority raised",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "raise",
+    "id": "File taxes"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Not now",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "noraise",
+    "id": "File taxes"
+   }
+  }
+ ],
+ "log": [
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": [
+    "Pay rent"
+   ],
+   "counts": {
+    "claude": 1,
+    "do": 1,
+    "replies": 0,
+    "today": 6
+   },
+   "kind": "open",
+   "replies": [],
+   "shown": {
+    "today": [
+     "Pay rent",
+     "Call Quinn",
+     "Fraud alert from the bank",
+     "Fix bike",
+     "Reply to Lena",
+     "Email Tom"
+    ],
+    "tomorrow": [
+     "Pay rent",
+     "Write memo",
+     "Call Quinn",
+     "Fraud alert from the bank",
+     "Fix bike",
+     "Email Tom"
+    ]
+   },
+   "src": "browser"
+  },
+  {
+   "action": "subtick",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Call Quinn",
+   "kind": "signal",
+   "n": 1,
+   "on": true,
+   "signal": "subtick",
+   "title": "Call Quinn"
+  },
+  {
+   "action": "tick_line",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "beyond_plan": false,
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Call Quinn",
+   "kind": "signal",
+   "signal": "step_ticked",
+   "text": "Book the table",
+   "title": "Call Quinn"
+  },
+  {
+   "action": "step_done",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "beyond_plan": false,
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "guess": "",
+   "id": "Pay rent",
+   "kind": "signal",
+   "next": "Save the receipt",
+   "signal": "step_done",
+   "state": "next",
+   "step": "Transfer the rent",
+   "test": false,
+   "title": "Pay rent"
+  },
+  {
+   "action": "step_undo",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Pay rent",
+   "kind": "signal",
+   "signal": "step_undone",
+   "test": false,
+   "title": "Pay rent"
+  },
+  {
+   "action": "step_done",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "beyond_plan": false,
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "guess": "",
+   "id": "Pay rent",
+   "kind": "signal",
+   "next": "Save the receipt",
+   "signal": "step_done",
+   "state": "next",
+   "step": "Transfer the rent",
+   "test": false,
+   "title": "Pay rent"
+  },
+  {
+   "action": "step_wait",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "guess": "",
+   "id": "Pay rent",
+   "kind": "signal",
+   "next": "Save the receipt",
+   "signal": "step_wait",
+   "state": "next",
+   "step": "Transfer the rent",
+   "test": false,
+   "title": "Pay rent",
+   "who": "landlord"
+  },
+  {
+   "action": "edit_waiting",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Pay rent",
+   "kind": "signal",
+   "signal": "edit_waiting",
+   "state": "waiting",
+   "test": false,
+   "title": "Pay rent",
+   "who": "landlord Joe"
+  },
+  {
+   "action": "not_waiting",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Pay rent",
+   "kind": "signal",
+   "signal": "not_waiting",
+   "state": "not_waiting",
+   "test": false,
+   "title": "Pay rent"
+  },
+  {
+   "action": "set_waiting",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "File taxes",
+   "kind": "signal",
+   "signal": "set_waiting",
+   "state": "waiting",
+   "test": false,
+   "title": "File taxes",
+   "who": "accountant"
+  },
+  {
+   "action": "step_discard",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "File taxes",
+   "kind": "signal",
+   "next": "",
+   "signal": "step_discarded",
+   "step_kind": "Next",
+   "test": false,
+   "text": "Ask the accountant",
+   "title": "File taxes"
+  },
+  {
+   "action": "step_discard",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "dod_set",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "dod_before": "Return filed",
+   "dod_before_guess": false,
+   "id": "File taxes",
+   "kind": "signal",
+   "new": "",
+   "old": "",
+   "signal": "dod_set",
+   "test": false,
+   "text": "Return filed and paid",
+   "title": "File taxes"
+  },
+  {
+   "action": "dod_confirm",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "dod_before": "Quinn has a lunch date",
+   "dod_before_guess": true,
+   "id": "Call Quinn",
+   "kind": "signal",
+   "new": "",
+   "old": "",
+   "signal": "dod_confirmed",
+   "test": false,
+   "text": "",
+   "title": "Call Quinn"
+  },
+  {
+   "action": "prop_ignore",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Email Tom",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "dod_before": "",
+   "dod_before_guess": false,
+   "id": "Email Tom",
+   "kind": "signal",
+   "new": "",
+   "old": "Next: Ask Tom about the deck",
+   "signal": "prop_ignored",
+   "test": false,
+   "text": "",
+   "title": "Email Tom"
+  },
+  {
+   "action": "prop_accept",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Email Tom",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "dod_before": "",
+   "dod_before_guess": false,
+   "id": "Email Tom",
+   "kind": "signal",
+   "new": "Next: Send Tom the deck draft",
+   "old": "Next: Ask Tom about the deck",
+   "signal": "prop_accepted",
+   "test": false,
+   "text": "",
+   "title": "Email Tom"
+  },
+  {
+   "action": "steps_save",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Read case",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "dod_before": "",
+   "dod_before_guess": false,
+   "id": "Read case",
+   "kind": "signal",
+   "new": "",
+   "old": "",
+   "signal": "steps_edited",
+   "test": false,
+   "text": "",
+   "title": "Read case"
+  },
+  {
+   "action": "next",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Read case",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "45m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Read pages 1 to 12 (owner decision, Nov 4)",
+    "prio": "Z",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Read case",
+   "kind": "signal",
+   "new": "Read pages 1 to 15",
+   "old": "Read pages 1 to 12 (owner decision, Nov 4)",
+   "signal": "next_rewritten",
+   "test": false,
+   "title": "Read case"
+  },
+  {
+   "action": "note",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Read case",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "45m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Read pages 1 to 15",
+    "prio": "Z",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Read case",
+   "kind": "signal",
+   "note": "the case is long",
+   "signal": "note",
+   "test": false,
+   "title": "Read case"
+  },
+  {
+   "action": "update",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Read case",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "changes": [
+    {
+     "field": "priority",
+     "new": "3-normal",
+     "old": "1-none"
+    },
+    {
+     "field": "due",
+     "new": "2026-11-05",
+     "old": ""
+    },
+    {
+     "field": "whole task",
+     "new": "45 min",
+     "old": ""
+    },
+    {
+     "field": "next",
+     "new": "Read pages 1 to 15 (20 min)",
+     "old": "Read pages 1 to 15"
+    }
+   ],
+   "claude": {
+    "est": "45m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Read pages 1 to 15",
+    "prio": "Z",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Read case",
+   "kind": "signal",
+   "signal": "edited",
+   "test": false,
+   "title": "Read case"
+  },
+  {
+   "action": "update",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Read case",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "notdone",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "10m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Draft the reply to Quinn (10 min)",
+    "prio": "H",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Call Quinn",
+   "kind": "signal",
+   "signal": "probably_done_rejected",
+   "test": false,
+   "title": "Call Quinn"
+  },
+  {
+   "action": "done",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Email Tom",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "20m",
+    "group": "Today",
+    "guess": "soon",
+    "next": "Send Tom the deck draft (owner decision, Nov 4)",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Email Tom",
+   "kind": "signal",
+   "signal": "done_missed",
+   "test": false,
+   "title": "Email Tom",
+   "why": "sent it"
+  },
+  {
+   "action": "reopen",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Email Tom",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "",
+    "group": "Done",
+    "guess": "done",
+    "next": "Done today",
+    "prio": "N",
+    "tab": "today",
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Email Tom",
+   "kind": "signal",
+   "signal": "reopened",
+   "test": false,
+   "title": "Email Tom"
+  },
+  {
+   "action": "remove",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Fix bike",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "1h",
+    "group": "Past its date",
+    "guess": "today",
+    "next": "Buy a tube",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Fix bike",
+   "kind": "signal",
+   "reason": "nottoday",
+   "signal": "removed",
+   "test": false,
+   "title": "Fix bike",
+   "why": "no time"
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "day": "2026-11-04",
+   "id": "Fix bike",
+   "kind": "pushed_down",
+   "level": 1,
+   "reason": "nottoday"
+  },
+  {
+   "action": "remove",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Fix bike",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "add",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {},
+   "day": "today",
+   "id": "",
+   "kind": "signal",
+   "signal": "added",
+   "source": "manual",
+   "title": "",
+   "title_added": "Buy stamps"
+  },
+  {
+   "action": "add",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "step_done",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Write memo",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": true
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "guess": "",
+   "id": "Write memo",
+   "kind": "signal",
+   "signal": "step_done",
+   "state": "done",
+   "step": "Outline the memo",
+   "test": true,
+   "title": "Write memo"
+  },
+  {
+   "action": "auto_close_undo",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Read case",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "20m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Read pages 1 to 15 (20 min)",
+    "prio": "Z",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Read case",
+   "kind": "signal",
+   "signal": "auto_close_undone",
+   "test": false,
+   "title": "Read case"
+  },
+  {
+   "action": "next",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "No such note",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "select",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "2h",
+    "group": "Everything else",
+    "guess": "soon",
+    "next": "",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "File taxes",
+   "kind": "signal",
+   "section": "more",
+   "signal": "pulled_up",
+   "suggest": "",
+   "test": false,
+   "title": "File taxes"
+  },
+  {
+   "action": "select",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Fraud alert from the bank",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "id": "Fraud alert from the bank",
+   "kind": "card_note_created",
+   "note": "Fraud alert from the bank"
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "5m",
+    "group": "New from mail and WhatsApp",
+    "guess": "today",
+    "next": "Call the bank (5 min)",
+    "prio": "H",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Fraud alert from the bank",
+   "kind": "signal",
+   "section": "needs",
+   "signal": "selected",
+   "suggest": "",
+   "test": false,
+   "title": "Fraud alert from the bank"
+  },
+  {
+   "action": "unselect",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Read case",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "20m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Read pages 1 to 15 (20 min)",
+    "prio": "Z",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Read case",
+   "kind": "signal",
+   "section": "selection",
+   "signal": "unselected",
+   "suggest": "",
+   "test": false,
+   "title": "Read case"
+  },
+  {
+   "action": "swap",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "2h",
+    "group": "Everything else",
+    "guess": "soon",
+    "next": "",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "File taxes",
+   "kind": "signal",
+   "previous": "Call Quinn",
+   "signal": "one_swapped",
+   "test": false,
+   "title": "File taxes"
+  },
+  {
+   "action": "notone",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "2h",
+    "group": "Everything else",
+    "guess": "soon",
+    "next": "",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "File taxes",
+   "kind": "signal",
+   "signal": "one_rejected",
+   "test": false,
+   "title": "File taxes",
+   "why": "not today"
+  },
+  {
+   "action": "confirm",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {},
+   "day": "today",
+   "id": "",
+   "ids": [
+    "Pay rent",
+    "File taxes"
+   ],
+   "kept": [
+    "Pay rent"
+   ],
+   "kind": "signal",
+   "pre_selected": [
+    "Pay rent",
+    "Call Quinn",
+    "Fraud alert from the bank",
+    "Reply to Lena",
+    "Read case",
+    "Email Tom"
+   ],
+   "signal": "selection_confirmed",
+   "test": false,
+   "title": ""
+  },
+  {
+   "action": "plan",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "detail": "plan list short: 0 over cap, missing ['File taxes', 'Gone task']",
+   "kind": "error",
+   "where": "plan ids (act)"
+  },
+  {
+   "action": "plan",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "do_commit",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "day": "2026-11-04",
+   "kind": "do_commit",
+   "n": 3,
+   "test": false
+  },
+  {
+   "action": "do_add",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Write memo",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Write memo",
+   "kind": "signal",
+   "signal": "do_added",
+   "source": "more",
+   "test": false,
+   "title": "Write memo"
+  },
+  {
+   "action": "do_more",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Write memo",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Write memo",
+   "kind": "signal",
+   "signal": "do_kept_going",
+   "source": "",
+   "test": false,
+   "title": "Write memo"
+  },
+  {
+   "action": "do_drop",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Write memo",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Write memo",
+   "kind": "signal",
+   "signal": "do_dropped",
+   "source": "",
+   "test": false,
+   "title": "Write memo"
+  },
+  {
+   "action": "do_unmove",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Write memo",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Write memo",
+   "kind": "signal",
+   "signal": "do_move_undone",
+   "source": "",
+   "test": false,
+   "title": "Write memo"
+  },
+  {
+   "action": "do_keep",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Pay rent",
+   "kind": "signal",
+   "signal": "do_kept",
+   "source": "",
+   "test": false,
+   "title": "Pay rent"
+  },
+  {
+   "action": "do_dismiss",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Book dentist",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": null,
+    "group": null,
+    "guess": null,
+    "next": null,
+    "prio": null,
+    "tab": null,
+    "unsure": null
+   },
+   "day": "today",
+   "id": "Book dentist",
+   "kind": "signal",
+   "signal": "do_suggestion_dismissed",
+   "source": "",
+   "test": false,
+   "title": "Book dentist"
+  },
+  {
+   "action": "do_bogus",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "tomorrow",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "10m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Draft the reply to Quinn (10 min)",
+    "prio": "H",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Call Quinn",
+   "kind": "signal",
+   "signal": "moved",
+   "test": false,
+   "title": "Call Quinn"
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "day": "2026-11-04",
+   "id": "Call Quinn",
+   "kind": "pushed_down",
+   "level": 1,
+   "reason": "notnow"
+  },
+  {
+   "action": "schedule",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "10m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Draft the reply to Quinn (10 min)",
+    "prio": "H",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Call Quinn",
+   "kind": "signal",
+   "signal": "added",
+   "source": "suggested",
+   "suggest": "",
+   "test": false,
+   "title": "Call Quinn"
+  },
+  {
+   "action": "select",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Write memo",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "",
+    "group": "Everything else",
+    "guess": "later",
+    "next": "Outline the memo",
+    "prio": "Z",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "tomorrow",
+   "id": "Write memo",
+   "kind": "signal",
+   "section": "more",
+   "signal": "pulled_up",
+   "suggest": "",
+   "test": false,
+   "title": "Write memo"
+  },
+  {
+   "action": "raise",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "2h",
+    "group": "Everything else",
+    "guess": "soon",
+    "next": "",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "File taxes",
+   "kind": "signal",
+   "mentions": 0,
+   "new": "4-high",
+   "old": "3-normal",
+   "signal": "priority_raised",
+   "test": false,
+   "title": "File taxes"
+  },
+  {
+   "action": "noraise",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "2h",
+    "group": "Everything else",
+    "guess": "soon",
+    "next": "",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "File taxes",
+   "kind": "signal",
+   "mentions": 0,
+   "signal": "raise_dismissed",
+   "test": false,
+   "title": "File taxes"
+  },
+  {
+   "action": "mark",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "10m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Draft the reply to Quinn (10 min)",
+    "prio": "H",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "edit": {
+    "draft": "Hi Quinn, Thursday?",
+    "sent": "Hi Quinn, Thursday at 12?"
+   },
+   "edited": true,
+   "id": "Call Quinn",
+   "kind": "signal",
+   "signal": "reply_copied",
+   "test": false,
+   "title": "Call Quinn",
+   "via": "mail",
+   "wa": false
+  },
+  {
+   "action": "mark",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "10m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Draft the reply to Quinn (10 min)",
+    "prio": "H",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Call Quinn",
+   "kind": "signal",
+   "signal": "edit_opened",
+   "tab": "",
+   "test": false,
+   "title": "Call Quinn"
+  },
+  {
+   "action": "meditation",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "answer",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "answer": "Chase",
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "10m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Save the receipt",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Pay rent",
+   "kind": "signal",
+   "q": "Which account?",
+   "signal": "answered",
+   "test": false,
+   "title": "Pay rent"
+  },
+  {
+   "action": "answer",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "prepare",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "File taxes",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "talk",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Call Quinn",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "claude",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "10m",
+    "group": "Today",
+    "guess": "today",
+    "next": "Draft the reply to Quinn (10 min)",
+    "prio": "H",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "id": "Call Quinn",
+   "kind": "signal",
+   "note": "ask about Thursday",
+   "signal": "claude_go",
+   "test": false,
+   "title": "Call Quinn"
+  },
+  {
+   "action": "replied",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": true,
+   "id": "Email Tom",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "20m",
+    "group": "Today",
+    "guess": "soon",
+    "next": "",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "draft": "Deck tonight? Sent it",
+   "id": "Email Tom",
+   "kind": "signal",
+   "signal": "reply_done_himself",
+   "test": false,
+   "title": "Email Tom"
+  },
+  {
+   "action": "skipreply",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Reply to Lena",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "id": "Reply to Lena",
+   "kind": "card_note_created",
+   "note": "Reply to Lena"
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": {
+    "est": "",
+    "group": "New from mail and WhatsApp",
+    "guess": "today",
+    "next": "Reply to Lena",
+    "prio": "N",
+    "tab": "today",
+    "unsure": false
+   },
+   "day": "today",
+   "draft": "Yes!",
+   "how": "today",
+   "id": "Reply to Lena",
+   "kind": "signal",
+   "signal": "reply_skipped",
+   "test": false,
+   "title": "Reply to Lena"
+  },
+  {
+   "action": "sendmail",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "mailprep",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Read case",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "nope",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Pay rent",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "nope",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "Not a row at all",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "action": "",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "claude": [
+    "Pay rent"
+   ],
+   "counts": {
+    "claude": 1,
+    "do": 3,
+    "replies": 0,
+    "today": 6
+   },
+   "kind": "open",
+   "replies": [],
+   "shown": {
+    "today": [
+     "Pay rent",
+     "Fraud alert from the bank",
+     "Reply to Lena",
+     "Read case",
+     "Email Tom",
+     "Book dentist"
+    ],
+    "tomorrow": [
+     "Pay rent",
+     "Fraud alert from the bank",
+     "Email Tom",
+     "Reply to Lena",
+     "Read case",
+     "Book dentist"
+    ]
+   },
+   "src": "browser"
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "closed_unplanned": [
+    "Plan trip"
+   ],
+   "counts": {
+    "closed_unplanned": 1,
+    "his_parts_finished": 0,
+    "moved": 0,
+    "open": 8,
+    "part_steps": 4,
+    "part_steps_done": 1,
+    "parts_finished": 1,
+    "pre_selected": 6,
+    "pre_selected_done": 0,
+    "pre_selected_parts_finished": 1,
+    "selected": 4,
+    "selected_done": 0
+   },
+   "day": "2026-11-04",
+   "kind": "day_outcome",
+   "late": false,
+   "opens": 2,
+   "tasks": [
+    {
+     "completed": "",
+     "est": "",
+     "id": "Pay rent",
+     "log": [
+      "Nov 4 · paid the deposit · Claude",
+      "Nov 4 · step done: Transfer the rent · waiting on landlord, next: Save the receipt · check-in app",
+      "Nov 4 · waiting on: landlord Joe · check-in app",
+      "Nov 4 · not waiting · check-in app",
+      "Nov 4 · the owner answered Claude: Which account? → Chase · check-in app"
+     ],
+     "one": true,
+     "outcome": "open",
+     "part": {
+      "done": 1,
+      "finished": true,
+      "his": 1,
+      "steps": 1
+     },
+     "pre_selected": true,
+     "priority": "3-normal",
+     "scheduled": "",
+     "selected": true,
+     "task": true
+    },
+    {
+     "completed": "",
+     "est": "",
+     "id": "Fraud alert from the bank",
+     "log": [
+      "Nov 4 · created by Carmen (tap) · check-in app",
+      "Nov 4 · scheduled for Nov 4 · check-in app"
+     ],
+     "one": false,
+     "outcome": "open",
+     "part": {
+      "done": 0,
+      "finished": false,
+      "his": 0,
+      "steps": 1
+     },
+     "pre_selected": true,
+     "priority": "1-none",
+     "scheduled": "2026-11-04",
+     "selected": true,
+     "task": true
+    },
+    {
+     "completed": "",
+     "est": "",
+     "id": "Reply to Lena",
+     "log": [
+      "Nov 4 · created by Carmen (tap) · check-in app"
+     ],
+     "one": false,
+     "outcome": "open",
+     "part": {
+      "done": 0,
+      "finished": false,
+      "his": 0,
+      "steps": 0
+     },
+     "pre_selected": true,
+     "priority": "1-none",
+     "scheduled": "",
+     "selected": false,
+     "task": true
+    },
+    {
+     "completed": "",
+     "est": "45",
+     "id": "Read case",
+     "log": [
+      "Nov 4 · steps edited · check-in app",
+      "Nov 4 · Next set to: Read pages 1 to 15 · check-in app",
+      "Nov 4 · the owner: \"the case is long\" · check-in app",
+      "Nov 4 · edited: priority 1-none → 3-normal; due – → Nov 5; whole task – → 45 min; next Read pages 1 to 15 → Read pages 1 to 15 (20 min) · check-in app"
+     ],
+     "one": false,
+     "outcome": "open",
+     "part": {
+      "done": 0,
+      "finished": false,
+      "his": 0,
+      "steps": 1
+     },
+     "pre_selected": true,
+     "priority": "3-normal",
+     "scheduled": "2026-11-04",
+     "selected": false,
+     "task": true
+    },
+    {
+     "completed": "",
+     "est": "",
+     "id": "Email Tom",
+     "log": [
+      "Nov 4 · out · WhatsApp · to Tom",
+      "Nov 4 · accepted Claude's proposal: Next: Send Tom the deck draft · check-in app",
+      "Nov 4 · done · check-in app",
+      "Nov 4 · the owner, why: \"sent it\" · check-in app",
+      "Nov 4 · edited: status done → open · check-in app",
+      "Nov 4 · sent to Tom (WhatsApp) · check-in app"
+     ],
+     "one": false,
+     "outcome": "open",
+     "part": {
+      "done": 0,
+      "finished": false,
+      "his": 0,
+      "steps": 0
+     },
+     "pre_selected": true,
+     "priority": "3-normal",
+     "scheduled": "",
+     "selected": false,
+     "task": true
+    },
+    {
+     "completed": "",
+     "est": "",
+     "id": "Book dentist",
+     "log": [],
+     "one": false,
+     "outcome": "open",
+     "part": {
+      "done": 0,
+      "finished": false,
+      "his": 0,
+      "steps": 0
+     },
+     "pre_selected": true,
+     "priority": "3-normal",
+     "scheduled": "",
+     "selected": false,
+     "task": true
+    },
+    {
+     "completed": "",
+     "est": "",
+     "id": "Buy stamps",
+     "log": [],
+     "one": false,
+     "outcome": "open",
+     "part": {
+      "done": 0,
+      "finished": false,
+      "his": 0,
+      "steps": 1
+     },
+     "pre_selected": false,
+     "priority": "1-none",
+     "scheduled": "2026-11-04",
+     "selected": true,
+     "task": true
+    },
+    {
+     "completed": "",
+     "est": "",
+     "id": "File taxes",
+     "log": [
+      "Nov 4 · waiting on accountant · check-in app",
+      "Nov 4 · step discarded: Ask the accountant · check-in app",
+      "Nov 4 · DoD set: Return filed and paid · check-in app",
+      "Nov 4 · scheduled for Nov 4 · check-in app",
+      "Nov 4 · edited: priority 3-normal → 4-high · check-in app"
+     ],
+     "one": false,
+     "outcome": "open",
+     "part": {
+      "done": 0,
+      "finished": false,
+      "his": 0,
+      "steps": 0
+     },
+     "pre_selected": false,
+     "priority": "4-high",
+     "scheduled": "2026-11-04",
+     "selected": true,
+     "task": true
+    }
+   ]
+  },
+  {
+   "action": "journal_save",
+   "at": "2026-11-04T10:30:00-08:00",
+   "edited": false,
+   "id": "",
+   "kind": "tap",
+   "src": "browser",
+   "tab": "",
+   "test": false
+  },
+  {
+   "at": "2026-11-04T10:30:00-08:00",
+   "filled": 1,
+   "kind": "journal",
+   "test": false,
+   "update": true
+  }
+ ],
+ "misc": [
+  {
+   "body": {
+    "error": "unknown action"
+   },
+   "status": 400,
+   "tap": {
+    "action": "nope",
+    "id": "Pay rent"
+   }
+  },
+  {
+   "body": {
+    "error": "row not found, refresh"
+   },
+   "status": 404,
+   "tap": {
+    "action": "nope",
+    "id": "Not a row at all"
+   }
+  },
+  {
+   "body": {
+    "error": "row not found, refresh"
+   },
+   "status": 404,
+   "tap": {}
+  }
+ ],
+ "notes": {
+  "Archive/Inbox/Old thing.md": "---\ntype: action\nstatus: done\ncompletedDate: 2026-11-03\npriority: 3-normal\n---\n\n## Next action\n- [x] Next: Finish ^s0j01\n",
+  "Areas/Personal/Meditation Journal/2026-11-04.md": "---\ntype: note\ncaptured: 2026-11-04T10:30\n---\n\n# Wednesday, 4 November 2026\n\n## What did I get done yesterday? (one line)\n\n\n\n## What am I anxious about?\n\n\n\n## Two things I can do today about the anxiety, even just a first step\n\n1. \n2. \n\n## What am I excited about / what would make this my best year? #bestYear\n\n\n\n## Yesterday\n\n- [ ] At least one deep interaction with a friend\n",
+  "Inbox/Book dentist.md": "---\ntype: action\nstatus: open\npriority: 3-normal\nwaiting: true\n---\n\n## Next action\n- [ ] Waiting: dentist office, on a slot (since Nov 1) ^s0c01\n- [ ] Next: Pick a slot ^s0c02\n\n## Log\n- Nov 1 · waiting on dentist office · check-in app\n",
+  "Inbox/Buy stamps.md": "---\ntype: action\ntask_id: t-000004\ncaptured: 2026-11-04T10:30\nstatus: inbox\npriority: 1-none\nscheduled: 2026-11-04\n---\n\n## Next action\n- [ ] Next: Buy stamps ^s0005\n",
+  "Inbox/Call Quinn.md": "---\ntype: action\nstatus: open\npriority: 4-high\nscheduled: 2026-11-04\ntask_id: t-00000b\ntimeEstimate: 30\n---\n\n## Next action\nDoD: Quinn has a lunch date (owner decision, Nov 4)\n- [ ] Next: Draft the reply to Quinn (10 min) ^s0b01\n    - [Thread](https://mail.google.com/x)\n    - [[Call Quinn#Notes|notes]]\n- [x] Then: Book the table ✅ 2026-11-04 ^s0b02\n- [ ] Pick the place 📅 2026-11-06 ^s0b03\n\n## Notes\nShe likes Thai.\n\n## Log\n- Nov 3 · step done: Find her number · check-in app\n- Nov 4 · step ticked: Book the table · check-in app\n- Nov 4 · DoD set: Quinn has a lunch date · check-in app\n- Nov 4 · moved to Nov 5 · check-in app\n- Nov 4 · scheduled for Nov 4 · check-in app\n",
+  "Inbox/Email Tom.md": "---\ntype: action\nstatus: open\npriority: 3-normal\n---\n\n## Next action\n- [x] Next: Send Tom the deck draft (owner decision, Nov 4) ✅ 2026-11-04 ^s0002\n- ~~Next: Ask Tom about the deck~~ (replaced, accepted in the check-in app, Nov 4) ^s0h01\n\n## Messages\n- Nov 4 · out · WhatsApp · to Tom\n  > Deck tonight? Sent it\n\n## Log\n- Nov 4 · accepted Claude's proposal: Next: Send Tom the deck draft · check-in app\n- Nov 4 · done · check-in app\n- Nov 4 · the owner, why: \"sent it\" · check-in app\n- Nov 4 · edited: status done → open · check-in app\n- Nov 4 · sent to Tom (WhatsApp) · check-in app\n",
+  "Inbox/File taxes.md": "---\ntype: action\nstatus: open\npriority: 4-high\nwaiting: true\nscheduled: 2026-11-04\n---\n\n## Next action\nDoD: Return filed and paid (owner decision, Nov 4)\n- [ ] Waiting: accountant · for: Collect the W-2 📅 2026-11-13 ^s0e01\n- ~~Next: Ask the accountant~~ (discarded, Nov 4) ^s0e02\n\n## Log\n- Nov 4 · waiting on accountant · check-in app\n- Nov 4 · step discarded: Ask the accountant · check-in app\n- Nov 4 · DoD set: Return filed and paid · check-in app\n- Nov 4 · scheduled for Nov 4 · check-in app\n- Nov 4 · edited: priority 3-normal → 4-high · check-in app\n",
+  "Inbox/Fix bike.md": "---\ntype: action\nstatus: open\npriority: 3-normal\nscheduled: 2026-11-05\n---\n\n## Next action\n- [ ] Next: Buy a tube ^s0i01\n\n## Log\n- Nov 4 · moved to Nov 5 · check-in app\n- Nov 4 · the owner, why: \"no time\" · check-in app\n",
+  "Inbox/Fraud alert from the bank.md": "---\ntype: action\ntask_id: t-000006\ncaptured: 2026-11-04T10:30\nstatus: inbox\npriority: 1-none\nscheduled: 2026-11-04\n---\n\n## Next action\n- [ ] Next: Call the bank (5 min) ^s0007\n\nCreated by Carmen from a card in Carmen on Nov 4.\na mail\n\n## Log\n- Nov 4 · created by Carmen (tap) · check-in app\n- Nov 4 · scheduled for Nov 4 · check-in app\n",
+  "Inbox/Pay rent.md": "---\ntype: action\nstatus: open\npriority: 3-normal\ndue: 2026-11-04\ntask_id: t-00000a\n---\n\n## Next action\n- [x] Next: Transfer the rent (5 min) ^s0a01\n- ~~Waiting: landlord Joe~~ (not waiting, Nov 4) ^s0001\n- [ ] Next: Save the receipt ^s0a02\n- [x] Look up the amount ✅ 2026-11-03 ^s0a03\n\n## Log\n- Nov 4 · paid the deposit · Claude\n- Nov 4 · step done: Transfer the rent · waiting on landlord, next: Save the receipt · check-in app\n- Nov 4 · waiting on: landlord Joe · check-in app\n- Nov 4 · not waiting · check-in app\n- Nov 4 · the owner answered Claude: Which account? → Chase · check-in app\n",
+  "Inbox/Plan trip.md": "---\ntype: action\nstatus: done\ncompletedDate: 2026-11-04\npriority: 3-normal\n---\n\n## Next action\n- [x] Next: Book flights ^s0g01\n\n## Log\n- Nov 4 · done · check-in app\n",
+  "Inbox/Read case.md": "---\ntype: action\nstatus: open\npriority: 3-normal\nscheduled: 2026-11-04\ndue: 2026-11-05\ntimeEstimate: 45\n---\n\n## Next action\n- [ ] Next: Read pages 1 to 15 (20 min) ^s0f01\n- [ ] Write two questions (owner decision, Nov 4) ^s0003\n\n## Log\n- Nov 4 · steps edited · check-in app\n- Nov 4 · Next set to: Read pages 1 to 15 · check-in app\n- Nov 4 · the owner: \"the case is long\" · check-in app\n- Nov 4 · edited: priority 1-none → 3-normal; due – → Nov 5; whole task – → 45 min; next Read pages 1 to 15 → Read pages 1 to 15 (20 min) · check-in app\n",
+  "Inbox/Reply to Lena.md": "---\ntype: action\ntask_id: t-000008\ncaptured: 2026-11-04T10:30\nstatus: inbox\npriority: 1-none\n---\n\n## Next action\n- [ ] Next: Reply to Lena ^s0009\n\nCreated by Carmen from a card in Carmen on Nov 4.\nWhatsApp\n\n## Log\n- Nov 4 · created by Carmen (tap) · check-in app\n",
+  "Inbox/Write memo.md": "---\ntype: action\nstatus: open\npriority: 2-low\nscheduled: 2026-11-05\n---\n\n## Next action\n- [ ] Next: Outline the memo ^s0d01\n\n## Log\n- Nov 4 · scheduled for Nov 4 · check-in app\n- Nov 4 · scheduled for Nov 4 · check-in app\n- Nov 4 · scheduled for Nov 5 · check-in app\n",
+  "_system/claude/plan-today-prerun.md": "---\ngenerated: 2026-11-04T08:00-07:00\n---\n\n```json\n{\"rows\": [[\"Today\", [{\"n\": \"Call Quinn\", \"lk\": \"Call Quinn\", \"g\": \"today\", \"p\": \"H\", \"s\": \"lunch this week\", \"nx\": \"Draft the reply\", \"e\": \"30m\", \"ne\": \"10m\", \"anx\": 1, \"ch\": [{\"t\": \"draft the reply\", \"k\": \"draft\", \"msg\": {\"via\": \"mail\", \"to\": \"sarah@example.com\", \"subj\": \"Re: lunch\", \"body\": \"Hi Quinn, Thursday?\", \"acct\": \"<YOUR_EMAIL>\"}}]}, {\"n\": \"Pay rent\", \"lk\": \"Pay rent\", \"g\": \"today\", \"p\": \"N\", \"s\": \"due today\", \"nx\": \"Transfer\", \"e\": \"10m\", \"cp\": [{\"t\": \"look up the amount\", \"k\": \"research\"}], \"u\": 1}, {\"n\": \"Read case\", \"lk\": \"Read case\", \"g\": \"today\", \"p\": \"Z\", \"s\": \"class at 11\", \"e\": \"45m\"}, {\"n\": \"Email Tom\", \"lk\": \"Email Tom\", \"g\": \"soon\", \"p\": \"N\", \"s\": \"deck\", \"e\": 20, \"prop\": [{\"old\": \"Next: Ask Tom about the deck\", \"new\": \"Next: Send Tom the deck draft\", \"why\": \"he asked\"}], \"ch\": [{\"t\": \"text Tom\", \"msg\": {\"via\": \"WhatsApp\", \"to\": \"Tom\", \"body\": \"Deck tonight?\"}}]}]], [\"Overdue\", [{\"n\": \"Fix bike\", \"lk\": \"Fix bike\", \"g\": \"today\", \"p\": \"N\", \"s\": \"flat\", \"e\": \"1h\"}]], [\"Waiting\", [{\"n\": \"Book dentist\", \"lk\": \"Book dentist\", \"g\": \"wait\", \"p\": \"N\", \"wf\": \"dentist office\", \"gw\": 0}]], [\"Everything else\", [{\"n\": \"File taxes\", \"lk\": \"File taxes\", \"g\": \"soon\", \"p\": \"N\", \"s\": \"April\", \"e\": \"2h\"}, {\"n\": \"Write memo\", \"lk\": \"Write memo\", \"g\": \"later\", \"p\": \"Z\"}]], [\"New from mail and WhatsApp\", [{\"n\": \"Fraud alert from the bank\", \"g\": \"today\", \"p\": \"H\", \"s\": \"a mail\", \"nx\": \"Call the bank\", \"ne\": \"5m\"}, {\"n\": \"Reply to Lena\", \"g\": \"today\", \"p\": \"N\", \"s\": \"WhatsApp\", \"ch\": [{\"t\": \"reply\", \"msg\": {\"via\": \"WhatsApp\", \"to\": \"Lena\", \"body\": \"Yes!\"}}]}]]], \"notes\": [\"Busy day\"]}\n```\n"
+ },
+ "outbox": [
+  {
+   "body": {
+    "msg": "Sent, kept on the task",
+    "ok": true,
+    "state": "recorded",
+    "step": ""
+   },
+   "status": 200,
+   "tap": {
+    "action": "replied",
+    "id": "Email Tom",
+    "text": "Deck tonight? Sent it"
+   }
+  },
+  {
+   "body": {
+    "msg": "Hidden for today, back tomorrow",
+    "ok": true,
+    "undo": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "skipreply",
+    "id": "Reply to Lena"
+   }
+  },
+  {
+   "body": {
+    "error": "only mail drafts send from here; copy the rest"
+   },
+   "status": 400,
+   "tap": {
+    "action": "sendmail",
+    "id": "Pay rent"
+   }
+  },
+  {
+   "body": {
+    "error": "only mail drafts send from here; copy the rest"
+   },
+   "status": 400,
+   "tap": {
+    "action": "mailprep",
+    "id": "Read case"
+   }
+  }
+ ],
+ "outcomes.day_outcome": {
+  "closed_unplanned": [
+   "Plan trip"
+  ],
+  "counts": {
+   "closed_unplanned": 1,
+   "his_parts_finished": 0,
+   "moved": 0,
+   "open": 8,
+   "part_steps": 4,
+   "part_steps_done": 1,
+   "parts_finished": 1,
+   "pre_selected": 6,
+   "pre_selected_done": 0,
+   "pre_selected_parts_finished": 1,
+   "selected": 4,
+   "selected_done": 0
+  },
+  "day": "2026-11-04",
+  "late": false,
+  "opens": 2,
+  "tasks": [
+   {
+    "completed": "",
+    "est": "",
+    "id": "Pay rent",
+    "log": [
+     "Nov 4 · paid the deposit · Claude",
+     "Nov 4 · step done: Transfer the rent · waiting on landlord, next: Save the receipt · check-in app",
+     "Nov 4 · waiting on: landlord Joe · check-in app",
+     "Nov 4 · not waiting · check-in app",
+     "Nov 4 · the owner answered Claude: Which account? → Chase · check-in app"
+    ],
+    "one": true,
+    "outcome": "open",
+    "part": {
+     "done": 1,
+     "finished": true,
+     "his": 1,
+     "steps": 1
+    },
+    "pre_selected": true,
+    "priority": "3-normal",
+    "scheduled": "",
+    "selected": true,
+    "task": true
+   },
+   {
+    "completed": "",
+    "est": "",
+    "id": "Fraud alert from the bank",
+    "log": [
+     "Nov 4 · created by Carmen (tap) · check-in app",
+     "Nov 4 · scheduled for Nov 4 · check-in app"
+    ],
+    "one": false,
+    "outcome": "open",
+    "part": {
+     "done": 0,
+     "finished": false,
+     "his": 0,
+     "steps": 1
+    },
+    "pre_selected": true,
+    "priority": "1-none",
+    "scheduled": "2026-11-04",
+    "selected": true,
+    "task": true
+   },
+   {
+    "completed": "",
+    "est": "",
+    "id": "Reply to Lena",
+    "log": [
+     "Nov 4 · created by Carmen (tap) · check-in app"
+    ],
+    "one": false,
+    "outcome": "open",
+    "part": {
+     "done": 0,
+     "finished": false,
+     "his": 0,
+     "steps": 0
+    },
+    "pre_selected": true,
+    "priority": "1-none",
+    "scheduled": "",
+    "selected": false,
+    "task": true
+   },
+   {
+    "completed": "",
+    "est": "45",
+    "id": "Read case",
+    "log": [
+     "Nov 4 · steps edited · check-in app",
+     "Nov 4 · Next set to: Read pages 1 to 15 · check-in app",
+     "Nov 4 · the owner: \"the case is long\" · check-in app",
+     "Nov 4 · edited: priority 1-none → 3-normal; due – → Nov 5; whole task – → 45 min; next Read pages 1 to 15 → Read pages 1 to 15 (20 min) · check-in app"
+    ],
+    "one": false,
+    "outcome": "open",
+    "part": {
+     "done": 0,
+     "finished": false,
+     "his": 0,
+     "steps": 1
+    },
+    "pre_selected": true,
+    "priority": "3-normal",
+    "scheduled": "2026-11-04",
+    "selected": false,
+    "task": true
+   },
+   {
+    "completed": "",
+    "est": "",
+    "id": "Email Tom",
+    "log": [
+     "Nov 4 · out · WhatsApp · to Tom",
+     "Nov 4 · accepted Claude's proposal: Next: Send Tom the deck draft · check-in app",
+     "Nov 4 · done · check-in app",
+     "Nov 4 · the owner, why: \"sent it\" · check-in app",
+     "Nov 4 · edited: status done → open · check-in app",
+     "Nov 4 · sent to Tom (WhatsApp) · check-in app"
+    ],
+    "one": false,
+    "outcome": "open",
+    "part": {
+     "done": 0,
+     "finished": false,
+     "his": 0,
+     "steps": 0
+    },
+    "pre_selected": true,
+    "priority": "3-normal",
+    "scheduled": "",
+    "selected": false,
+    "task": true
+   },
+   {
+    "completed": "",
+    "est": "",
+    "id": "Book dentist",
+    "log": [],
+    "one": false,
+    "outcome": "open",
+    "part": {
+     "done": 0,
+     "finished": false,
+     "his": 0,
+     "steps": 0
+    },
+    "pre_selected": true,
+    "priority": "3-normal",
+    "scheduled": "",
+    "selected": false,
+    "task": true
+   },
+   {
+    "completed": "",
+    "est": "",
+    "id": "Buy stamps",
+    "log": [],
+    "one": false,
+    "outcome": "open",
+    "part": {
+     "done": 0,
+     "finished": false,
+     "his": 0,
+     "steps": 1
+    },
+    "pre_selected": false,
+    "priority": "1-none",
+    "scheduled": "2026-11-04",
+    "selected": true,
+    "task": true
+   },
+   {
+    "completed": "",
+    "est": "",
+    "id": "File taxes",
+    "log": [
+     "Nov 4 · waiting on accountant · check-in app",
+     "Nov 4 · step discarded: Ask the accountant · check-in app",
+     "Nov 4 · DoD set: Return filed and paid · check-in app",
+     "Nov 4 · scheduled for Nov 4 · check-in app",
+     "Nov 4 · edited: priority 3-normal → 4-high · check-in app"
+    ],
+    "one": false,
+    "outcome": "open",
+    "part": {
+     "done": 0,
+     "finished": false,
+     "his": 0,
+     "steps": 0
+    },
+    "pre_selected": false,
+    "priority": "4-high",
+    "scheduled": "2026-11-04",
+    "selected": true,
+    "task": true
+   }
+  ]
+ },
+ "outcomes.record": [
+  "2026-11-04"
+ ],
+ "planning": [
+  {
+   "body": {
+    "keep": true,
+    "msg": "Added",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "select",
+    "from": "more",
+    "id": "File taxes"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Added",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "select",
+    "from": "needs",
+    "id": "Fraud alert from the bank"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Taken out",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "unselect",
+    "from": "selection",
+    "id": "Read case"
+   }
+  },
+  {
+   "body": {
+    "keep": false,
+    "msg": "Now the one thing",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "swap",
+    "id": "File taxes",
+    "previous": "Call Quinn"
+   }
+  },
+  {
+   "body": {
+    "keep": false,
+    "msg": "No longer the one thing",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "notone",
+    "id": "File taxes",
+    "why": "not today"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Selection confirmed",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "confirm",
+    "ids": [
+     "Pay rent",
+     "File taxes"
+    ]
+   }
+  },
+  {
+   "body": {
+    "close": true,
+    "msg": "Sent to Claude in Telegram, reply go",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "plan",
+    "ids": [
+     "Pay rent",
+     "File taxes",
+     "Gone task"
+    ]
+   }
+  },
+  {
+   "body": {
+    "error": "nothing selected to plan"
+   },
+   "status": 400,
+   "tap": {
+    "action": "plan",
+    "ids": []
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "do_commit",
+    "chunk_ids": {
+     "Pay rent": [
+      "s0a01"
+     ]
+    },
+    "chunks": {
+     "Call Quinn": [
+      "Draft the reply to Quinn (10 min)",
+      "Book (15 min)"
+     ],
+     "Pay rent": [
+      "Transfer the rent (5 min)"
+     ]
+    },
+    "ids": [
+     "Pay rent",
+     "File taxes",
+     "Call Quinn"
+    ]
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Added to today",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "do_add",
+    "from": "more",
+    "id": "Write memo"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "do_more",
+    "id": "Write memo"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Taken off today",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "do_drop",
+    "id": "Write memo"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Back on today",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "do_unmove",
+    "id": "Write memo"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Kept",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "do_keep",
+    "id": "Pay rent"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Not today",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "do_dismiss",
+    "id": "Book dentist"
+   }
+  },
+  {
+   "body": {
+    "error": "bad request"
+   },
+   "status": 400,
+   "tap": {
+    "action": "do_bogus",
+    "id": "Pay rent"
+   }
+  },
+  {
+   "body": {
+    "keep": false,
+    "msg": "Moved to Nov 5",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "tomorrow",
+    "id": "Call Quinn"
+   }
+  },
+  {
+   "body": {
+    "keep": false,
+    "msg": "Added to Nov 4",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "schedule",
+    "id": "Call Quinn"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Added",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "select",
+    "day": "tomorrow",
+    "from": "more",
+    "id": "Write memo"
+   }
+  }
+ ],
+ "planning.budget": {
+  "busy": [
+   [
+    660,
+    740
+   ]
+  ],
+  "day_end": 1260,
+  "day_start": 540,
+  "free_min": 430,
+  "min_gap": 0,
+  "planned_min": 140,
+  "slots": [
+   {
+    "f": 960,
+    "s": 840,
+    "title": "Big rocks"
+   }
+  ],
+  "start": 630,
+  "unestimated": 0,
+  "window": "10:30-21:00"
+ },
+ "planning.plan_pending": null,
+ "planning.plan_text": "🗓 Plan Wednesday, Nov 4\nPut these into the calendar with the schedule-work rules (Week Structure, working conditions, buffers). Propose the blocks first; the owner books them with the app's Book button (Nov 10): his chat messages are changes to the proposal, never an OK to book:\n1. Pay rent [t-00000a] (5 min): part for Wednesday, Transfer the rent (5 min)\n   Steps by id: [s0a02] Save the receipt\n2. Call Quinn [t-00000b] (25 min): part for Wednesday, Draft the reply to Quinn (10 min); Book (15 min)\n   Steps by id: [s0b01] Draft the reply to Quinn (10 min); [s0b03] Pick the place\n3. File taxes (2h)\nTime (10:30-21:00): 2h 30 planned; 9h 10 available, of it 2h Big rocks. Use this available time as the room, the same number his budget bar shows (Nov 10): do not take off buffers of your own; a buffer you add comes out of it and you say how much. Fixed time (accepted events, the Week Structure routines on Focus) is already taken out; slots are where tasks of that kind go: big-rock and Best Year work into Big rocks and focus blocks, admin into Admin backup.\nThis chat plans Wednesday 2026-11-04 only. Each time you propose or change blocks, end the message with a ```blocks fence, one line per new block you would create (not what is already in the calendar): YYYY-MM-DD HH:MM-HH:MM Title, dated 2026-11-04, the title a short name he recognises at a glance (\"Batch: Delta code, CS 351Z quiz, haircut\"), then in brackets the ids of the steps the block covers, from \"Steps by id\" above (\"13:00-13:45 M1 gear order + NorCal waiver [sce28 s5f2e]\"). Booking makes exactly those steps his part for the day on Do, so a block with no ids changes nothing there. Something that belongs on another day goes in the text with its day, never in the fence. The app draws the fence on his day and hides it.\nWhen you create the blocks, give each one a `Task: <obsidian link> (t-xxxxxx)` line per task it holds, with the ID in brackets above (a batch has several). Do orders its cards by these lines only; a block without them belongs to no task.\nBefore proposing, check this list against what is scheduled or due that day in the vault and in the pre-run notes above. If such a task is missing here, name it in one line and ask whether to add it.",
+ "signals": [
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "mark",
+    "id": "Call Quinn",
+    "signal": "reply_copied",
+    "text": "Hi Quinn, Thursday at 12?"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "mark",
+    "id": "Call Quinn",
+    "signal": "edit_opened"
+   }
+  },
+  {
+   "body": {
+    "msg": "Updating from new messages and your meditation, about a minute",
+    "ok": true,
+    "running": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "meditation"
+   }
+  },
+  {
+   "body": {
+    "msg": "Meditation saved, updating ToDo from it",
+    "ok": true,
+    "running": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "journal_save",
+    "update": true,
+    "values": {
+     "Intention": "golden"
+    }
+   }
+  }
+ ],
+ "signals.journal_entry": {
+  "body": {
+   "date": "2026-11-04",
+   "exists": false,
+   "questions": [
+    {
+     "heading": "What did I get done yesterday? (one line)",
+     "items": [],
+     "kind": "line",
+     "label": "What did I get done yesterday? (one line)",
+     "value": ""
+    },
+    {
+     "heading": "What am I anxious about?",
+     "items": [],
+     "kind": "list",
+     "label": "What am I anxious about?",
+     "value": ""
+    },
+    {
+     "heading": "Two things I can do today about the anxiety, even just a first step",
+     "items": [],
+     "kind": "numbered",
+     "label": "Two things I can do today about the anxiety, even just a first step",
+     "value": ""
+    },
+    {
+     "heading": "What am I excited about / what would make this my best year? #bestYear",
+     "items": [],
+     "kind": "list",
+     "label": "What am I excited about / what would make this my best year?",
+     "value": ""
+    },
+    {
+     "heading": "Yesterday",
+     "items": [
+      "At least one deep interaction with a friend"
+     ],
+     "kind": "checks",
+     "label": "Yesterday",
+     "value": {}
+    }
+   ]
+  },
+  "status": 200
+ },
+ "signals.load_prerun": {
+  "generated": "2026-11-04T08:00-07:00",
+  "journal": {},
+  "notes": [
+   "Busy day"
+  ],
+  "rows": [
+   [
+    "Today",
+    [
+     {
+      "anx": 1,
+      "ch": [
+       {
+        "k": "draft",
+        "msg": {
+         "acct": "<YOUR_EMAIL>",
+         "body": "Hi Quinn, Thursday?",
+         "subj": "Re: lunch",
+         "to": "sarah@example.com",
+         "via": "mail"
+        },
+        "t": "draft the reply"
+       }
+      ],
+      "e": "30m",
+      "g": "today",
+      "lk": "Call Quinn",
+      "n": "Call Quinn",
+      "ne": "10m",
+      "nx": "Draft the reply",
+      "p": "H",
+      "s": "lunch this week"
+     },
+     {
+      "cp": [
+       {
+        "k": "research",
+        "t": "look up the amount"
+       }
+      ],
+      "e": "10m",
+      "g": "today",
+      "lk": "Pay rent",
+      "n": "Pay rent",
+      "nx": "Transfer",
+      "p": "N",
+      "s": "due today",
+      "u": 1
+     },
+     {
+      "e": "45m",
+      "g": "today",
+      "lk": "Read case",
+      "n": "Read case",
+      "p": "Z",
+      "s": "class at 11"
+     },
+     {
+      "ch": [
+       {
+        "msg": {
+         "body": "Deck tonight?",
+         "to": "Tom",
+         "via": "WhatsApp"
+        },
+        "t": "text Tom"
+       }
+      ],
+      "e": "20m",
+      "g": "soon",
+      "lk": "Email Tom",
+      "n": "Email Tom",
+      "p": "N",
+      "prop": [
+       {
+        "new": "Next: Send Tom the deck draft",
+        "old": "Next: Ask Tom about the deck",
+        "why": "he asked"
+       }
+      ],
+      "s": "deck"
+     }
+    ]
+   ],
+   [
+    "Overdue",
+    [
+     {
+      "e": "1h",
+      "g": "today",
+      "lk": "Fix bike",
+      "n": "Fix bike",
+      "p": "N",
+      "s": "flat"
+     }
+    ]
+   ],
+   [
+    "Waiting",
+    [
+     {
+      "g": "wait",
+      "gw": 0,
+      "lk": "Book dentist",
+      "n": "Book dentist",
+      "p": "N",
+      "wf": "dentist office"
+     }
+    ]
+   ],
+   [
+    "Everything else",
+    [
+     {
+      "e": "2h",
+      "g": "soon",
+      "lk": "File taxes",
+      "n": "File taxes",
+      "p": "N",
+      "s": "April"
+     },
+     {
+      "g": "later",
+      "lk": "Write memo",
+      "n": "Write memo",
+      "p": "Z"
+     }
+    ]
+   ],
+   [
+    "New from mail and WhatsApp",
+    [
+     {
+      "g": "today",
+      "n": "Fraud alert from the bank",
+      "ne": "5m",
+      "nx": "Call the bank",
+      "p": "H",
+      "s": "a mail"
+     },
+     {
+      "ch": [
+       {
+        "msg": {
+         "body": "Yes!",
+         "to": "Lena",
+         "via": "WhatsApp"
+        },
+        "t": "reply"
+       }
+      ],
+      "g": "today",
+      "n": "Reply to Lena",
+      "p": "N",
+      "s": "WhatsApp"
+     }
+    ]
+   ]
+  ]
+ },
+ "state": {
+  "checkin_app/add_dates.json": "{\n \"2026-11-04\": {\n  \"File taxes\": {\n   \"sel\": \"\",\n   \"do\": null,\n   \"prev\": null,\n   \"d\": \"\"\n  },\n  \"Fraud alert from the bank\": {\n   \"sel\": \"\",\n   \"do\": null,\n   \"prev\": null,\n   \"d\": \"\"\n  }\n },\n \"2026-11-05\": {\n  \"Write memo\": {\n   \"sel\": \"\",\n   \"do\": null,\n   \"prev\": null,\n   \"d\": \"2026-11-04\"\n  }\n }\n}",
+  "checkin_app/add_dates.json.lock": "",
+  "checkin_app/alerts.json": "{\"plan ids (act)\": 0.0}",
+  "checkin_app/do.json": "{\n \"days\": {\n  \"2026-11-04\": {\n   \"ids\": [\n    \"Pay rent\",\n    \"File taxes\",\n    \"Call Quinn\",\n    \"Write memo\"\n   ],\n   \"carried\": {},\n   \"dropped\": [],\n   \"dismissed\": [\n    \"Book dentist\"\n   ],\n   \"kept\": {\n    \"Pay rent\": \"2026-11-04\"\n   },\n   \"dated\": [],\n   \"chunks\": {\n    \"Read case\": [\n     \"Read pages 1 to 12 (owner decision, Nov 4)\"\n    ],\n    \"Buy stamps\": [\n     \"Buy stamps\"\n    ],\n    \"Fraud alert from the bank\": [\n     \"Call the bank (5 min)\"\n    ],\n    \"Pay rent\": [\n     \"Transfer the rent (5 min)\"\n    ],\n    \"Call Quinn\": [\n     \"Draft the reply to Quinn (10 min)\",\n     \"Book (15 min)\"\n    ],\n    \"Write memo\": [\n     \"Outline the memo\"\n    ]\n   },\n   \"chunk_ids\": {\n    \"Read case\": [\n     \"s0f01\"\n    ],\n    \"Buy stamps\": [\n     \"s0005\"\n    ],\n    \"Fraud alert from the bank\": [\n     \"s0007\"\n    ],\n    \"Pay rent\": [\n     \"s0a01\"\n    ],\n    \"Call Quinn\": [\n     \"s0b01\"\n    ],\n    \"Write memo\": [\n     \"s0d01\"\n    ]\n   },\n   \"claude_ticks\": {},\n   \"part_closed\": [],\n   \"claude_moved\": {},\n   \"extra\": {\n    \"Write memo\": [\n     \"s0d01\"\n    ]\n   },\n   \"his_ticks\": {\n    \"Call Quinn\": [\n     \"s0b02\"\n    ],\n    \"Pay rent\": [\n     \"s0a01\"\n    ]\n   },\n   \"claude_changes\": {},\n   \"cleared\": [],\n   \"moved_off\": {\n    \"Write memo\": \"2026-11-05\"\n   },\n   \"block_steps\": [],\n   \"added_after\": {},\n   \"at_commit\": {\n    \"Pay rent\": {\n     \"next\": \"s0a02\",\n     \"due\": []\n    },\n    \"File taxes\": {\n     \"next\": \"\",\n     \"due\": []\n    },\n    \"Call Quinn\": {\n     \"next\": \"s0b01\",\n     \"due\": []\n    }\n   },\n   \"rolled\": true\n  }\n }\n}",
+  "checkin_app/do.json.lock": "",
+  "checkin_app/made.json": "{\n \"Fraud alert from the bank\": {\n  \"title\": \"Fraud alert from the bank\",\n  \"day\": \"2026-11-04\",\n  \"src\": \"tap\",\n  \"raw\": {\n   \"n\": \"Fraud alert from the bank\",\n   \"s\": \"a mail\",\n   \"nx\": \"Call the bank\",\n   \"ch\": []\n  },\n  \"touched\": true\n },\n \"Reply to Lena\": {\n  \"title\": \"Reply to Lena\",\n  \"day\": \"2026-11-04\",\n  \"src\": \"tap\",\n  \"raw\": {\n   \"n\": \"Reply to Lena\",\n   \"s\": \"WhatsApp\",\n   \"nx\": \"\",\n   \"ch\": [\n    {\n     \"msg\": {\n      \"via\": \"WhatsApp\",\n      \"to\": \"Lena\",\n      \"subj\": \"\",\n      \"body\": \"Yes!\",\n      \"acct\": \"\",\n      \"needs_slot\": false,\n      \"at\": \"2026-11-04T08:00-07:00\"\n     }\n    }\n   ]\n  },\n  \"touched\": true\n }\n}",
+  "checkin_app/made.lock": "",
+  "checkin_app/noraise.json": "{\n \"File taxes\": \"2026-11-04\"\n}",
+  "checkin_app/noraise.json.lock": "",
+  "checkin_app/outcomes.json": "{\n \"2026-11-01\": \"skipped: app not used\",\n \"2026-11-02\": \"skipped: app not used\",\n \"2026-11-03\": \"skipped: app not used\",\n \"2026-11-04\": \"2026-11-05T03:56:00-08:00\"\n}",
+  "checkin_app/outcomes.json.lock": "",
+  "checkin_app/overrides.json": "{\n \"one\": {},\n \"hidden\": {},\n \"selected\": {\n  \"2026-11-04\": [\n   \"Pay rent\",\n   \"Buy stamps\",\n   \"File taxes\",\n   \"Fraud alert from the bank\"\n  ],\n  \"2026-11-05\": [\n   \"Write memo\"\n  ]\n },\n \"notone\": {\n  \"2026-11-04\": [\n   \"File taxes\"\n  ]\n },\n \"pulled\": {\n  \"2026-11-04\": [\n   \"File taxes\"\n  ],\n  \"2026-11-05\": [\n   \"Write memo\"\n  ]\n },\n \"reply_skip\": {\n  \"2026-11-04\": [\n   \"Email Tom\",\n   \"Reply to Lena\"\n  ]\n },\n \"note\": {},\n \"note_sent\": {}\n}",
+  "checkin_app/overrides.json.lock": "",
+  "checkin_app/pick_frozen.json": "{\"today:2026-11-04\": {\"Call Quinn\": [1, 1, 1, 0, -0.0, 0, 1, 0, 1], \"Pay rent\": [0, 1, 1, 0, -0.0, 1, 0, 1, 1], \"Email Tom\": [1, 1, 1, 1, -0.0, 1, 1, 1, 1], \"Fix bike\": [1, 1, 1, 0, -0.0, 1, 1, 1, 0], \"Book dentist\": [1, 1, 1, 1, -0.0, 1, 1, 1, 1], \"Fraud alert from the bank\": [1, 1, 1, 0, -0.0, 1, 1, 0, 1], \"Reply to Lena\": [1, 1, 1, 0, -0.0, 1, 1, 1, 1], \"Read case\": [1, 1, 1, 0, -0.0, 1, 1, 2, 1], \"Write memo\": [1, 1, 1, 1, -0.0, 1, 1, 2, 1]}, \"tomorrow:2026-11-05\": {\"Pay rent\": [0, 1, 0, 1, 0, -0.0, 1, 0, 1, 1], \"Write memo\": [1, 1, 0, 1, 1, -0.0, 1, 1, 2, 1], \"Call Quinn\": [1, 1, 1, 1, 0, -0.0, 0, 1, 0, 1], \"Read case\": [1, 1, 1, 1, 0, -0.0, 1, 1, 2, 1], \"Email Tom\": [1, 1, 1, 1, 0, -0.0, 1, 1, 1, 1], \"Fix bike\": [1, 1, 1, 1, 0, -0.0, 1, 1, 1, 0], \"Book dentist\": [1, 1, 1, 1, 1, -0.0, 1, 1, 1, 1], \"Fraud alert from the bank\": [1, 1, 1, 1, 0, -0.0, 1, 1, 0, 1], \"Reply to Lena\": [1, 1, 1, 1, 0, -0.0, 1, 1, 1, 1]}}",
+  "checkin_app/pick_frozen.json.lock": "",
+  "checkin_app/prep/0a6e3705d493ff2a.json": "{\n \"id\": \"File taxes\",\n \"answers\": [],\n \"pending\": true,\n \"asked\": \"2026-11-04T10:30-08:00\"\n}",
+  "checkin_app/prep/0a6e3705d493ff2a.json.lock": "",
+  "checkin_app/prep/5d3177e6d84e599e.json": "{\n \"id\": \"Pay rent\",\n \"answers\": [\n  {\n   \"q\": \"Which account?\",\n   \"answer\": \"Chase\",\n   \"at\": \"2026-11-04T10:30-08:00\"\n  }\n ],\n \"pending\": true,\n \"asked\": \"2026-11-04T10:30-08:00\"\n}",
+  "checkin_app/prep/5d3177e6d84e599e.json.lock": "",
+  "checkin_app/prop_ignored.json": "{\n \"Email Tom\": [\n  \"Next: Ask Tom about the deck\"\n ]\n}",
+  "checkin_app/prop_ignored.json.lock": "",
+  "checkin_app/pushdown.json": "{\n \"Fix bike\": [\n  {\n   \"d\": \"2026-11-04\",\n   \"r\": \"nottoday\"\n  }\n ],\n \"Call Quinn\": [\n  {\n   \"d\": \"2026-11-04\",\n   \"r\": \"notnow\"\n  }\n ]\n}",
+  "checkin_app/pushdown.json.lock": "",
+  "checkin_app/reply_undo.json": "{\"Reply to Lena\": {\"how\": \"today\", \"day\": \"2026-11-04\"}}",
+  "checkin_app/step_undo.json": "{\n \"Pay rent\": {\n  \"before\": \"---\\ntype: action\\nstatus: open\\npriority: 3-normal\\ndue: 2026-11-04\\ntask_id: t-00000a\\n---\\n\\n## Next action\\n- [x] Next: Transfer the rent (5 min) ^s0a01\\n- [ ] Waiting: landlord Joe ^s0001\\n- [ ] Next: Save the receipt ^s0a02\\n- [x] Look up the amount ✅ 2026-11-03 ^s0a03\\n\\n## Log\\n- Nov 4 · paid the deposit · Claude\\n- Nov 4 · step done: Transfer the rent · waiting on landlord, next: Save the receipt · check-in app\\n- Nov 4 · waiting on: landlord Joe · check-in app\\n\",\n  \"after\": \"b693f4930d1ebfeb0c92943a9cad2d7490e4a18da4318a0baa188944f39c6211\",\n  \"at\": \"2026-11-04\"\n },\n \"File taxes\": {\n  \"before\": \"---\\ntype: action\\nstatus: open\\npriority: 3-normal\\n---\\n\\n## Next action\\nDoD: Return filed (owner decision, Nov 2)\\n- [ ] Next: Collect the W-2 (due Nov 13) ^s0e01\\n- [ ] Ask the accountant ^s0e02\\n\",\n  \"after\": \"b072210d1a283d1c0aae0d03a81c1e14e17741e278f39893e73d7a1b5913b6c6\",\n  \"at\": \"2026-11-04\"\n }\n}",
+  "checkin_app/step_undo.json.lock": "",
+  "checkin_app/subticks.json": "{\n \"Call Quinn\": {\n  \"sid\": \"s0b01\",\n  \"next\": \"Draft the reply to Quinn (10 min)\",\n  \"done\": [\n   1\n  ],\n  \"at\": \"2026-11-04\"\n }\n}",
+  "checkin_app/subticks.json.lock": "",
+  "checkin_app/talk_pending.json": "{\"Call Quinn\": {\"at\": 0.0, \"before\": {\"status\": \"open\", \"scheduled\": \"2026-11-04\", \"due\": \"2026-11-06\", \"task_due\": \"\", \"step_due\": \"2026-11-06\", \"step_due_text\": \"Pick the place (due Nov 6)\", \"waiting\": false, \"task_waiting\": false, \"blocked\": [], \"waits\": [], \"next\": \"Draft the reply to Quinn (10 min)\", \"next_id\": \"s0b01\", \"workspace\": {\"s0b01\": [\"[Thread](https://mail.google.com/x)\", {\"label\": \"notes\", \"obs\": \"obsidian://open?file=Inbox%2FCall%20Sarah%23Notes&vault=<VAULT_NAME>\", \"md\": \"[notes](obsidian://open?vault=<VAULT_NAME>&file=Inbox%2FCall%20Sarah%23Notes)\"}]}, \"step_states\": [{\"id\": \"s0b01\", \"kind\": \"Next\", \"state\": \"open\", \"text\": \"Draft the reply to Quinn (10 min)\"}, {\"id\": \"s0b02\", \"kind\": \"Then\", \"state\": \"done\", \"text\": \"Book the table\", \"done\": \"2026-11-04\"}, {\"id\": \"s0b03\", \"kind\": \"\", \"state\": \"open\", \"text\": \"Pick the place (due Nov 6)\"}], \"wait_line\": \"\", \"task_id\": \"t-00000b\", \"event_key\": \"\", \"done_today\": 1, \"wait_since\": \"\", \"priority\": \"4-high\", \"time_est\": \"30\", \"description\": \"• [Thread](https://mail.google.com/x)\\n• [[Call Quinn#Notes|notes]]\\n○ Pick the place 📅 2026-11-06 ^s0b03\\nNotes\\nShe likes Thai.\", \"steps\": [\"Pick the place (due Nov 6)\"], \"step_ids\": [\"s0b03\"], \"done_steps\": [{\"t\": \"Book the table\", \"d\": \"Nov 4\"}, {\"t\": \"Find her number\", \"d\": \"Nov 3\"}], \"ticked\": [\"Book the table ✅ 2026-11-04 ^s0b02\", \"Find her number\", \"Book the table\"], \"dod\": \"Quinn has a lunch date\", \"dod_guess\": false}, \"title\": \"Call Quinn\"}}",
+  "checkin_app/talk_pending.json.lock": ""
+ },
+ "steps": {
+  "history.jsonl": "{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"t-00000b\", \"task\": \"Call Quinn\", \"source\": \"tap:tick_line\", \"step\": \"s0b02\", \"text\": \"Book the table\", \"pos\": 1, \"event\": \"done\", \"was\": \"open\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"t-00000a\", \"task\": \"Pay rent\", \"source\": \"tap:step_done\", \"step\": \"s0a01\", \"text\": \"Transfer the rent\", \"pos\": 0, \"event\": \"done\", \"was\": \"open\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"t-00000a\", \"task\": \"Pay rent\", \"source\": \"tap:step_undo\", \"step\": \"s0a01\", \"text\": \"Transfer the rent\", \"pos\": 0, \"event\": \"reopened\", \"was\": \"done\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"t-00000a\", \"task\": \"Pay rent\", \"source\": \"tap:step_done\", \"step\": \"s0a01\", \"text\": \"Transfer the rent\", \"pos\": 0, \"event\": \"done\", \"was\": \"open\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"t-00000a\", \"task\": \"Pay rent\", \"source\": \"tap:step_wait\", \"step\": \"s0001\", \"text\": \"landlord (Nov 4, after: Transfer the rent)\", \"event\": \"wait_opened\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"t-00000a\", \"task\": \"Pay rent\", \"source\": \"tap:not_waiting\", \"step\": \"s0001\", \"text\": \"landlord Joe\", \"event\": \"wait_ended\", \"how\": \"struck\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"File taxes\", \"source\": \"tap:set_waiting\", \"step\": \"s0e02\", \"text\": \"Ask the accountant\", \"pos\": 0, \"event\": \"kind_changed\", \"old\": \"\", \"new\": \"Next\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"File taxes\", \"source\": \"tap:set_waiting\", \"step\": \"s0e01\", \"text\": \"Collect the W-2\", \"event\": \"deleted\", \"was\": \"open\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"File taxes\", \"source\": \"tap:set_waiting\", \"step\": \"s0e01\", \"text\": \"accountant · for: Collect the W-2\", \"event\": \"wait_opened\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"File taxes\", \"source\": \"tap:step_discard\", \"step\": \"s0e02\", \"text\": \"Ask the accountant\", \"pos\": 0, \"event\": \"discarded\", \"was\": \"open\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"Email Tom\", \"source\": \"tap:prop_accept\", \"step\": \"s0002\", \"text\": \"Send Tom the deck draft (owner decision, Nov 4)\", \"pos\": 0, \"event\": \"added\", \"kind\": \"Next\", \"due\": \"\", \"est\": \"\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"Email Tom\", \"source\": \"tap:prop_accept\", \"step\": \"s0h01\", \"text\": \"Ask Tom about the deck\", \"pos\": 1, \"event\": \"discarded\", \"was\": \"open\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"Read case\", \"source\": \"tap:steps_save\", \"step\": \"s0f01\", \"text\": \"Read pages 1 to 12 (owner decision, Nov 4)\", \"pos\": 0, \"event\": \"reworded\", \"old\": \"Read pages 1 to 10\", \"new\": \"Read pages 1 to 12 (owner decision, Nov 4)\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"Read case\", \"source\": \"tap:steps_save\", \"step\": \"s0003\", \"text\": \"Write two questions (owner decision, Nov 4)\", \"pos\": 1, \"event\": \"added\", \"kind\": \"\", \"due\": \"\", \"est\": \"\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"Read case\", \"source\": \"tap:next\", \"step\": \"s0f01\", \"text\": \"Read pages 1 to 15\", \"pos\": 0, \"event\": \"reworded\", \"old\": \"Read pages 1 to 12 (owner decision, Nov 4)\", \"new\": \"Read pages 1 to 15\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"Read case\", \"source\": \"tap:update\", \"step\": \"s0f01\", \"text\": \"Read pages 1 to 15\", \"pos\": 0, \"event\": \"est_changed\", \"old\": \"\", \"new\": \"20 min\"}\n{\"at\": \"2026-11-04T10:30:00-08:00\", \"task_id\": \"\", \"task\": \"Email Tom\", \"source\": \"tap:done\", \"step\": \"s0002\", \"text\": \"Send Tom the deck draft (owner decision, Nov 4)\", \"pos\": 0, \"event\": \"done\", \"was\": \"open\"}\n",
+  "lock": "",
+  "snap/Email_Tom.json": "{\"task\": \"Email Tom\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0002\", \"state\": \"done\", \"kind\": \"Next\", \"text\": \"Send Tom the deck draft (owner decision, Nov 4)\", \"est\": \"\", \"due\": \"\", \"done\": \"2026-11-04\"}, {\"id\": \"s0h01\", \"state\": \"struck\", \"kind\": \"Next\", \"text\": \"Ask Tom about the deck\", \"est\": \"\", \"due\": \"\", \"done\": \"\"}], \"waits\": []}",
+  "snap/File_taxes.json": "{\"task\": \"File taxes\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0e02\", \"state\": \"struck\", \"kind\": \"Next\", \"text\": \"Ask the accountant\", \"est\": \"\", \"due\": \"\", \"done\": \"\"}], \"waits\": [\"s0e01\"]}",
+  "snap/Fix_bike.json": "{\"task\": \"Fix bike\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0i01\", \"state\": \"open\", \"kind\": \"Next\", \"text\": \"Buy a tube\", \"est\": \"\", \"due\": \"\", \"done\": \"\"}], \"waits\": []}",
+  "snap/Read_case.json": "{\"task\": \"Read case\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0f01\", \"state\": \"open\", \"kind\": \"Next\", \"text\": \"Read pages 1 to 15\", \"est\": \"20 min\", \"due\": \"\", \"done\": \"\"}, {\"id\": \"s0003\", \"state\": \"open\", \"kind\": \"\", \"text\": \"Write two questions (owner decision, Nov 4)\", \"est\": \"\", \"due\": \"\", \"done\": \"\"}], \"waits\": []}",
+  "snap/Write_memo.json": "{\"task\": \"Write memo\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0d01\", \"state\": \"open\", \"kind\": \"Next\", \"text\": \"Outline the memo\", \"est\": \"\", \"due\": \"\", \"done\": \"\"}], \"waits\": []}",
+  "snap/t-000004.json": "{\"task\": \"Buy stamps\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0005\", \"state\": \"open\", \"kind\": \"Next\", \"text\": \"Buy stamps\", \"est\": \"\", \"due\": \"\", \"done\": \"\"}], \"waits\": []}",
+  "snap/t-000006.json": "{\"task\": \"Fraud alert from the bank\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0007\", \"state\": \"open\", \"kind\": \"Next\", \"text\": \"Call the bank\", \"est\": \"5 min\", \"due\": \"\", \"done\": \"\"}], \"waits\": []}",
+  "snap/t-000008.json": "{\"task\": \"Reply to Lena\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0009\", \"state\": \"open\", \"kind\": \"Next\", \"text\": \"Reply to Lena\", \"est\": \"\", \"due\": \"\", \"done\": \"\"}], \"waits\": []}",
+  "snap/t-00000a.json": "{\"task\": \"Pay rent\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0a01\", \"state\": \"done\", \"kind\": \"Next\", \"text\": \"Transfer the rent\", \"est\": \"5 min\", \"due\": \"\", \"done\": \"\"}, {\"id\": \"s0a02\", \"state\": \"open\", \"kind\": \"Next\", \"text\": \"Save the receipt\", \"est\": \"\", \"due\": \"\", \"done\": \"\"}, {\"id\": \"s0a03\", \"state\": \"done\", \"kind\": \"\", \"text\": \"Look up the amount\", \"est\": \"\", \"due\": \"\", \"done\": \"2026-11-03\"}], \"waits\": []}",
+  "snap/t-00000b.json": "{\"task\": \"Call Quinn\", \"at\": \"2026-11-04T10:30:00-08:00\", \"steps\": [{\"id\": \"s0b01\", \"state\": \"open\", \"kind\": \"Next\", \"text\": \"Draft the reply to Quinn\", \"est\": \"10 min\", \"due\": \"\", \"done\": \"\"}, {\"id\": \"s0b02\", \"state\": \"done\", \"kind\": \"Then\", \"text\": \"Book the table\", \"est\": \"\", \"due\": \"\", \"done\": \"2026-11-04\"}, {\"id\": \"s0b03\", \"state\": \"open\", \"kind\": \"\", \"text\": \"Pick the place\", \"est\": \"\", \"due\": \"2026-11-06\", \"done\": \"\"}], \"waits\": []}"
+ },
+ "talk.talk_text": "💬 Pay rent\n\nYour note: a note\n\nNext: Save the receipt\n\ndue today\n\nClaude could: look up the amount\n\nTask note: Inbox/Pay rent.md\n\nSteps: one short goal per line. A link a step needs (a page, a form, a section of a note) goes on an indented line right under that step, at most three, only for the Next step and today's steps: \"    - [label](https://...)\" or \"    - [[Note#Section|label]]\". Whenever a step becomes the Next or a today step, give it its links in the same edit: where he acts (form, portal, booking) and where its instructions came from (the mail, doc or note section). A step that needs an earlier step's result (pick up what a visit prescribes, pack it, send the certificate) carries `(after: ^<that step's id>)` when you write it.\n\nTicking steps: a step whose result he has to see (research, list, compare, check, draft) is not done when you have done your part. Do not tick it: reword it in place, same ^id, as the review he still has to do (\"Review Claude's list of what is open and confirm it (5 min)\"), with what you prepared in the note. Tick a step only when nothing in it is left for him to read or decide, or when he says it is done.\n\nProof that a step happened: when a message, mail or file shows a step done (someone confirms it, a receipt, a submission), tick it and write the proof at the end of the line, before its ^id: \"(proof: Matt, WhatsApp Nov 7: 'submitted sir')\". When nothing is left open, close the task (status: done, completedDate). A step that is moot but was not done is never ticked: strike it, \"- ~~Next: ...~~ (left open when closed, Nov 8) ^id\". If you are not sure it happened, ask him instead.",
+ "tasks": [
+  {
+   "body": {
+    "done": [
+     1
+    ],
+    "keep": true,
+    "msg": "",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "subtick",
+    "id": "Call Quinn",
+    "n": 1,
+    "next": "Draft the reply to Quinn (10 min)",
+    "on": true,
+    "sid": "s0b01"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "tick_line",
+    "id": "Call Quinn",
+    "sid": "s0b02",
+    "text": "Book the table"
+   }
+  },
+  {
+   "body": {
+    "guess": "",
+    "keep": true,
+    "msg": "",
+    "next": "Save the receipt",
+    "ok": true,
+    "state": "next",
+    "step": "Transfer the rent"
+   },
+   "status": 200,
+   "tap": {
+    "action": "step_done",
+    "id": "Pay rent"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true,
+    "state": "undone"
+   },
+   "status": 200,
+   "tap": {
+    "action": "step_undo",
+    "id": "Pay rent"
+   }
+  },
+  {
+   "body": {
+    "guess": "",
+    "keep": true,
+    "msg": "",
+    "next": "Save the receipt",
+    "ok": true,
+    "state": "next",
+    "step": "Transfer the rent"
+   },
+   "status": 200,
+   "tap": {
+    "action": "step_done",
+    "id": "Pay rent"
+   }
+  },
+  {
+   "body": {
+    "guess": "",
+    "keep": true,
+    "msg": "",
+    "next": "Save the receipt",
+    "ok": true,
+    "state": "next",
+    "step": "Transfer the rent",
+    "who": "landlord"
+   },
+   "status": 200,
+   "tap": {
+    "action": "step_wait",
+    "id": "Pay rent",
+    "text": "landlord"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true,
+    "state": "waiting",
+    "who": "landlord Joe"
+   },
+   "status": 200,
+   "tap": {
+    "action": "edit_waiting",
+    "id": "Pay rent",
+    "text": "landlord Joe"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true,
+    "state": "not_waiting"
+   },
+   "status": 200,
+   "tap": {
+    "action": "not_waiting",
+    "id": "Pay rent"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "",
+    "ok": true,
+    "state": "waiting",
+    "who": "accountant"
+   },
+   "status": 200,
+   "tap": {
+    "action": "set_waiting",
+    "id": "File taxes",
+    "text": "accountant"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "kind": "Next",
+    "msg": "",
+    "next": "",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "step_discard",
+    "id": "File taxes",
+    "sid": "s0e02",
+    "text": "Ask the accountant"
+   }
+  },
+  {
+   "body": {
+    "error": "that step changed in the note; refresh"
+   },
+   "status": 409,
+   "tap": {
+    "action": "step_discard",
+    "id": "File taxes",
+    "sid": "zzzz",
+    "text": "gone"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Definition of Done saved",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "dod_set",
+    "id": "File taxes",
+    "text": "Return filed and paid"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Definition of Done confirmed",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "dod_confirm",
+    "id": "Call Quinn"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Kept your line",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "prop_ignore",
+    "id": "Email Tom",
+    "old": "Next: Ask Tom about the deck"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Step updated",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "prop_accept",
+    "id": "Email Tom",
+    "new": "Next: Send Tom the deck draft",
+    "old": "Next: Ask Tom about the deck"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Steps saved",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "steps_save",
+    "id": "Read case",
+    "steps": [
+     "Read pages 1 to 12",
+     "Write two questions"
+    ]
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Next updated",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "next",
+    "id": "Read case",
+    "text": "Read pages 1 to 15"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Note saved",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "note",
+    "id": "Read case",
+    "text": "the case is long"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Saved",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "update",
+    "fields": {
+     "due": "2026-11-05",
+     "next_min": "20",
+     "priority": "3-normal",
+     "time_est": "45"
+    },
+    "id": "Read case"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Nothing changed",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "update",
+    "fields": {},
+    "id": "Read case"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Noted: still open",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "notdone",
+    "id": "Call Quinn"
+   }
+  },
+  {
+   "body": {
+    "keep": false,
+    "msg": "Done",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "done",
+    "id": "Email Tom",
+    "why": "sent it"
+   }
+  },
+  {
+   "body": {
+    "keep": true,
+    "msg": "Reopened",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "reopen",
+    "id": "Email Tom"
+   }
+  },
+  {
+   "body": {
+    "keep": false,
+    "msg": "Moved to Nov 5",
+    "ok": true,
+    "undo": {
+     "scheduled": "2026-11-03",
+     "sel": false
+    }
+   },
+   "status": 200,
+   "tap": {
+    "action": "remove",
+    "id": "Fix bike",
+    "reason": "nottoday",
+    "why": "no time"
+   }
+  },
+  {
+   "body": {
+    "error": "pick a reason"
+   },
+   "status": 400,
+   "tap": {
+    "action": "remove",
+    "id": "Fix bike",
+    "reason": "bogus"
+   }
+  },
+  {
+   "body": {
+    "msg": "Added for Nov 4",
+    "ok": true
+   },
+   "status": 200,
+   "tap": {
+    "action": "add",
+    "text": "Buy stamps"
+   }
+  },
+  {
+   "body": {
+    "error": "empty task"
+   },
+   "status": 400,
+   "tap": {
+    "action": "add",
+    "text": "  "
+   }
+  },
+  {
+   "body": {
+    "guess": "",
+    "keep": true,
+    "msg": "Test mode, nothing written",
+    "ok": true,
+    "state": "done",
+    "step": "Outline the memo"
+   },
+   "status": 200,
+   "tap": {
+    "action": "step_done",
+    "id": "Write memo",
+    "test": true
+   }
+  },
+  {
+   "body": {
+    "error": "nothing to undo"
+   },
+   "status": 409,
+   "tap": {
+    "action": "auto_close_undo",
+    "id": "Read case"
+   }
+  },
+  {
+   "body": {
+    "error": "row not found, refresh"
+   },
+   "status": 404,
+   "tap": {
+    "action": "next",
+    "id": "No such note",
+    "text": "x"
+   }
+  }
+ ],
+ "tasks.closed_recently": [
+  {
+   "anx": false,
+   "auto_closed": "",
+   "claude": [],
+   "closed": "2026-11-04",
+   "detail": {
+    "blocked": [],
+    "description": "",
+    "dod": "",
+    "dod_guess": false,
+    "done_steps": [
+     {
+      "d": "",
+      "t": "Book flights"
+     }
+    ],
+    "due": "",
+    "next_est": "",
+    "next_id": "",
+    "priority": "3-normal",
+    "scheduled": "",
+    "status": "done",
+    "status_raw": "done",
+    "step_ids": [],
+    "steps": [],
+    "task_est": "",
+    "task_waiting": false,
+    "wait_since": "",
+    "waits": [],
+    "ws": {}
+   },
+   "draft": null,
+   "due": "",
+   "est": "",
+   "group": "Done",
+   "guess": "done",
+   "id": "Plan trip",
+   "later": false,
+   "meta": "",
+   "next": "Done today",
+   "prep": [],
+   "prio": "N",
+   "tab": "today",
+   "task": true,
+   "title": "Plan trip",
+   "urgent": false,
+   "waiting": "",
+   "why": ""
+  },
+  {
+   "anx": false,
+   "auto_closed": "",
+   "claude": [],
+   "closed": "2026-11-03",
+   "detail": {},
+   "draft": null,
+   "due": "",
+   "est": "",
+   "group": "Done",
+   "guess": "done",
+   "id": "Old thing",
+   "later": false,
+   "meta": "",
+   "next": "Done yesterday",
+   "prep": [],
+   "prio": "Z",
+   "tab": "today",
+   "task": false,
+   "title": "Old thing",
+   "urgent": false,
+   "waiting": "",
+   "why": ""
+  }
+ ],
+ "tasks.read_note": {
+  "blocked": [],
+  "description": "• [Thread](https://mail.google.com/x)\n• [[Call Quinn#Notes|notes]]\n○ Pick the place 📅 2026-11-06 ^s0b03\nNotes\nShe likes Thai.",
+  "dod": "Quinn has a lunch date",
+  "dod_guess": false,
+  "done_steps": [
+   {
+    "d": "Nov 4",
+    "t": "Book the table"
+   },
+   {
+    "d": "Nov 3",
+    "t": "Find her number"
+   }
+  ],
+  "done_today": 1,
+  "due": "2026-11-06",
+  "event_key": "",
+  "next": "Draft the reply to Quinn (10 min)",
+  "next_id": "s0b01",
+  "priority": "4-high",
+  "scheduled": "2026-11-04",
+  "status": "open",
+  "step_due": "2026-11-06",
+  "step_due_text": "Pick the place (due Nov 6)",
+  "step_ids": [
+   "s0b03"
+  ],
+  "step_states": [
+   {
+    "id": "s0b01",
+    "kind": "Next",
+    "state": "open",
+    "text": "Draft the reply to Quinn (10 min)"
+   },
+   {
+    "done": "2026-11-04",
+    "id": "s0b02",
+    "kind": "Then",
+    "state": "done",
+    "text": "Book the table"
+   },
+   {
+    "id": "s0b03",
+    "kind": "",
+    "state": "open",
+    "text": "Pick the place (due Nov 6)"
+   }
+  ],
+  "steps": [
+   "Pick the place (due Nov 6)"
+  ],
+  "task_due": "",
+  "task_id": "t-00000b",
+  "task_waiting": false,
+  "ticked": [
+   "Book the table ✅ 2026-11-04 ^s0b02",
+   "Find her number",
+   "Book the table"
+  ],
+  "time_est": "30",
+  "wait_line": "",
+  "wait_since": "",
+  "waiting": false,
+  "waits": [],
+  "workspace": {
+   "s0b01": [
+    "[Thread](https://mail.google.com/x)",
+    {
+     "label": "notes",
+     "md": "[notes](obsidian://open?vault=<VAULT_NAME>&file=Inbox%2FCall%20Sarah%23Notes)",
+     "obs": "obsidian://open?file=Inbox%2FCall%20Sarah%23Notes&vault=<VAULT_NAME>"
+    }
+   ]
+  }
+ },
+ "tasks.today_wins": {
+  "claude_steps": 0,
+  "claude_tasks": 0,
+  "items": [
+   {
+    "chat": true,
+    "t": "Sent to Tom (WhatsApp)",
+    "task": "Email Tom"
+   },
+   {
+    "chat": true,
+    "t": "Edited: status done → open",
+    "task": "Email Tom"
+   },
+   {
+    "chat": true,
+    "t": "the owner, why: \"sent it\"",
+    "task": "Email Tom"
+   },
+   {
+    "big": true,
+    "t": "Finished the task",
+    "task": "Email Tom"
+   },
+   {
+    "t": "Send Tom the deck draft",
+    "task": "Email Tom"
+   },
+   {
+    "t": "Transfer the rent",
+    "task": "Pay rent"
+   },
+   {
+    "chat": true,
+    "t": "Paid the deposit",
+    "task": "Pay rent"
+   },
+   {
+    "t": "Book the table",
+    "task": "Call Quinn"
+   },
+   {
+    "big": true,
+    "t": "Finished the task",
+    "task": "Plan trip"
+   }
+  ]
+ },
+ "view.after": {
+  "body": {
+   "chats": {},
+   "claude": [
+    {
+     "anx": false,
+     "claude": [
+      "look up the amount"
+     ],
+     "detail": {
+      "blocked": [],
+      "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+      "dod": "",
+      "dod_guess": false,
+      "done_steps": [
+       {
+        "d": "Nov 4",
+        "t": "Transfer the rent"
+       },
+       {
+        "d": "Nov 3",
+        "t": "Look up the amount"
+       }
+      ],
+      "due": "2026-11-04",
+      "next_est": "",
+      "next_id": "s0a02",
+      "priority": "3-normal",
+      "scheduled": "",
+      "status": "open",
+      "status_raw": "open",
+      "step_ids": [],
+      "steps": [],
+      "task_est": "10m",
+      "task_waiting": false,
+      "wait_since": "",
+      "waits": [],
+      "ws": {}
+     },
+     "draft": null,
+     "due": "2026-11-04",
+     "est": "10m",
+     "group": "Today",
+     "guess": "today",
+     "id": "Pay rent",
+     "later": false,
+     "load": 0.0,
+     "med_pending": false,
+     "meta": "",
+     "mind": 0,
+     "next": "Save the receipt",
+     "prep": [
+      "look up the amount"
+     ],
+     "prepared": {
+      "answers": [
+       {
+        "answer": "Chase",
+        "at": "2026-11-04T10:30-08:00",
+        "q": "Which account?"
+       }
+      ],
+      "asked": "2026-11-04T10:30-08:00",
+      "at": null,
+      "error": null,
+      "pending": true,
+      "result": null
+     },
+     "prio": "N",
+     "prop": [],
+     "raise": false,
+     "selected": true,
+     "tab": "today",
+     "task": true,
+     "title": "Pay rent",
+     "unsure": false,
+     "update": "",
+     "urgent": true,
+     "wait_over": false,
+     "waiting": "",
+     "why": "due today",
+     "why_day": ""
+    }
+   ],
+   "counts": {
+    "claude": 1,
+    "do": 3,
+    "replies": 0,
+    "today": 6
+   },
+   "do": {
+    "cleared": [],
+    "committed": true,
+    "date": "2026-11-04",
+    "done": [
+     {
+      "anx": false,
+      "auto_closed": "",
+      "claude": [],
+      "closed": "2026-11-04",
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "",
+         "t": "Book flights"
+        }
+       ],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "done",
+       "status_raw": "done",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "do_state": "done",
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Done",
+      "guess": "done",
+      "id": "Plan trip",
+      "later": false,
+      "meta": "",
+      "next": "Done today",
+      "prep": [],
+      "prio": "N",
+      "tab": "today",
+      "task": true,
+      "title": "Plan trip",
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     }
+    ],
+    "label": "Nov 4",
+    "left_open": [],
+    "moved": [
+     {
+      "id": "Write memo",
+      "title": "Write memo",
+      "to": "Nov 5"
+     }
+    ],
+    "part_done": [
+     {
+      "anx": false,
+      "blk": {
+       "f": 1020,
+       "s": 990,
+       "title": "Batch: Pay rent"
+      },
+      "chunk": {
+       "ids": [],
+       "left": 0,
+       "min": 0,
+       "steps": [],
+       "total": 1,
+       "unest": 0
+      },
+      "claude": [
+       "look up the amount"
+      ],
+      "detail": {
+       "blocked": [],
+       "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 4",
+         "t": "Transfer the rent"
+        },
+        {
+         "d": "Nov 3",
+         "t": "Look up the amount"
+        }
+       ],
+       "due": "2026-11-04",
+       "next_est": "",
+       "next_id": "s0a02",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "10m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "do_n": 0,
+      "do_state": "part",
+      "draft": null,
+      "due": "2026-11-04",
+      "est": "10m",
+      "extra": [],
+      "fin": {
+       "kind": "next",
+       "who": ""
+      },
+      "group": "Today",
+      "guess": "today",
+      "id": "Pay rent",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Save the receipt",
+      "outcome": null,
+      "part_ask": false,
+      "part_changed": false,
+      "part_next": "Save the receipt",
+      "part_next_est": null,
+      "plan": [],
+      "prep": [
+       "look up the amount"
+      ],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Pay rent",
+      "unsure": false,
+      "update": "",
+      "urgent": true,
+      "wait_over": false,
+      "waiting": "",
+      "why": "due today",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "blk": null,
+      "chunk": {
+       "ids": [],
+       "left": 0,
+       "min": 0,
+       "steps": [],
+       "total": 0,
+       "unest": 0
+      },
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "Return filed and paid",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "2h",
+       "task_waiting": true,
+       "wait_since": "2026-11-04",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0e01",
+         "since": "2026-11-04",
+         "text": "accountant · for: Collect the W-2 (due Nov 13)",
+         "who": "accountant"
+        }
+       ],
+       "ws": {}
+      },
+      "do_n": 1,
+      "do_state": "part",
+      "draft": null,
+      "due": "",
+      "est": "2h",
+      "extra": [],
+      "fin": {
+       "kind": "waiting",
+       "who": "accountant · for: Collect the W-2 (due Nov 13)"
+      },
+      "group": "Everything else",
+      "guess": "soon",
+      "id": "File taxes",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "outcome": null,
+      "part_ask": false,
+      "part_changed": false,
+      "part_next": "",
+      "part_next_est": null,
+      "plan": [],
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "File taxes",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "accountant · for: Collect the W-2 (due Nov 13)",
+      "why": "April",
+      "why_day": ""
+     }
+    ],
+    "picks": [],
+    "rows": [
+     {
+      "anx": true,
+      "blk": null,
+      "chunk": {
+       "ids": [
+        "s0b01"
+       ],
+       "left": 1,
+       "min": 10,
+       "steps": [
+        "Draft the reply to Quinn (10 min)"
+       ],
+       "total": 1,
+       "unest": 0
+      },
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "• [Thread](https://mail.google.com/x)\n• [[Call Quinn#Notes|notes]]\n○ Pick the place 📅 2026-11-06 ^s0b03\nNotes\nShe likes Thai.",
+       "dod": "Quinn has a lunch date",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 4",
+         "t": "Book the table"
+        },
+        {
+         "d": "Nov 3",
+         "t": "Find her number"
+        }
+       ],
+       "due": "2026-11-06",
+       "next_est": "10m",
+       "next_id": "s0b01",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0b03"
+       ],
+       "steps": [
+        "Pick the place (due Nov 6)"
+       ],
+       "task_est": "30m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {
+        "s0b01": [
+         "[Thread](https://mail.google.com/x)",
+         {
+          "label": "notes",
+          "md": "[notes](file?p=Inbox%2FCall%20Sarah%23Notes&e=E&s=S)",
+          "obs": "obsidian://open?file=Inbox%2FCall%20Sarah%23Notes&vault=<VAULT_NAME>"
+         }
+        ]
+       }
+      },
+      "do_n": 2,
+      "draft": {
+       "acct": "<YOUR_EMAIL>",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Hi Quinn, Thursday?",
+       "needs_slot": false,
+       "subj": "Re: lunch",
+       "to": "sarah@example.com",
+       "via": "mail"
+      },
+      "due": "2026-11-06",
+      "est": "10m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Call Quinn",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Draft the reply to Quinn (10 min)",
+      "next_short": "Draft the reply to Quinn",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Call Quinn",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "lunch this week",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "blk": null,
+      "chunk": {
+       "ids": [
+        "s0005"
+       ],
+       "left": 1,
+       "min": 0,
+       "steps": [
+        "Buy stamps"
+       ],
+       "total": 1,
+       "unest": 1
+      },
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0005",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "do_n": 4,
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Scheduled",
+      "guess": "",
+      "id": "Buy stamps",
+      "later": false,
+      "meta": "Scheduled Nov 4",
+      "next": "Buy stamps",
+      "next_short": "Buy stamps",
+      "prio": "Z",
+      "tab": "today",
+      "task": true,
+      "title": "Buy stamps",
+      "unsure": false,
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     },
+     {
+      "anx": false,
+      "blk": null,
+      "chunk": {
+       "ids": [
+        "s0007"
+       ],
+       "left": 1,
+       "min": 5,
+       "steps": [
+        "Call the bank (5 min)"
+       ],
+       "total": 1,
+       "unest": 0
+      },
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "Created by Carmen from a card in Carmen on Nov 4.\na mail",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "5m",
+       "next_id": "s0007",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "do_n": 5,
+      "draft": null,
+      "due": "",
+      "est": "5m",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Fraud alert from the bank",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Call the bank (5 min)",
+      "next_short": "Call the bank",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Fraud alert from the bank",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "a mail",
+      "why_day": ""
+     }
+    ],
+    "suggest": [],
+    "waiting": []
+   },
+   "generated": "2026-11-04T08:00-07:00",
+   "notes": [
+    "Busy day"
+   ],
+   "plan_notes": {},
+   "plan_pending": null,
+   "prep_running": false,
+   "prerun": {
+    "last_ok": null,
+    "running": false
+   },
+   "replies": [],
+   "shorts": {},
+   "subticks": {
+    "Call Quinn": {
+     "at": "2026-11-04",
+     "done": [
+      1
+     ],
+     "next": "Draft the reply to Quinn (10 min)",
+     "sid": "s0b01"
+    }
+   },
+   "today": {
+    "budget": {
+     "busy": [
+      [
+       660,
+       740
+      ]
+     ],
+     "day_end": 1260,
+     "day_start": 540,
+     "free_min": 430,
+     "min_gap": 0,
+     "planned_min": 135,
+     "slots": [
+      {
+       "f": 960,
+       "s": 840,
+       "title": "Big rocks"
+      }
+     ],
+     "start": 630,
+     "unestimated": 1,
+     "window": "10:30-21:00"
+    },
+    "closed": [
+     {
+      "anx": false,
+      "auto_closed": "",
+      "claude": [],
+      "closed": "2026-11-04",
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "",
+         "t": "Book flights"
+        }
+       ],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "done",
+       "status_raw": "done",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Done",
+      "guess": "done",
+      "id": "Plan trip",
+      "later": false,
+      "meta": "",
+      "next": "Done today",
+      "prep": [],
+      "prio": "N",
+      "tab": "today",
+      "task": true,
+      "title": "Plan trip",
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     },
+     {
+      "anx": false,
+      "auto_closed": "",
+      "claude": [],
+      "closed": "2026-11-03",
+      "detail": {},
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Done",
+      "guess": "done",
+      "id": "Old thing",
+      "later": false,
+      "meta": "",
+      "next": "Done yesterday",
+      "prep": [],
+      "prio": "Z",
+      "tab": "today",
+      "task": false,
+      "title": "Old thing",
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     }
+    ],
+    "done": [],
+    "left_open": [],
+    "more": [
+     {
+      "anx": true,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "• [Thread](https://mail.google.com/x)\n• [[Call Quinn#Notes|notes]]\n○ Pick the place 📅 2026-11-06 ^s0b03\nNotes\nShe likes Thai.",
+       "dod": "Quinn has a lunch date",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 4",
+         "t": "Book the table"
+        },
+        {
+         "d": "Nov 3",
+         "t": "Find her number"
+        }
+       ],
+       "due": "2026-11-06",
+       "next_est": "10m",
+       "next_id": "s0b01",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0b03"
+       ],
+       "steps": [
+        "Pick the place (due Nov 6)"
+       ],
+       "task_est": "30m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {
+        "s0b01": [
+         "[Thread](https://mail.google.com/x)",
+         {
+          "label": "notes",
+          "md": "[notes](file?p=Inbox%2FCall%20Sarah%23Notes&e=E&s=S)",
+          "obs": "obsidian://open?file=Inbox%2FCall%20Sarah%23Notes&vault=<VAULT_NAME>"
+         }
+        ]
+       }
+      },
+      "draft": {
+       "acct": "<YOUR_EMAIL>",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Hi Quinn, Thursday?",
+       "needs_slot": false,
+       "subj": "Re: lunch",
+       "to": "sarah@example.com",
+       "via": "mail"
+      },
+      "due": "2026-11-06",
+      "est": "10m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Call Quinn",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Draft the reply to Quinn (10 min)",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Call Quinn",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "lunch this week",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "Return filed and paid",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "2h",
+       "task_waiting": true,
+       "wait_since": "2026-11-04",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0e01",
+         "since": "2026-11-04",
+         "text": "accountant · for: Collect the W-2 (due Nov 13)",
+         "who": "accountant"
+        }
+       ],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "2h",
+      "group": "Everything else",
+      "guess": "soon",
+      "id": "File taxes",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "prep": [],
+      "prepared": {
+       "answers": [],
+       "asked": "2026-11-04T10:30-08:00",
+       "at": null,
+       "error": null,
+       "pending": true,
+       "result": null
+      },
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "File taxes",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "accountant · for: Collect the W-2 (due Nov 13)",
+      "why": "April",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0005",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Scheduled",
+      "guess": "",
+      "id": "Buy stamps",
+      "later": false,
+      "meta": "Scheduled Nov 4",
+      "next": "Buy stamps",
+      "prio": "Z",
+      "tab": "today",
+      "task": true,
+      "title": "Buy stamps",
+      "unsure": false,
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0i01",
+       "priority": "3-normal",
+       "scheduled": "2026-11-05",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "1h",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "1h",
+      "group": "Past its date",
+      "guess": "today",
+      "id": "Fix bike",
+      "later": true,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Buy a tube",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Fix bike",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "flat",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0d01",
+       "priority": "2-low",
+       "scheduled": "2026-11-05",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Everything else",
+      "guess": "later",
+      "id": "Write memo",
+      "later": true,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Outline the memo",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Write memo",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "",
+      "why_day": ""
+     }
+    ],
+    "needs": [
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "Created by Carmen from a card in Carmen on Nov 4.\na mail",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "5m",
+       "next_id": "s0007",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "5m",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Fraud alert from the bank",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Call the bank (5 min)",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Fraud alert from the bank",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "a mail",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "Created by Carmen from a card in Carmen on Nov 4.\nWhatsApp",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0009",
+       "priority": "1-none",
+       "scheduled": "",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": {
+       "acct": "",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Yes!",
+       "needs_slot": false,
+       "subj": "",
+       "to": "Lena",
+       "via": "WhatsApp"
+      },
+      "due": "",
+      "est": "",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Reply to Lena",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Reply to Lena",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Reply to Lena",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "WhatsApp",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "○ Write two questions (owner decision, Nov 4) ^s0003",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "2026-11-05",
+       "next_est": "",
+       "next_id": "s0f01",
+       "priority": "3-normal",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0003"
+       ],
+       "steps": [
+        "Write two questions (owner decision, Nov 4)"
+       ],
+       "task_est": "45m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "2026-11-05",
+      "est": "20m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Read case",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Read pages 1 to 15 (20 min)",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Read case",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "class at 11",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "Messages\n• Nov 4 · out · WhatsApp · to Tom\n> Deck tonight? Sent it",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 4",
+         "t": "Send Tom the deck draft (owner decision, Nov 4)"
+        }
+       ],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "20m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": {
+       "acct": "",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Deck tonight?",
+       "needs_slot": false,
+       "subj": "",
+       "to": "Tom",
+       "via": "WhatsApp"
+      },
+      "due": "",
+      "est": "20m",
+      "group": "Today",
+      "guess": "soon",
+      "id": "Email Tom",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Email Tom",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "deck",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0c02",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "2026-11-01",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0c01",
+         "since": "2026-11-01",
+         "text": "dentist office, on a slot (since Nov 1)",
+         "who": "dentist office"
+        }
+       ],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Waiting",
+      "guess": "wait",
+      "id": "Book dentist",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Pick a slot",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Book dentist",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": true,
+      "waiting": "dentist office, on a slot (since Nov 1)",
+      "why": "",
+      "why_day": ""
+     }
+    ],
+    "one": {
+     "anx": false,
+     "claude": [
+      "look up the amount"
+     ],
+     "detail": {
+      "blocked": [],
+      "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+      "dod": "",
+      "dod_guess": false,
+      "done_steps": [
+       {
+        "d": "Nov 4",
+        "t": "Transfer the rent"
+       },
+       {
+        "d": "Nov 3",
+        "t": "Look up the amount"
+       }
+      ],
+      "due": "2026-11-04",
+      "next_est": "",
+      "next_id": "s0a02",
+      "priority": "3-normal",
+      "scheduled": "",
+      "status": "open",
+      "status_raw": "open",
+      "step_ids": [],
+      "steps": [],
+      "task_est": "10m",
+      "task_waiting": false,
+      "wait_since": "",
+      "waits": [],
+      "ws": {}
+     },
+     "draft": null,
+     "due": "2026-11-04",
+     "est": "10m",
+     "group": "Today",
+     "guess": "today",
+     "id": "Pay rent",
+     "later": false,
+     "load": 0.0,
+     "med_pending": false,
+     "meta": "",
+     "mind": 0,
+     "next": "Save the receipt",
+     "prep": [
+      "look up the amount"
+     ],
+     "prepared": {
+      "answers": [
+       {
+        "answer": "Chase",
+        "at": "2026-11-04T10:30-08:00",
+        "q": "Which account?"
+       }
+      ],
+      "asked": "2026-11-04T10:30-08:00",
+      "at": null,
+      "error": null,
+      "pending": true,
+      "result": null
+     },
+     "prio": "N",
+     "prop": [],
+     "raise": false,
+     "selected": true,
+     "tab": "today",
+     "task": true,
+     "title": "Pay rent",
+     "unsure": false,
+     "update": "",
+     "urgent": true,
+     "wait_over": false,
+     "waiting": "",
+     "why": "due today",
+     "why_day": ""
+    },
+    "selection": [
+     {
+      "anx": false,
+      "claude": [
+       "look up the amount"
+      ],
+      "detail": {
+       "blocked": [],
+       "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 4",
+         "t": "Transfer the rent"
+        },
+        {
+         "d": "Nov 3",
+         "t": "Look up the amount"
+        }
+       ],
+       "due": "2026-11-04",
+       "next_est": "",
+       "next_id": "s0a02",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "10m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "2026-11-04",
+      "est": "10m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Pay rent",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Save the receipt",
+      "prep": [
+       "look up the amount"
+      ],
+      "prepared": {
+       "answers": [
+        {
+         "answer": "Chase",
+         "at": "2026-11-04T10:30-08:00",
+         "q": "Which account?"
+        }
+       ],
+       "asked": "2026-11-04T10:30-08:00",
+       "at": null,
+       "error": null,
+       "pending": true,
+       "result": null
+      },
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Pay rent",
+      "unsure": false,
+      "update": "",
+      "urgent": true,
+      "wait_over": false,
+      "waiting": "",
+      "why": "due today",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0005",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Scheduled",
+      "guess": "",
+      "id": "Buy stamps",
+      "later": false,
+      "meta": "Scheduled Nov 4",
+      "next": "Buy stamps",
+      "prio": "Z",
+      "tab": "today",
+      "task": true,
+      "title": "Buy stamps",
+      "unsure": false,
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "Return filed and paid",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "2h",
+       "task_waiting": true,
+       "wait_since": "2026-11-04",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0e01",
+         "since": "2026-11-04",
+         "text": "accountant · for: Collect the W-2 (due Nov 13)",
+         "who": "accountant"
+        }
+       ],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "2h",
+      "group": "Everything else",
+      "guess": "soon",
+      "id": "File taxes",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "prep": [],
+      "prepared": {
+       "answers": [],
+       "asked": "2026-11-04T10:30-08:00",
+       "at": null,
+       "error": null,
+       "pending": true,
+       "result": null
+      },
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "File taxes",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "accountant · for: Collect the W-2 (due Nov 13)",
+      "why": "April",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "Created by Carmen from a card in Carmen on Nov 4.\na mail",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "5m",
+       "next_id": "s0007",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "5m",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Fraud alert from the bank",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Call the bank (5 min)",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Fraud alert from the bank",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "a mail",
+      "why_day": ""
+     }
+    ],
+    "waiting": [
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "Return filed and paid",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "2h",
+       "task_waiting": true,
+       "wait_since": "2026-11-04",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0e01",
+         "since": "2026-11-04",
+         "text": "accountant · for: Collect the W-2 (due Nov 13)",
+         "who": "accountant"
+        }
+       ],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "2h",
+      "group": "Everything else",
+      "guess": "soon",
+      "id": "File taxes",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "prep": [],
+      "prepared": {
+       "answers": [],
+       "asked": "2026-11-04T10:30-08:00",
+       "at": null,
+       "error": null,
+       "pending": true,
+       "result": null
+      },
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "File taxes",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "accountant · for: Collect the W-2 (due Nov 13)",
+      "why": "April",
+      "why_day": ""
+     }
+    ]
+   },
+   "tomorrow": {
+    "budget": {
+     "busy": [],
+     "day_end": 1260,
+     "day_start": 540,
+     "free_min": 720,
+     "min_gap": 0,
+     "planned_min": 0,
+     "slots": [],
+     "start": 540,
+     "unestimated": 1,
+     "window": "09:00-21:00"
+    },
+    "closed": [],
+    "date": "2026-11-05",
+    "done": [],
+    "more": [
+     {
+      "anx": true,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "• [Thread](https://mail.google.com/x)\n• [[Call Quinn#Notes|notes]]\n○ Pick the place 📅 2026-11-06 ^s0b03\nNotes\nShe likes Thai.",
+       "dod": "Quinn has a lunch date",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 4",
+         "t": "Book the table"
+        },
+        {
+         "d": "Nov 3",
+         "t": "Find her number"
+        }
+       ],
+       "due": "2026-11-06",
+       "next_est": "10m",
+       "next_id": "s0b01",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0b03"
+       ],
+       "steps": [
+        "Pick the place (due Nov 6)"
+       ],
+       "task_est": "30m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {
+        "s0b01": [
+         "[Thread](https://mail.google.com/x)",
+         {
+          "label": "notes",
+          "md": "[notes](file?p=Inbox%2FCall%20Sarah%23Notes&e=E&s=S)",
+          "obs": "obsidian://open?file=Inbox%2FCall%20Sarah%23Notes&vault=<VAULT_NAME>"
+         }
+        ]
+       }
+      },
+      "draft": {
+       "acct": "<YOUR_EMAIL>",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Hi Quinn, Thursday?",
+       "needs_slot": false,
+       "subj": "Re: lunch",
+       "to": "sarah@example.com",
+       "via": "mail"
+      },
+      "due": "2026-11-06",
+      "est": "10m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Call Quinn",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Draft the reply to Quinn (10 min)",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Call Quinn",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "lunch this week",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "1h",
+       "next_id": "s0i01",
+       "priority": "3-normal",
+       "scheduled": "2026-11-05",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "1h",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "1h",
+      "group": "Past its date",
+      "guess": "today",
+      "id": "Fix bike",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "Scheduled Nov 5",
+      "mind": 0,
+      "next": "Buy a tube",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Fix bike",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "flat",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0d01",
+       "priority": "2-low",
+       "scheduled": "2026-11-05",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Everything else",
+      "guess": "later",
+      "id": "Write memo",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "Scheduled Nov 5",
+      "mind": 0,
+      "next": "Outline the memo",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Write memo",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "",
+      "why_day": ""
+     }
+    ],
+    "needs": [
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "Created by Carmen from a card in Carmen on Nov 4.\na mail",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "5m",
+       "next_id": "s0007",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "5m",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Fraud alert from the bank",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Call the bank (5 min)",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Fraud alert from the bank",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "a mail",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "Messages\n• Nov 4 · out · WhatsApp · to Tom\n> Deck tonight? Sent it",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 4",
+         "t": "Send Tom the deck draft (owner decision, Nov 4)"
+        }
+       ],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "20m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": {
+       "acct": "",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Deck tonight?",
+       "needs_slot": false,
+       "subj": "",
+       "to": "Tom",
+       "via": "WhatsApp"
+      },
+      "due": "",
+      "est": "20m",
+      "group": "Today",
+      "guess": "soon",
+      "id": "Email Tom",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Email Tom",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "deck",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "Created by Carmen from a card in Carmen on Nov 4.\nWhatsApp",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0009",
+       "priority": "1-none",
+       "scheduled": "",
+       "status": "inbox",
+       "status_raw": "inbox",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": {
+       "acct": "",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Yes!",
+       "needs_slot": false,
+       "subj": "",
+       "to": "Lena",
+       "via": "WhatsApp"
+      },
+      "due": "",
+      "est": "",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Reply to Lena",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Reply to Lena",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Reply to Lena",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "WhatsApp",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "○ Write two questions (owner decision, Nov 4) ^s0003",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "2026-11-05",
+       "next_est": "20m",
+       "next_id": "s0f01",
+       "priority": "3-normal",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0003"
+       ],
+       "steps": [
+        "Write two questions (owner decision, Nov 4)"
+       ],
+       "task_est": "45m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "2026-11-05",
+      "est": "20m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Read case",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "Due Nov 5",
+      "mind": 0,
+      "next": "Read pages 1 to 15 (20 min)",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Read case",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "class at 11",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0c02",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "2026-11-01",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0c01",
+         "since": "2026-11-01",
+         "text": "dentist office, on a slot (since Nov 1)",
+         "who": "dentist office"
+        }
+       ],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Waiting",
+      "guess": "wait",
+      "id": "Book dentist",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Pick a slot",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Book dentist",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": true,
+      "waiting": "dentist office, on a slot (since Nov 1)",
+      "why": "",
+      "why_day": ""
+     }
+    ],
+    "one": {
+     "anx": false,
+     "claude": [
+      "look up the amount"
+     ],
+     "detail": {
+      "blocked": [],
+      "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+      "dod": "",
+      "dod_guess": false,
+      "done_steps": [
+       {
+        "d": "Nov 4",
+        "t": "Transfer the rent"
+       },
+       {
+        "d": "Nov 3",
+        "t": "Look up the amount"
+       }
+      ],
+      "due": "2026-11-04",
+      "next_est": "10m",
+      "next_id": "s0a02",
+      "priority": "3-normal",
+      "scheduled": "",
+      "status": "open",
+      "status_raw": "open",
+      "step_ids": [],
+      "steps": [],
+      "task_est": "10m",
+      "task_waiting": false,
+      "wait_since": "",
+      "waits": [],
+      "ws": {}
+     },
+     "draft": null,
+     "due": "2026-11-04",
+     "est": "10m",
+     "group": "Today",
+     "guess": "today",
+     "id": "Pay rent",
+     "later": false,
+     "load": 0.0,
+     "med_pending": false,
+     "meta": "Overdue since Nov 4",
+     "mind": 0,
+     "next": "Save the receipt",
+     "prep": [
+      "look up the amount"
+     ],
+     "prio": "N",
+     "prop": [],
+     "raise": false,
+     "selected": false,
+     "tab": "today",
+     "task": true,
+     "title": "Pay rent",
+     "unsure": false,
+     "update": "",
+     "urgent": true,
+     "wait_over": false,
+     "waiting": "",
+     "why": "due today",
+     "why_day": ""
+    },
+    "selection": [
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0d01",
+       "priority": "2-low",
+       "scheduled": "2026-11-05",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Everything else",
+      "guess": "later",
+      "id": "Write memo",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "Scheduled Nov 5",
+      "mind": 0,
+      "next": "Outline the memo",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Write memo",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "",
+      "why_day": ""
+     }
+    ],
+    "suggest": [],
+    "waiting": [
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "Return filed and paid",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "2h",
+       "task_waiting": true,
+       "wait_since": "2026-11-04",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0e01",
+         "since": "2026-11-04",
+         "text": "accountant · for: Collect the W-2 (due Nov 13)",
+         "who": "accountant"
+        }
+       ],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "2h",
+      "group": "Everything else",
+      "guess": "soon",
+      "id": "File taxes",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "File taxes",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "accountant · for: Collect the W-2 (due Nov 13)",
+      "why": "April",
+      "why_day": ""
+     }
+    ]
+   },
+   "update_summary": [],
+   "updated": "",
+   "wins": {
+    "claude_steps": 0,
+    "claude_tasks": 0,
+    "items": [
+     {
+      "chat": true,
+      "t": "Sent to Tom (WhatsApp)",
+      "task": "Email Tom"
+     },
+     {
+      "chat": true,
+      "t": "Edited: status done → open",
+      "task": "Email Tom"
+     },
+     {
+      "chat": true,
+      "t": "the owner, why: \"sent it\"",
+      "task": "Email Tom"
+     },
+     {
+      "big": true,
+      "t": "Finished the task",
+      "task": "Email Tom"
+     },
+     {
+      "t": "Send Tom the deck draft",
+      "task": "Email Tom"
+     },
+     {
+      "t": "Transfer the rent",
+      "task": "Pay rent"
+     },
+     {
+      "chat": true,
+      "t": "Paid the deposit",
+      "task": "Pay rent"
+     },
+     {
+      "t": "Book the table",
+      "task": "Call Quinn"
+     },
+     {
+      "big": true,
+      "t": "Finished the task",
+      "task": "Plan trip"
+     }
+    ]
+   }
+  },
+  "status": 200
+ },
+ "view.before": {
+  "body": {
+   "chats": {},
+   "claude": [
+    {
+     "anx": false,
+     "claude": [
+      "look up the amount"
+     ],
+     "detail": {
+      "blocked": [],
+      "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+      "dod": "",
+      "dod_guess": false,
+      "done_steps": [
+       {
+        "d": "Nov 3",
+        "t": "Look up the amount"
+       }
+      ],
+      "due": "2026-11-04",
+      "next_est": "",
+      "next_id": "s0a01",
+      "priority": "3-normal",
+      "scheduled": "",
+      "status": "open",
+      "status_raw": "open",
+      "step_ids": [
+       "s0a02"
+      ],
+      "steps": [
+       "Save the receipt"
+      ],
+      "task_est": "10m",
+      "task_waiting": false,
+      "wait_since": "",
+      "waits": [],
+      "ws": {}
+     },
+     "draft": null,
+     "due": "2026-11-04",
+     "est": "5m",
+     "group": "Today",
+     "guess": "today",
+     "id": "Pay rent",
+     "later": false,
+     "load": 0.0,
+     "med_pending": false,
+     "meta": "",
+     "mind": 0,
+     "next": "Transfer the rent (5 min)",
+     "prep": [
+      "look up the amount"
+     ],
+     "prio": "N",
+     "prop": [],
+     "raise": false,
+     "selected": true,
+     "tab": "today",
+     "task": true,
+     "title": "Pay rent",
+     "unsure": false,
+     "update": "",
+     "urgent": true,
+     "wait_over": false,
+     "waiting": "",
+     "why": "due today",
+     "why_day": ""
+    }
+   ],
+   "counts": {
+    "claude": 1,
+    "do": 1,
+    "replies": 0,
+    "today": 6
+   },
+   "do": {
+    "cleared": [],
+    "committed": false,
+    "date": "2026-11-04",
+    "done": [
+     {
+      "anx": false,
+      "auto_closed": "",
+      "claude": [],
+      "closed": "2026-11-04",
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "",
+         "t": "Book flights"
+        }
+       ],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "done",
+       "status_raw": "done",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "do_state": "done",
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Done",
+      "guess": "done",
+      "id": "Plan trip",
+      "later": false,
+      "meta": "",
+      "next": "Done today",
+      "prep": [],
+      "prio": "N",
+      "tab": "today",
+      "task": true,
+      "title": "Plan trip",
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     }
+    ],
+    "label": "Nov 4",
+    "left_open": [],
+    "moved": [],
+    "part_done": [
+     {
+      "anx": false,
+      "blk": {
+       "f": 1020,
+       "s": 990,
+       "title": "Batch: Pay rent"
+      },
+      "chunk": {
+       "ids": [],
+       "left": 0,
+       "min": 0,
+       "steps": [],
+       "total": 0,
+       "unest": 0
+      },
+      "claude": [
+       "look up the amount"
+      ],
+      "detail": {
+       "blocked": [],
+       "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 3",
+         "t": "Look up the amount"
+        }
+       ],
+       "due": "2026-11-04",
+       "next_est": "",
+       "next_id": "s0a01",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0a02"
+       ],
+       "steps": [
+        "Save the receipt"
+       ],
+       "task_est": "10m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "do_n": 0,
+      "do_state": "part",
+      "draft": null,
+      "due": "2026-11-04",
+      "est": "5m",
+      "extra": [],
+      "fin": {
+       "kind": "next",
+       "who": ""
+      },
+      "group": "Today",
+      "guess": "today",
+      "id": "Pay rent",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Transfer the rent (5 min)",
+      "outcome": null,
+      "part_ask": false,
+      "part_changed": false,
+      "part_next": "Transfer the rent",
+      "part_next_est": 5,
+      "plan": [],
+      "prep": [
+       "look up the amount"
+      ],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Pay rent",
+      "unsure": false,
+      "update": "",
+      "urgent": true,
+      "wait_over": false,
+      "waiting": "",
+      "why": "due today",
+      "why_day": ""
+     }
+    ],
+    "picks": [],
+    "rows": [
+     {
+      "anx": false,
+      "blk": null,
+      "chunk": {
+       "ids": [
+        "s0f01"
+       ],
+       "left": 1,
+       "min": 0,
+       "steps": [
+        "Read pages 1 to 10"
+       ],
+       "total": 1,
+       "unest": 1
+      },
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0f01",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "45m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "do_n": 1,
+      "draft": null,
+      "due": "",
+      "est": "45m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Read case",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Read pages 1 to 10",
+      "next_short": "Read pages 1 to 10",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Read case",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "class at 11",
+      "why_day": ""
+     }
+    ],
+    "suggest": [],
+    "waiting": []
+   },
+   "generated": "2026-11-04T08:00-07:00",
+   "notes": [
+    "Busy day"
+   ],
+   "plan_notes": {},
+   "plan_pending": null,
+   "prep_running": false,
+   "prerun": {
+    "last_ok": null,
+    "running": false
+   },
+   "replies": [],
+   "shorts": {},
+   "subticks": {},
+   "today": {
+    "budget": {
+     "busy": [
+      [
+       660,
+       740
+      ]
+     ],
+     "day_end": 1260,
+     "day_start": 540,
+     "free_min": 430,
+     "min_gap": 0,
+     "planned_min": 50,
+     "slots": [
+      {
+       "f": 960,
+       "s": 840,
+       "title": "Big rocks"
+      }
+     ],
+     "start": 630,
+     "unestimated": 0,
+     "window": "10:30-21:00"
+    },
+    "closed": [
+     {
+      "anx": false,
+      "auto_closed": "",
+      "claude": [],
+      "closed": "2026-11-04",
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "",
+         "t": "Book flights"
+        }
+       ],
+       "due": "",
+       "next_est": "",
+       "next_id": "",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "done",
+       "status_raw": "done",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Done",
+      "guess": "done",
+      "id": "Plan trip",
+      "later": false,
+      "meta": "",
+      "next": "Done today",
+      "prep": [],
+      "prio": "N",
+      "tab": "today",
+      "task": true,
+      "title": "Plan trip",
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     },
+     {
+      "anx": false,
+      "auto_closed": "",
+      "claude": [],
+      "closed": "2026-11-03",
+      "detail": {},
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Done",
+      "guess": "done",
+      "id": "Old thing",
+      "later": false,
+      "meta": "",
+      "next": "Done yesterday",
+      "prep": [],
+      "prio": "Z",
+      "tab": "today",
+      "task": false,
+      "title": "Old thing",
+      "urgent": false,
+      "waiting": "",
+      "why": ""
+     }
+    ],
+    "done": [],
+    "left_open": [],
+    "more": [
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0c02",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "2026-11-01",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0c01",
+         "since": "2026-11-01",
+         "text": "dentist office, on a slot (since Nov 1)",
+         "who": "dentist office"
+        }
+       ],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Waiting",
+      "guess": "wait",
+      "id": "Book dentist",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Pick a slot",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Book dentist",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": true,
+      "waiting": "dentist office, on a slot (since Nov 1)",
+      "why": "",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "○ Ask the accountant ^s0e02",
+       "dod": "Return filed",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "2026-11-13",
+       "next_est": "",
+       "next_id": "s0e01",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0e02"
+       ],
+       "steps": [
+        "Ask the accountant"
+       ],
+       "task_est": "2h",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "2026-11-13",
+      "est": "2h",
+      "group": "Everything else",
+      "guess": "soon",
+      "id": "File taxes",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Collect the W-2 (due Nov 13)",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "File taxes",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "April",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0f01",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "45m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "45m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Read case",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Read pages 1 to 10",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Read case",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "class at 11",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0d01",
+       "priority": "2-low",
+       "scheduled": "2026-11-05",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Everything else",
+      "guess": "later",
+      "id": "Write memo",
+      "later": true,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Outline the memo",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Write memo",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "",
+      "why_day": ""
+     }
+    ],
+    "needs": [
+     {
+      "anx": true,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "• [Thread](https://mail.google.com/x)\n• [[Call Quinn#Notes|notes]]\n○ Pick the place 📅 2026-11-06 ^s0b03\nNotes\nShe likes Thai.",
+       "dod": "Quinn has a lunch date",
+       "dod_guess": true,
+       "done_steps": [
+        {
+         "d": "Nov 3",
+         "t": "Find her number"
+        }
+       ],
+       "due": "2026-11-06",
+       "next_est": "10m",
+       "next_id": "s0b01",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0b02",
+        "s0b03"
+       ],
+       "steps": [
+        "Book the table",
+        "Pick the place (due Nov 6)"
+       ],
+       "task_est": "30m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {
+        "s0b01": [
+         "[Thread](https://mail.google.com/x)",
+         {
+          "label": "notes",
+          "md": "[notes](file?p=Inbox%2FCall%20Sarah%23Notes&e=E&s=S)",
+          "obs": "obsidian://open?file=Inbox%2FCall%20Sarah%23Notes&vault=<VAULT_NAME>"
+         }
+        ]
+       }
+      },
+      "draft": {
+       "acct": "<YOUR_EMAIL>",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Hi Quinn, Thursday?",
+       "needs_slot": false,
+       "subj": "Re: lunch",
+       "to": "sarah@example.com",
+       "via": "mail"
+      },
+      "due": "2026-11-06",
+      "est": "10m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Call Quinn",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Draft the reply to Quinn (10 min)",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Call Quinn",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "lunch this week",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {},
+      "draft": null,
+      "due": "",
+      "est": "5m",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Fraud alert from the bank",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Call the bank",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": false,
+      "title": "Fraud alert from the bank",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "a mail",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0i01",
+       "priority": "3-normal",
+       "scheduled": "2026-11-03",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "1h",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "1h",
+      "group": "Past its date",
+      "guess": "today",
+      "id": "Fix bike",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Buy a tube",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Fix bike",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "flat",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {},
+      "draft": {
+       "acct": "",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Yes!",
+       "needs_slot": false,
+       "subj": "",
+       "to": "Lena",
+       "via": "WhatsApp"
+      },
+      "due": "",
+      "est": "",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Reply to Lena",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": false,
+      "title": "Reply to Lena",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "WhatsApp",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0h01",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "20m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": {
+       "acct": "",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Deck tonight?",
+       "needs_slot": false,
+       "subj": "",
+       "to": "Tom",
+       "via": "WhatsApp"
+      },
+      "due": "",
+      "est": "20m",
+      "group": "Today",
+      "guess": "soon",
+      "id": "Email Tom",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Ask Tom about the deck",
+      "prep": [],
+      "prio": "N",
+      "prop": [
+       {
+        "new": "Next: Send Tom the deck draft",
+        "old": "Next: Ask Tom about the deck",
+        "why": "he asked"
+       }
+      ],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Email Tom",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "deck",
+      "why_day": ""
+     }
+    ],
+    "one": {
+     "anx": false,
+     "claude": [
+      "look up the amount"
+     ],
+     "detail": {
+      "blocked": [],
+      "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+      "dod": "",
+      "dod_guess": false,
+      "done_steps": [
+       {
+        "d": "Nov 3",
+        "t": "Look up the amount"
+       }
+      ],
+      "due": "2026-11-04",
+      "next_est": "",
+      "next_id": "s0a01",
+      "priority": "3-normal",
+      "scheduled": "",
+      "status": "open",
+      "status_raw": "open",
+      "step_ids": [
+       "s0a02"
+      ],
+      "steps": [
+       "Save the receipt"
+      ],
+      "task_est": "10m",
+      "task_waiting": false,
+      "wait_since": "",
+      "waits": [],
+      "ws": {}
+     },
+     "draft": null,
+     "due": "2026-11-04",
+     "est": "5m",
+     "group": "Today",
+     "guess": "today",
+     "id": "Pay rent",
+     "later": false,
+     "load": 0.0,
+     "med_pending": false,
+     "meta": "",
+     "mind": 0,
+     "next": "Transfer the rent (5 min)",
+     "prep": [
+      "look up the amount"
+     ],
+     "prio": "N",
+     "prop": [],
+     "raise": false,
+     "selected": true,
+     "tab": "today",
+     "task": true,
+     "title": "Pay rent",
+     "unsure": false,
+     "update": "",
+     "urgent": true,
+     "wait_over": false,
+     "waiting": "",
+     "why": "due today",
+     "why_day": ""
+    },
+    "selection": [
+     {
+      "anx": false,
+      "claude": [
+       "look up the amount"
+      ],
+      "detail": {
+       "blocked": [],
+       "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [
+        {
+         "d": "Nov 3",
+         "t": "Look up the amount"
+        }
+       ],
+       "due": "2026-11-04",
+       "next_est": "",
+       "next_id": "s0a01",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0a02"
+       ],
+       "steps": [
+        "Save the receipt"
+       ],
+       "task_est": "10m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "2026-11-04",
+      "est": "5m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Pay rent",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Transfer the rent (5 min)",
+      "prep": [
+       "look up the amount"
+      ],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Pay rent",
+      "unsure": false,
+      "update": "",
+      "urgent": true,
+      "wait_over": false,
+      "waiting": "",
+      "why": "due today",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0f01",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "45m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "45m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Read case",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Read pages 1 to 10",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": true,
+      "tab": "today",
+      "task": true,
+      "title": "Read case",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "class at 11",
+      "why_day": ""
+     }
+    ],
+    "waiting": []
+   },
+   "tomorrow": {
+    "budget": {
+     "busy": [],
+     "day_end": 1260,
+     "day_start": 540,
+     "free_min": 720,
+     "min_gap": 0,
+     "planned_min": 0,
+     "slots": [],
+     "start": 540,
+     "unestimated": 0,
+     "window": "09:00-21:00"
+    },
+    "closed": [],
+    "date": "2026-11-05",
+    "done": [],
+    "more": [
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "○ Ask the accountant ^s0e02",
+       "dod": "Return filed",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "2026-11-13",
+       "next_est": "",
+       "next_id": "s0e01",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0e02"
+       ],
+       "steps": [
+        "Ask the accountant"
+       ],
+       "task_est": "2h",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "2026-11-13",
+      "est": "2h",
+      "group": "Everything else",
+      "guess": "soon",
+      "id": "File taxes",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Collect the W-2 (due Nov 13)",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "File taxes",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "April",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {},
+      "draft": {
+       "acct": "",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Yes!",
+       "needs_slot": false,
+       "subj": "",
+       "to": "Lena",
+       "via": "WhatsApp"
+      },
+      "due": "",
+      "est": "",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Reply to Lena",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": false,
+      "title": "Reply to Lena",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "WhatsApp",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0f01",
+       "priority": "1-none",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "45m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "45m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Read case",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Read pages 1 to 10",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Read case",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "class at 11",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0c02",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "waiting",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "2026-11-01",
+       "waits": [
+        {
+         "blocks": [],
+         "id": "s0c01",
+         "since": "2026-11-01",
+         "text": "dentist office, on a slot (since Nov 1)",
+         "who": "dentist office"
+        }
+       ],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Waiting",
+      "guess": "wait",
+      "id": "Book dentist",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Pick a slot",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Book dentist",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": true,
+      "waiting": "dentist office, on a slot (since Nov 1)",
+      "why": "",
+      "why_day": ""
+     }
+    ],
+    "needs": [
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0d01",
+       "priority": "2-low",
+       "scheduled": "2026-11-05",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "",
+      "group": "Everything else",
+      "guess": "later",
+      "id": "Write memo",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "Scheduled Nov 5",
+      "mind": 0,
+      "next": "Outline the memo",
+      "prep": [],
+      "prio": "Z",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Write memo",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "",
+      "why_day": ""
+     },
+     {
+      "anx": true,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "• [Thread](https://mail.google.com/x)\n• [[Call Quinn#Notes|notes]]\n○ Pick the place 📅 2026-11-06 ^s0b03\nNotes\nShe likes Thai.",
+       "dod": "Quinn has a lunch date",
+       "dod_guess": true,
+       "done_steps": [
+        {
+         "d": "Nov 3",
+         "t": "Find her number"
+        }
+       ],
+       "due": "2026-11-06",
+       "next_est": "10m",
+       "next_id": "s0b01",
+       "priority": "4-high",
+       "scheduled": "2026-11-04",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [
+        "s0b02",
+        "s0b03"
+       ],
+       "steps": [
+        "Book the table",
+        "Pick the place (due Nov 6)"
+       ],
+       "task_est": "30m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {
+        "s0b01": [
+         "[Thread](https://mail.google.com/x)",
+         {
+          "label": "notes",
+          "md": "[notes](file?p=Inbox%2FCall%20Sarah%23Notes&e=E&s=S)",
+          "obs": "obsidian://open?file=Inbox%2FCall%20Sarah%23Notes&vault=<VAULT_NAME>"
+         }
+        ]
+       }
+      },
+      "draft": {
+       "acct": "<YOUR_EMAIL>",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Hi Quinn, Thursday?",
+       "needs_slot": false,
+       "subj": "Re: lunch",
+       "to": "sarah@example.com",
+       "via": "mail"
+      },
+      "due": "2026-11-06",
+      "est": "10m",
+      "group": "Today",
+      "guess": "today",
+      "id": "Call Quinn",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Draft the reply to Quinn (10 min)",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Call Quinn",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "lunch this week",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {},
+      "draft": null,
+      "due": "",
+      "est": "5m",
+      "group": "New from mail and WhatsApp",
+      "guess": "today",
+      "id": "Fraud alert from the bank",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Call the bank",
+      "prep": [],
+      "prio": "H",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": false,
+      "title": "Fraud alert from the bank",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "a mail",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0i01",
+       "priority": "3-normal",
+       "scheduled": "2026-11-03",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "1h",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": null,
+      "due": "",
+      "est": "1h",
+      "group": "Past its date",
+      "guess": "today",
+      "id": "Fix bike",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Buy a tube",
+      "prep": [],
+      "prio": "N",
+      "prop": [],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Fix bike",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "flat",
+      "why_day": ""
+     },
+     {
+      "anx": false,
+      "claude": [],
+      "detail": {
+       "blocked": [],
+       "description": "",
+       "dod": "",
+       "dod_guess": false,
+       "done_steps": [],
+       "due": "",
+       "next_est": "",
+       "next_id": "s0h01",
+       "priority": "3-normal",
+       "scheduled": "",
+       "status": "open",
+       "status_raw": "open",
+       "step_ids": [],
+       "steps": [],
+       "task_est": "20m",
+       "task_waiting": false,
+       "wait_since": "",
+       "waits": [],
+       "ws": {}
+      },
+      "draft": {
+       "acct": "",
+       "at": "2026-11-04T08:00-07:00",
+       "body": "Deck tonight?",
+       "needs_slot": false,
+       "subj": "",
+       "to": "Tom",
+       "via": "WhatsApp"
+      },
+      "due": "",
+      "est": "20m",
+      "group": "Today",
+      "guess": "soon",
+      "id": "Email Tom",
+      "later": false,
+      "load": 0.0,
+      "med_pending": false,
+      "meta": "",
+      "mind": 0,
+      "next": "Ask Tom about the deck",
+      "prep": [],
+      "prio": "N",
+      "prop": [
+       {
+        "new": "Next: Send Tom the deck draft",
+        "old": "Next: Ask Tom about the deck",
+        "why": "he asked"
+       }
+      ],
+      "raise": false,
+      "selected": false,
+      "tab": "today",
+      "task": true,
+      "title": "Email Tom",
+      "unsure": false,
+      "update": "",
+      "urgent": false,
+      "wait_over": false,
+      "waiting": "",
+      "why": "deck",
+      "why_day": ""
+     }
+    ],
+    "one": {
+     "anx": false,
+     "claude": [
+      "look up the amount"
+     ],
+     "detail": {
+      "blocked": [],
+      "description": "✓ Look up the amount ✅ 2026-11-03 ^s0a03",
+      "dod": "",
+      "dod_guess": false,
+      "done_steps": [
+       {
+        "d": "Nov 3",
+        "t": "Look up the amount"
+       }
+      ],
+      "due": "2026-11-04",
+      "next_est": "5m",
+      "next_id": "s0a01",
+      "priority": "3-normal",
+      "scheduled": "",
+      "status": "open",
+      "status_raw": "open",
+      "step_ids": [
+       "s0a02"
+      ],
+      "steps": [
+       "Save the receipt"
+      ],
+      "task_est": "10m",
+      "task_waiting": false,
+      "wait_since": "",
+      "waits": [],
+      "ws": {}
+     },
+     "draft": null,
+     "due": "2026-11-04",
+     "est": "5m",
+     "group": "Today",
+     "guess": "today",
+     "id": "Pay rent",
+     "later": false,
+     "load": 0.0,
+     "med_pending": false,
+     "meta": "Overdue since Nov 4",
+     "mind": 0,
+     "next": "Transfer the rent (5 min)",
+     "prep": [
+      "look up the amount"
+     ],
+     "prio": "N",
+     "prop": [],
+     "raise": false,
+     "selected": false,
+     "tab": "today",
+     "task": true,
+     "title": "Pay rent",
+     "unsure": false,
+     "update": "",
+     "urgent": true,
+     "wait_over": false,
+     "waiting": "",
+     "why": "due today",
+     "why_day": ""
+    },
+    "selection": [],
+    "suggest": [],
+    "waiting": []
+   },
+   "update_summary": [],
+   "updated": "",
+   "wins": {
+    "claude_steps": 0,
+    "claude_tasks": 0,
+    "items": [
+     {
+      "big": true,
+      "t": "Finished the task",
+      "task": "Plan trip"
+     },
+     {
+      "chat": true,
+      "t": "Paid the deposit",
+      "task": "Pay rent"
+     }
+    ]
+   }
+  },
+  "status": 200
+ }
+}

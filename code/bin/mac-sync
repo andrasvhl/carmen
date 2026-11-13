@@ -1,0 +1,22 @@
+#!/bin/bash
+# Keep the Mac's ~/automation level with vault-host, its origin (Nov 5: the Mac copy was 182
+# commits behind and held work nobody had committed). Fast-forward only: it never merges and
+# never touches local edits; with any, it says so and stops. Code is edited on vault-host only
+# ([[vps-vault-host]] § Standing rule).
+# Runs at every Claude session start on the Mac (~/.claude/settings.json SessionStart, whose
+# stdout reaches the session) and hourly (launchd com.example.automation-sync). No-op elsewhere.
+[ "$(uname)" = Darwin ] || exit 0
+cd "$HOME/automation" 2>/dev/null || exit 0
+# S-1
+dirty=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+if [ "$dirty" != "0" ]; then
+  echo "Note: ~/automation on the Mac has $dirty locally edited files, so it was not synced with vault-host. Code is edited on vault-host only; tell the owner, do not build on the Mac copy."
+  exit 0
+fi
+export GIT_SSH_COMMAND="ssh -o ConnectTimeout=5 -o BatchMode=yes"
+git fetch -q origin 2>/dev/null || exit 0   # vault-host unreachable: try again next time
+git merge -q --ff-only origin/master 2>/dev/null \
+  || echo "Note: ~/automation on the Mac has commits vault-host lacks, so it cannot fast-forward. Tell the owner."
+# Python packages follow the code: installs only when requirements.txt changed (Nov 11).
+[ -x bin/deps-sync ] && bin/deps-sync
+exit 0

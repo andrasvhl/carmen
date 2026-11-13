@@ -1,0 +1,34 @@
+# The text-extraction half needs the first block. The Canvas pull itself is
+# stdlib-only on purpose, so an archive run never depends on a venv existing.
+#
+#   python3 -m venv ~/automation/.venv
+#   ~/automation/.venv/bin/pip install -r ~/automation/requirements.txt
+#
+# bin/run-job and bin/vt both prefer .venv/bin/python when it is present.
+pypdf[crypto]>=4.0
+python-pptx>=0.6.23
+python-docx>=1.1
+openpyxl>=3.1
+trafilatura>=1.8
+
+# The Telegram bridge (jobs/tg_bridge). The Agent SDK drives the box's own
+# claude binary via cli_path, never its bundled one; 0.2.163 verified on the
+# box under Python 3.14 (docs-tg/phase0-spike-results.md, 2026-10-03).
+claude-agent-sdk>=0.2.163
+httpx>=0.28
+
+# Carmen (jobs/checkin_app). Installed by hand on vault-host and never listed, so on the Mac
+# every tool importing jobs.checkin_app failed (vt step add, Nov 11). Floors are the versions
+# running on vault-host on Nov 11.
+#
+# This file is the whole list for both machines. Install a package only by adding it here:
+# bin/deps-sync installs it on vault-host before the next job and on the Mac at the next sync.
+starlette>=1.7.0
+uvicorn>=0.54.0
+python-multipart>=0.0.32
+# jobs/checkin_app/noise.py (speech noise filter)
+onnxruntime>=1.31.1
+numpy>=2.5
+# runner/waha_store.py (decrypts the WhatsApp store); pypdf[crypto] pulled it in by chance, now
+# listed in its own right (Nov 11, audit B10). Floor: the version on vault-host on Nov 11.
+cryptography>=50.0.1

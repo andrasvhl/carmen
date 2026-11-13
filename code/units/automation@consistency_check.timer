@@ -1,0 +1,12 @@
+[Unit]
+Description=Schedule for automation job consistency_check
+
+[Timer]
+# Daily 07:40 Pacific (Nov 11): task notes checked against what Carmen shows, before the 08:00
+# pre-run, so a push lands before the morning planning. Must match SLOT in jobs/consistency_check.py.
+OnCalendar=*-*-* 07:40:00 America/Los_Angeles
+Persistent=true
+Unit=automation@consistency_check.service
+
+[Install]
+WantedBy=timers.target

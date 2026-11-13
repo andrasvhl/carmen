@@ -1,0 +1,11 @@
+[Unit]
+Description=Alert that automation job %i failed to run
+
+[Service]
+Type=oneshot
+User=<user>
+WorkingDirectory=/home/<user>/automation
+Environment=HOME=/home/<user>
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 -m runner.alert %i
+TimeoutStartSec=120

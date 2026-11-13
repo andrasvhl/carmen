@@ -1,0 +1,15 @@
+[Unit]
+Description=Schedule for automation job red_notebook
+
+[Timer]
+# Daily 07:20 — before wiki (07:40), so an entry appended this morning is picked
+# up as source drift by the same morning's wiki run rather than tomorrow's, and
+# before core_learnings (07:44), so that day's backlog count already reflects
+# whatever this pass folded in.
+OnCalendar=*-*-* 07:20:00
+Persistent=true
+RandomizedDelaySec=120
+Unit=automation@red_notebook.service
+
+[Install]
+WantedBy=timers.target

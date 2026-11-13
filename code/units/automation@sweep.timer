@@ -1,0 +1,14 @@
+[Unit]
+Description=Schedule for automation job sweep
+
+[Timer]
+# Weekly, after the Monday checks have run and before the digest summarises
+# them. A daily sweep would move notes out from under the owner mid-week for no
+# gain: the grace period is 30 days, so nothing is ever urgent to move.
+OnCalendar=Mon *-*-* 07:55:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=automation@sweep.service
+
+[Install]
+WantedBy=timers.target

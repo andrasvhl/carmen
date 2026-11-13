@@ -1,0 +1,13 @@
+# Beeper read-path health check, hourly and silent (no pushes, by the owner's
+# decision 2026-10-16). _system/beeper-bridge.md.
+
+[Unit]
+Description=Schedule for automation job msg_watch
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=120
+Unit=automation@msg_watch.service
+
+[Install]
+WantedBy=timers.target

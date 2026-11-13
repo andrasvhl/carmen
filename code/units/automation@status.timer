@@ -1,0 +1,13 @@
+[Unit]
+Description=Schedule for automation job status
+
+[Timer]
+# After heartbeat (07:30) and Monday's tripwires (07:45), before the Monday
+# digest (08:00), so the page and the email agree.
+OnCalendar=*-*-* 07:50:00
+Persistent=true
+RandomizedDelaySec=120
+Unit=automation@status.service
+
+[Install]
+WantedBy=timers.target

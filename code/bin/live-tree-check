@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Is the live code tree what was committed? (Nov 11, audit A13: a Carmen chat edited
+# jobs/checkin_app/talk.py in ~/automation, uncommitted and outside the deploy gate, and every
+# timer and service runs from this tree.)
+#
+#   live-tree-check <who>     exit 0: clean (or not vault-host); exit 1: tracked code differs from
+#                             HEAD, listed on stderr, and the owner gets one push per change per hour
+#
+# Tracked files only (jobs tools runner bin units): an untracked leftover is the heartbeat's job
+# (jobs/heartbeat.py, "live tree clean"). vault-host only: the Mac's ~/automation is a mirror that
+# mac-sync keeps, never a tree jobs should refuse to run from.
+set -uo pipefail
+# D-19
+WHO="${1:-a job}"
+ROOT="${AUTOMATION_ROOT:-$HOME/automation}"
+cd "$ROOT" 2>/dev/null || exit 0
+[ "$(uname)" = "Linux" ] || [ -n "${LIVE_TREE_CHECK_ANY_OS:-}" ] || exit 0
+git rev-parse --git-dir >/dev/null 2>&1 || exit 0
+dirty=$(git status --porcelain --untracked-files=no -- jobs tools runner bin units 2>/dev/null)
+[ -z "$dirty" ] && exit 0
+echo "live-tree-check: $WHO: the live tree differs from HEAD ($(git rev-parse --short HEAD)):" >&2
+echo "$dirty" | head -20 >&2
+# One push per distinct change per hour, so 24 timers do not send 24 pushes.
+state="${XDG_STATE_HOME:-$HOME/.local/state}/automation/live_tree_alert"
+mkdir -p "$(dirname "$state")"
+sig=$(printf '%s' "$dirty" | sha1sum | cut -c1-12)
+now=$(date +%s)
+if [ -f "$state" ] && read -r last_sig last_at < "$state" && [ "$last_sig" = "$sig" ] && [ $((now - last_at)) -lt 3600 ]; then
+    exit 1
+fi
+echo "$sig $now" > "$state"
+PY=.venv/bin/python; [ -x "$PY" ] || PY=python3
+files=$(echo "$dirty" | awk '{print $2}' | head -5 | tr '\n' ' ')
+if [ -n "${LIVE_TREE_PUSH_LOG:-}" ]; then   # tests: the push, written down instead of sent
+    echo "push: $WHO: $files" >> "$LIVE_TREE_PUSH_LOG"
+    exit 1
+fi
+"$PY" - "$WHO" "$files" <<'PY' || true
+import sys
+from runner import notify
+who, files = sys.argv[1], sys.argv[2].strip()
+notify.send_push("Live code changed outside a commit",
+                 f"{who} was refused: {files or 'code'} differs from the last commit in ~/automation on vault-host. "
+                 "Commit it through a build, or revert it.", priority=0)
+PY
+exit 1

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Git hooks for ~/automation on vault-host (Nov 11, the owner: "how do we ensure that these rules are
+# implemented always? or that editing is enforced?"). Jobs run from the live tree, so a rule changes
+# the moment master moves: these hooks are the gate for every path to master, not only
+# checkin-restart. Installed by bin/install-hooks as thin shims in .git/hooks (shared by worktrees).
+#
+#   pre-commit        on master: refused (commit on a worktree branch, land it with bin/land);
+#                     anywhere: the fast suites (decision tests, step lines), under a minute
+#   commit-msg        the decision gate on the staged change and its message; on a pass the tree
+#                     is noted as checked
+#   post-commit       the new commit is stamped as having passed (state/automation/gate_stamps)
+#   pre-merge-commit  a merge commit on master is refused (land fast-forwards only)
+#   post-merge        commits that arrived on master without a stamp push an alert
+#   pre-receive       a push to master is refused (land on vault-host instead)
+#   reference-transaction  any other move of master without LAND=1 is refused (a hand merge, reset)
+# --no-verify skips pre-commit and commit-msg: such a commit has no stamp, and the heartbeat's daily
+# check finds it and pushes the owner.
+set -uo pipefail
+NAME="${1:?usage: git-hook <name> [args]}"; shift
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/automation"
+STAMPS="$STATE/gate_stamps"
+PENDING="$STATE/gate_pending"
+mkdir -p "$STATE"
+TOP="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+PY="$TOP/.venv/bin/python"; [ -x "$PY" ] || PY="$HOME/automation/.venv/bin/python"; [ -x "$PY" ] || PY=python3
+branch() { git symbolic-ref --short -q HEAD 2>/dev/null || echo ""; }
+stamped() { grep -q "^$1 " "$STAMPS" 2>/dev/null; }
+case "$NAME" in
+  pre-commit)
+    if [ "$(branch)" = master ] && [ -z "${LAND:-}" ]; then
+      echo "git-hook: no commits on master in ~/automation (Nov 11): commit on a worktree branch, then bin/land <branch>." >&2
+      exit 1
+    fi
+    cd "$TOP" || exit 1
+    for t in ${GIT_HOOK_SUITES-tests.checkin_decisions tests.steps_lines}; do   # tests may set their own
+      out=$(timeout 120 "$PY" -m "$t" 2>&1) || { echo "$out" | grep -E "FAIL|Error|why:|his words:" | head -30 >&2; echo "git-hook: $t failed, not committing" >&2; exit 1; }
+    done ;;
+  commit-msg)
+    cd "$TOP" || exit 1
+    "$PY" -m tools.decision_gate staged "$1" || exit 1
+    git write-tree > "$PENDING" 2>/dev/null ;;
+  post-commit)
+    if [ -f "$PENDING" ] && [ "$(cat "$PENDING")" = "$(git rev-parse HEAD^{tree})" ]; then
+      echo "$(git rev-parse HEAD) $(date -u +%Y-%m-%dT%H:%M:%SZ) commit" >> "$STAMPS"
+    fi
+    rm -f "$PENDING" ;;
+  pre-merge-commit)
+    if [ "$(branch)" = master ] && [ -z "${LAND:-}" ]; then
+      echo "git-hook: master moves only by fast-forward through bin/land (Nov 11)." >&2
+      exit 1
+    fi ;;
+  post-merge)
+    [ "$(branch)" = master ] || exit 0
+    missing=$(git rev-list ORIG_HEAD..HEAD 2>/dev/null | while read -r c; do stamped "$c" || echo "$c"; done)
+    if [ -n "$missing" ]; then
+      echo "git-hook: these commits reached master without passing the gate: $(echo "$missing" | cut -c1-9 | tr '\n' ' ')" >&2
+      "$PY" -c "import sys; from runner import notify; m = 'Commits on ~/automation master skipped the decision gate: ' + sys.argv[1] + '. Check them: tools/decision_gate.py range.'
+try: notify.send_push('Code reached master unchecked', m)
+except Exception as e: notify.push_failed('Code reached master unchecked', m, e)" "$(echo "$missing" | cut -c1-9 | tr '\n' ' ')" 2>/dev/null || true
+    fi ;;
+  reference-transaction)
+    # S-5
+    # Any move of master outside bin/land (a hand fast-forward, reset, branch -f, update-ref) is
+    # refused before it happens (Nov 12, the owner: "Yes, all of it"). Only "prepared" can abort.
+    [ "${1:-}" = prepared ] || exit 0
+    while read -r old new ref; do
+      if [ "$ref" = refs/heads/master ] && [ "$old" != "$new" ] && [ -z "${LAND:-}" ]; then
+        echo "git-hook: master moves only through bin/land <branch> (Nov 12); this would move it from ${old:0:9} to ${new:0:9}." >&2
+        exit 1
+      fi
+    done ;;
+  pre-receive)
+    while read -r old new ref; do
+      if [ "$ref" = refs/heads/master ] && [ -z "${LAND:-}" ]; then
+        echo "git-hook: pushes to master are refused (Nov 11): push a branch and run bin/land <branch> on vault-host." >&2
+        exit 1
+      fi
+    done ;;
+esac
+exit 0

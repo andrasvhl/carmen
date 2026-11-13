@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Every job starts here, so the systemd template never hardcodes an interpreter.
+#
+# This exists because fitness-data-sync runs under its own virtualenv
+# (~/.fitness-sync/venv) for the Strava and WHOOP client libraries. A shared
+# service template pointing at /usr/bin/python3 could never run it, and adding
+# a second template for "jobs with dependencies" is exactly the split
+# architecture we are avoiding. One wrapper, one template, one way in.
+set -euo pipefail
+
+JOB="${1:?usage: run-job <name> [args...]}"
+shift
+
+cd "${AUTOMATION_ROOT:-$HOME/automation}"
+
+# Only committed code runs (Nov 11, audit A13): a job is skipped, with one push, while tracked code
+# in the live tree differs from HEAD. Exit 0, so a skipped timer is not a failed unit. The heartbeat
+# (it reports the tree), the Telegram bridge and Carmen still start: refusing them would turn a
+# stray edit into an outage, and Carmen's restarts are guarded by checkin-restart.
+case "$JOB" in
+    heartbeat|tg_bridge|checkin_app) ;;
+    *) if ! bin/live-tree-check "run-job $JOB"; then
+           echo "run-job: $JOB skipped: the live tree has uncommitted code changes" >&2
+           exit 0
+       fi ;;
+esac
+
+# Prefer the repo's own virtualenv when it exists, so jobs with third-party
+# dependencies and jobs without are launched identically.
+if [ -x ".venv/bin/python" ]; then
+    PYTHON=".venv/bin/python"
+else
+    # `python3` from PATH, never /usr/bin/python3 hardcoded: on macOS that is
+    # an old system Python that cannot parse modern type hints, so the jobs
+    # ran on the box and crashed on the Mac.
+    PYTHON="$(command -v python3)"
+fi
+
+# Packages follow requirements.txt before any job runs (Nov 11): one hash when nothing changed.
+[ -x bin/deps-sync ] && bin/deps-sync
+
+exec "$PYTHON" -m "jobs.$JOB" "$@"

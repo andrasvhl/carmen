@@ -1,0 +1,12 @@
+[Unit]
+Description=Schedule for automation job tripwires
+
+[Timer]
+# Monday, before the digest at 08:00 so it reports fresh findings.
+OnCalendar=Mon *-*-* 07:45:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=automation@tripwires.service
+
+[Install]
+WantedBy=timers.target

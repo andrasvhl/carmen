@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule for automation job heartbeat
+
+[Timer]
+OnCalendar=*-*-* 07:30:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=automation@heartbeat.service
+
+[Install]
+WantedBy=timers.target

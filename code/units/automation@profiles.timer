@@ -1,0 +1,12 @@
+[Unit]
+Description=Schedule for automation job profiles
+
+[Timer]
+# Monday, alongside the other weekly sweeps, before the digest.
+OnCalendar=Mon *-*-* 07:49:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=automation@profiles.service
+
+[Install]
+WantedBy=timers.target

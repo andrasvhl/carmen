@@ -1,0 +1,15 @@
+
+[Unit]
+Description=Schedule for automation job canvas_tasks
+
+[Timer]
+# 05:30 Pacific: before he is up, so a task edit racing his phone is unlikely.
+OnCalendar=*-*-* 05:30:00 America/Los_Angeles
+# Run on next boot if the box was down when this was due.
+Persistent=true
+# Stagger, so several jobs never start in the same second.
+RandomizedDelaySec=300
+Unit=automation@canvas_tasks.service
+
+[Install]
+WantedBy=timers.target

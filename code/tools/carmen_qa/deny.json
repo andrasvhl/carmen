@@ -1,0 +1,22 @@
+{
+  "deny": [
+    "RemoteTrigger",
+    "CronCreate",
+    "PushNotification",
+    "SendMessage",
+    "Workflow",
+    "mcp__*",
+    "Bash(ssh *)",
+    "Bash(scp *)",
+    "Bash(curl *)",
+    "Bash(wget *)",
+    "Bash(* tools.chat send *)",
+    "Bash(*beeper*)",
+    "Bash(*waha*)",
+    "Bash(*sendmail*)",
+    "Bash(*smtp*)",
+    "Bash(*gws*)",
+    "Bash(*notify*)",
+    "Bash(*telegram*)"
+  ]
+}

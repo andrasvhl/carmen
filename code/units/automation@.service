@@ -1,0 +1,21 @@
+[Unit]
+Description=Automation job %i
+After=network-online.target
+Wants=network-online.target
+# The job itself breaking is a different event from the job finding a
+# problem. This only fires for the former.
+OnFailure=automation-alert@%i.service
+
+[Service]
+Type=oneshot
+User=<user>
+WorkingDirectory=/home/<user>/automation
+Environment=HOME=/home/<user>
+Environment=PYTHONUNBUFFERED=1
+# Via the wrapper, never a hardcoded interpreter: some jobs need the repo
+# virtualenv (fitness sync's Strava and WHOOP clients), and a second template
+# for those would be a second architecture.
+ExecStart=/home/<user>/automation/bin/run-job %i
+# No StandardOutput=append:. Everything goes to journald, which rotates.
+# claude-rc.log reached 555 MB because it redirected to a file instead.
+TimeoutStartSec=600

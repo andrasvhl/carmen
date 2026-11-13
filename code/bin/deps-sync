@@ -1,0 +1,28 @@
+#!/bin/bash
+# Keep ~/automation/.venv level with requirements.txt, on both machines (Nov 11, the owner: "This
+# should be automatically synced"). requirements.txt is the whole list: a package is installed
+# only by adding it there, never by hand, because hand installs on vault-host left the Mac without
+# Carmen's packages and `vt step add` crashed there.
+# Cheap when nothing changed (one hash): installs only when requirements.txt differs from what was
+# last installed (stamp .venv/.requirements.sha256), then runs `pip check`. Silent on success;
+# prints one "Note:" line when it installed or failed, so a SessionStart hook or a job log shows it.
+# Called by bin/mac-sync after every fast-forward on the Mac and by bin/run-job before every job on
+# vault-host. A lock directory (no flock on macOS) keeps parallel jobs from installing twice.
+cd "$HOME/automation" 2>/dev/null || exit 0
+PY=.venv/bin/python
+[ -x "$PY" ] || { echo "Note: ~/automation/.venv is missing on $(hostname -s); create it: python3.14 -m venv ~/automation/.venv && ~/automation/bin/deps-sync"; exit 0; }
+want=$(shasum -a 256 requirements.txt 2>/dev/null || sha256sum requirements.txt)
+want=${want%% *}
+# S-2
+[ "$(cat .venv/.requirements.sha256 2>/dev/null)" = "$want" ] && exit 0
+lock=.venv/.deps-sync.lock
+mkdir "$lock" 2>/dev/null || exit 0          # another run is installing right now
+trap 'rmdir "$lock"' EXIT
+if out=$("$PY" -m pip install -q --disable-pip-version-check -r requirements.txt 2>&1) \
+   && chk=$("$PY" -m pip check 2>&1); then
+  echo "$want" > .venv/.requirements.sha256
+  echo "Note: ~/automation/.venv on $(hostname -s) updated to the current requirements.txt."
+else
+  echo "Note: deps-sync failed on $(hostname -s): $(printf '%s\n%s' "$out" "$chk" | tail -3 | tr '\n' ' ')"
+fi
+exit 0

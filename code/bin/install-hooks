@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Install the git hooks for ~/automation (bin/git-hook) as thin shims in the repository's shared
+# hooks directory, so every worktree has them. .git/hooks is not versioned, so this script is the
+# record of what is installed; the heartbeat checks it is (jobs/heartbeat.py). vault-host only.
+set -euo pipefail
+[ "$(uname)" = Linux ] || { echo "install-hooks: vault-host only (the Mac never commits)"; exit 0; }
+cd "$HOME/automation"
+dir="$(git rev-parse --git-common-dir)/hooks"
+mkdir -p "$dir"
+for h in pre-commit commit-msg post-commit pre-merge-commit post-merge pre-receive reference-transaction; do
+  printf '#!/bin/sh\n# automation git-hook shim (bin/install-hooks)\nexec "$HOME/automation/bin/git-hook" %s "$@"\n' "$h" > "$dir/$h"
+  chmod +x "$dir/$h"
+done
+echo "installed: $(ls "$dir" | grep -v sample | tr '\n' ' ')"
